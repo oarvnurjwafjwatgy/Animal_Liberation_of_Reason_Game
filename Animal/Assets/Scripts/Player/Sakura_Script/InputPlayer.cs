@@ -8,13 +8,6 @@ public class InputPlayer : MonoBehaviour
 {
     public float moveSpeed = 5.0f; // キャラクターの移動速度
 
-    // ▼▼▼ 【ここから追加】 ▼▼▼
-    [Header("コンポーネント参照")]
-    [Tooltip("インスペクターで、このプレハブの子オブジェクトの Camera をドラッグ＆ドロップしてください")]
-    [SerializeField]
-    private Camera playerCameraComponent; // 自分のカメラをインスペクターから登録する
-    // ▲▲▲ 【ここまで追加】 ▲▲▲
-
     // 参照するコンポーネント
     private Rigidbody rb;
     private Controller controller; // 作成した Controller クラス
@@ -52,13 +45,4 @@ public class InputPlayer : MonoBehaviour
         }
     }
 
-    // ▼▼▼ 【ここから追加】 ▼▼▼
-    /// <summary>
-    /// 【重要】登録されている自分のカメラを PlayerManager に渡す
-    /// </summary>
-    public Camera GetPlayerCamera()
-    {
-        return playerCameraComponent;
-    }
-    // ▲▲▲ 【ここまで追加】 ▲▲▲
 }
