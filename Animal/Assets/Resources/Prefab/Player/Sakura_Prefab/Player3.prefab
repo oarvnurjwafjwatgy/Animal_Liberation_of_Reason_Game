@@ -263,7 +263,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 112
   m_CollisionDetection: 0
 --- !u!114 &221328806100846480
 MonoBehaviour:
@@ -308,4 +308,3 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 5
-  playerCameraComponent: {fileID: 1464980750221687992}
