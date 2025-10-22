@@ -24,7 +24,7 @@ public class PlayerManager : MonoBehaviour
         int playersToSpawn = Mathf.Min(gamepadCount, maxPlayers);
 
         // 要望: 2～4人の場合のみ生成する
-        if (playersToSpawn < 2)
+        if (playersToSpawn < 1)
         {
             Debug.LogWarning($"接続されたコントローラーが {playersToSpawn} 個です。2個以上必要です。");
             return; // 2人未満なら処理を中断
