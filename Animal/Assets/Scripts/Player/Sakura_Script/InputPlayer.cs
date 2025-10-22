@@ -2,15 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// このスクリプトも Rigidbody と Controller が必要です
-// (Controller が Rigidbody を要求しているので、RequireComponent はどちらか片方でも機能しますが、
-//  PlayerMovement が直接 Rigidbody を使うため、こちらにも書くのが分かりやすいです)
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(Controller))]
-
 public class InputPlayer : MonoBehaviour
 {
     public float moveSpeed = 5.0f; // キャラクターの移動速度
+
+    // ▼▼▼ 【ここから追加】 ▼▼▼
+    [Header("コンポーネント参照")]
+    [Tooltip("インスペクターで、このプレハブの子オブジェクトの Camera をドラッグ＆ドロップしてください")]
+    [SerializeField]
+    private Camera playerCameraComponent; // 自分のカメラをインスペクターから登録する
+    // ▲▲▲ 【ここまで追加】 ▲▲▲
 
     // 参照するコンポーネント
     private Rigidbody rb;
@@ -22,13 +25,11 @@ public class InputPlayer : MonoBehaviour
         TryGetComponent(out rb);
         TryGetComponent(out controller);
 
-        // もし controller が null の場合はエラーログを出しておくと安全です
         if (controller == null)
         {
             Debug.LogError("Controller コンポーネントが見つかりません！");
         }
     }
-
 
     // 物理演算は FixedUpdate で行います
     private void FixedUpdate()
@@ -40,11 +41,9 @@ public class InputPlayer : MonoBehaviour
             Vector2 leftStickInput = controller.GetLeftStick();
 
             // 2. 入力値 (Vector2) を 3D の移動方向 (Vector3) に変換
-            //    (leftStickInput.y は奥・手前なので Vector3 の z に対応)
             Vector3 moveDirection = new Vector3(leftStickInput.x, 0, leftStickInput.y);
 
             // 3. Rigidbody の速度 (velocity) を変更して移動させる
-            //    (Y軸の速度は現在の重力などによる落下速度を維持)
             rb.velocity = new Vector3(
                 moveDirection.x * moveSpeed,
                 rb.velocity.y, // Y軸は変更しない
@@ -52,4 +51,14 @@ public class InputPlayer : MonoBehaviour
             );
         }
     }
+
+    // ▼▼▼ 【ここから追加】 ▼▼▼
+    /// <summary>
+    /// 【重要】登録されている自分のカメラを PlayerManager に渡す
+    /// </summary>
+    public Camera GetPlayerCamera()
+    {
+        return playerCameraComponent;
+    }
+    // ▲▲▲ 【ここまで追加】 ▲▲▲
 }
