@@ -8,7 +8,7 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(Controller))]
 
-public class Player : MonoBehaviour
+public class InputPlayer : MonoBehaviour
 {
     public float moveSpeed = 5.0f; // キャラクターの移動速度
 
