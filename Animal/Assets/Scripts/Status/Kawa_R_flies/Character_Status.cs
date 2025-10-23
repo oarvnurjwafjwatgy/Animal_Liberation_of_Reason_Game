@@ -5,14 +5,24 @@ public class Character_Status : MonoBehaviour
 	/******ステータス変数*************/
 	[Header("基本ステータス")]
 	[SerializeField] protected int MaxHP = 100;                         // キャラクター最大HP
-	[SerializeField] protected int MaxReason = 100;                     // キャラクター最大HP
-	[SerializeField] protected int ResonPoint = 100;                    // 理性ゲージ
-	[SerializeField] protected int decrease_in_reason_time = 1;         // 理性ゲージ減少ダメージ
-	[SerializeField] protected int Attackpower = 10;                    // キャラクター攻撃力
-	[SerializeField] protected int Defensepower = 20;                   // キャラクター防御力
+	[SerializeField] protected int MaxReason = 100;                     // キャラクター理性最大HP
+	[SerializeField] protected int ReasonPoint = 100;                    // 理性ゲージ
+	[SerializeField] protected int Decrease_in_reason_time = 1;         // 理性ゲージ減少ダメージ
+	[SerializeField] protected int AttackPower = 10;                    // キャラクター攻撃力
+	[SerializeField] protected int DefensePower = 20;                   // キャラクター防御力
 	[SerializeField] protected float MoveSpeed = 5.0f;                  // キャラクター移動速度
 
-	private float timer = 0f;
+
+	[Header("理性解放状態ステータス")]
+	[SerializeField] protected int ReasonHP = 200;                      // キャラクター理性解放時最大HP
+	[SerializeField] protected int ReasonAttackPower = 50;              // キャラクター理性解放時攻撃力
+	[SerializeField] protected int ReasonDefensePower = 60;             // キャラクター理性解放時攻撃力
+	[SerializeField] protected float ReasonMoveSpeed = 1.0f;            // キャラクター移動速度
+
+
+
+	private float timer = 0f;       //理性ゲージ減少用タイマー
+
 
 	public int CurrentHP { get; protected set; }    // キャラクター現在HP(外部読み取り可、内部変更可)
 	public int CurrentReason { get; protected set; }    // キャラクター現在理性HP(外部読み取り可、内部変更可)
@@ -71,8 +81,7 @@ public class Character_Status : MonoBehaviour
 					break;
 
 				case Mode.SPSIAL_ANIMAL:
-					CharaMode = Mode.ANIMAL;
-					Debug.Log("モードがエニモーに変化した。");
+					DefaultGetStatus();
 					break;
 			}
 		}
@@ -89,7 +98,8 @@ public class Character_Status : MonoBehaviour
 				timer += Time.deltaTime;
 				if (timer >= 1f)
 				{
-					Mode_SpsialAnimal(decrease_in_reason_time);
+					Mode_SpsialAnimal();
+					timer = 0f;
 				}
 				break;
 		}
@@ -106,7 +116,7 @@ public class Character_Status : MonoBehaviour
 		else if (CharaMode == Mode.SPSIAL_ANIMAL)
 		{
 			// ダメージ計算（防御力を考慮）
-			int actualDamage = Mathf.Max(damage - Defensepower, 0);
+			int actualDamage = Mathf.Max(damage - DefensePower, 0);
 			CurrentReason -= actualDamage; // 理性ゲージ減少処理
 		}
 
@@ -119,35 +129,42 @@ public class Character_Status : MonoBehaviour
 	}
 
 	//現在HP取得関数
-	private int GetCurrentHP()
+	public int GetCurrentHP()
 	{
 		return CurrentHP;
 	}
 
 	//理性ゲージ取得関数
-	private int GetResonPoint()
+	public int GetResonPoint()
 	{
-		return ResonPoint;
+		return ReasonPoint;
 	}
 
 	//攻撃力取得関数
-	private int GetAttackPower()
+	public int GetAttackPower()
 	{
-		return Attackpower;
+		return AttackPower;
 	}
 
 	//防御力取得関数
-	private int GetDefensePower()
+	public int GetDefensePower()
 	{
-		return Defensepower;
+		return DefensePower;
 	}
 
 	//移動速度取得関数
-	private float GetMoveSpeed()
+	public float GetMoveSpeed()
 	{
 		return MoveSpeed;
 	}
 
+	//切り替え時Animalステータス取得関数
+	public void DefaultGetStatus()
+	{
+		CharaMode = Mode.ANIMAL;
+		Debug.Log("モードがエニモーに変化した。");
+
+	}
 
 	//死亡処理関数
 	protected virtual void Die()
@@ -163,20 +180,20 @@ public class Character_Status : MonoBehaviour
 		// エニモーモードの受けたダメージ処理
 
 		// ダメージ計算（防御力を考慮）
-		int actualDamage = Mathf.Max(damage - Defensepower, 0);
+		int actualDamage = Mathf.Max(damage - DefensePower, 0);
 		Debug.Log($"{gameObject.name} は" + actualDamage + "のダメージを受けた。");
 		CurrentHP -= actualDamage;
 
 		Debug.Log("現在のHP:" + CurrentHP);
 	}
 
-	protected virtual void Mode_SpsialAnimal(int damage)
+	protected virtual void Mode_SpsialAnimal()
 	{
 		int num = 0;
 
 		if (CurrentReason >= 0)
 		{
-			num = decrease_in_reason_time / 10;	 // 理性ゲージ減少量計算
+			num = Decrease_in_reason_time;		 // 理性ゲージ減少量計算
 			CurrentReason -= num;                // 理性ゲージ減少処理
 			Debug.Log("現在の理性ポイント:" + CurrentReason);
 		}

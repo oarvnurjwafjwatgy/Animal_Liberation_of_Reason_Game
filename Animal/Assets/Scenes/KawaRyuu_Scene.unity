@@ -314,7 +314,7 @@ Transform:
   m_GameObject: {fileID: 947103523}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.4519539, y: 1.5103939, z: -0.56733227}
+  m_LocalPosition: {x: -0.4519539, y: -0.5, z: -0.56733227}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -332,7 +332,7 @@ GameObject:
   - component: {fileID: 1842393534}
   - component: {fileID: 1842393533}
   - component: {fileID: 1842393532}
-  - component: {fileID: 1842393531}
+  - component: {fileID: 1842393536}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -340,22 +340,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1842393531
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1842393530}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cf40602d50eb93f4b8a7754d6137f445, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  MaxHP: 100
-  Attackpower: 10
-  Defensepower: 20
-  MoveSpeed: 5
 --- !u!65 &1842393532
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -442,6 +426,29 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1842393536
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1842393530}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf40602d50eb93f4b8a7754d6137f445, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MaxHP: 100
+  MaxReason: 100
+  ReasonPoint: 100
+  Decrease_in_reason_time: 1
+  AttackPower: 10
+  DefensePower: 20
+  MoveSpeed: 5
+  ReasonHP: 200
+  ReasonAttackPower: 50
+  ReasonDefensePower: 60
+  ReasonMoveSpeed: 1
 --- !u!1 &1857112152
 GameObject:
   m_ObjectHideFlags: 0
