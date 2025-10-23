@@ -1,10 +1,11 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Character_Status : MonoBehaviour
 {
 	/******ステータス変数*************/
 	[Header("基本ステータス")]
-	[SerializeField] protected int MaxHP = 100;                         // キャラクター最大HP
+	[SerializeField] protected int MaxHP = 400;                         // キャラクター最大HP
 	[SerializeField] protected int MaxReason = 100;                     // キャラクター理性最大HP
 	[SerializeField] protected int ReasonPoint = 100;                    // 理性ゲージ
 	[SerializeField] protected int Decrease_in_reason_time = 1;         // 理性ゲージ減少ダメージ
@@ -19,7 +20,7 @@ public class Character_Status : MonoBehaviour
 	[SerializeField] protected int ReasonDefensePower = 60;             // キャラクター理性解放時攻撃力
 	[SerializeField] protected float ReasonMoveSpeed = 1.0f;            // キャラクター移動速度
 
-
+	 private Slider hp_gauge;       //HPゲージUIスライダー参照用変数
 
 	private float timer = 0f;       //理性ゲージ減少用タイマー
 
@@ -50,6 +51,9 @@ public class Character_Status : MonoBehaviour
 	//初期化
 	private void Start()
 	{
+		//HPゲージのオブジェクトを探して自動的に取得させる。
+		GameObject sliderObject = GameObject.Find("HP_ber");
+
 		CharaState = State.IDLE;    // 初期状態を待機状態に設定
 		CharaMode = Mode.ANIMAL;    // 初期モードをエニモーに設定
 		CurrentHP = MaxHP;          // 現在HPに最大HPを代入
@@ -58,6 +62,24 @@ public class Character_Status : MonoBehaviour
 		GetAttackPower();           // 攻撃力取得
 		GetDefensePower();          // 防御力取得
 		GetMoveSpeed();             // 移動速度取得
+
+		// HPゲージスライダーコンポーネント取得
+		if (sliderObject != null)
+		{
+			hp_gauge = sliderObject.GetComponent<Slider>();
+		}
+
+		// HPゲージのオブジェクトに最大値と現在値を設定
+		if (hp_gauge != null)
+		{
+			hp_gauge.maxValue = CurrentHP;
+			hp_gauge.value = CurrentHP;
+		}
+		else
+		{
+			Debug.LogWarning("HPゲージが見つかりません。");
+		}
+
 	}
 
 	//更新
@@ -65,6 +87,12 @@ public class Character_Status : MonoBehaviour
 	{
 		GetCurrentHP();
 		GetResonPoint();
+
+		// HPゲージの現在値を更新
+		if (hp_gauge != null)
+		{
+			hp_gauge.value = CurrentHP;
+		}
 
 		if (Input.GetKeyDown(KeyCode.P))
 		{
@@ -169,6 +197,7 @@ public class Character_Status : MonoBehaviour
 	//死亡処理関数
 	protected virtual void Die()
 	{
+		hp_gauge.value = 0;
 		CharaState = State.DEAD; // 状態を死亡状態に変更
 		Debug.Log($"{gameObject.name} は死亡した。");
 
