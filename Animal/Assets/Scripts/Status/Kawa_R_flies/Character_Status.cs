@@ -7,11 +7,13 @@ public class Character_Status : MonoBehaviour
 	[Header("基本ステータス")]
 	[SerializeField] protected int MaxHP = 400;                         // キャラクター最大HP
 	[SerializeField] protected int MaxReason = 100;                     // キャラクター理性最大HP
-	[SerializeField] protected int ReasonPoint = 100;                    // 理性ゲージ
-	[SerializeField] protected int Decrease_in_reason_time = 1;         // 理性ゲージ減少ダメージ
+	[SerializeField] protected int ReasonPoint = 100;                   // 理性ゲージ
 	[SerializeField] protected int AttackPower = 10;                    // キャラクター攻撃力
 	[SerializeField] protected int DefensePower = 20;                   // キャラクター防御力
 	[SerializeField] protected float MoveSpeed = 5.0f;                  // キャラクター移動速度
+
+	[Header("理性ゲージ解放時の減少設定")]
+	[SerializeField] protected int Decrease_in_reason_time = 1;         // 理性ゲージ減少ダメージ
 
 
 	[Header("理性解放状態ステータス")]
@@ -20,7 +22,8 @@ public class Character_Status : MonoBehaviour
 	[SerializeField] protected int ReasonDefensePower = 60;             // キャラクター理性解放時攻撃力
 	[SerializeField] protected float ReasonMoveSpeed = 1.0f;            // キャラクター移動速度
 
-	 private Slider hp_gauge;       //HPゲージUIスライダー参照用変数
+	 private Slider hp_gauge;			 //HPゲージUIスライダー参照用変数
+	 private Slider reason_gauge;        //HPゲージUIスライダー参照用変数
 
 	private float timer = 0f;       //理性ゲージ減少用タイマー
 
@@ -52,7 +55,10 @@ public class Character_Status : MonoBehaviour
 	private void Start()
 	{
 		//HPゲージのオブジェクトを探して自動的に取得させる。
-		GameObject sliderObject = GameObject.Find("HP_ber");
+		GameObject hp_object = GameObject.Find("HP_ber");
+
+		//理性ゲージのオブジェクトを探して自動的に取得させる。
+		GameObject reason_object = GameObject.Find("Reason_ber");
 
 		CharaState = State.IDLE;    // 初期状態を待機状態に設定
 		CharaMode = Mode.ANIMAL;    // 初期モードをエニモーに設定
@@ -64,20 +70,23 @@ public class Character_Status : MonoBehaviour
 		GetMoveSpeed();             // 移動速度取得
 
 		// HPゲージスライダーコンポーネント取得
-		if (sliderObject != null)
+		if (hp_object != null)
 		{
-			hp_gauge = sliderObject.GetComponent<Slider>();
-		}
+			hp_gauge = hp_object.GetComponent<Slider>();
 
-		// HPゲージのオブジェクトに最大値と現在値を設定
-		if (hp_gauge != null)
-		{
-			hp_gauge.maxValue = CurrentHP;
+			// HPゲージのオブジェクトに最大値と現在値を設定
+			hp_gauge.maxValue = MaxHP;
 			hp_gauge.value = CurrentHP;
 		}
-		else
+
+		// 理性ゲージスライダーコンポーネント取得
+		if (reason_object != null)
 		{
-			Debug.LogWarning("HPゲージが見つかりません。");
+			reason_gauge = reason_object.GetComponent<Slider>();
+
+			// 理性ゲージのオブジェクトに最大値と現在値を設定
+			reason_gauge.maxValue = MaxReason;
+			hp_gauge.value = CurrentReason;
 		}
 
 	}
@@ -89,9 +98,10 @@ public class Character_Status : MonoBehaviour
 		GetResonPoint();
 
 		// HPゲージの現在値を更新
-		if (hp_gauge != null)
+		if (hp_gauge != null && reason_gauge != null)
 		{
 			hp_gauge.value = CurrentHP;
+			reason_gauge.value = CurrentReason;
 		}
 
 		if (Input.GetKeyDown(KeyCode.P))
@@ -216,19 +226,23 @@ public class Character_Status : MonoBehaviour
 		Debug.Log("現在のHP:" + CurrentHP);
 	}
 
+	//スペシャルエニモーモード理性ゲージ減少処理関数
 	protected virtual void Mode_SpsialAnimal()
 	{
 		int num = 0;
 
-		if (CurrentReason >= 0)
+		//もし理性が0より大きいなら理性ゲージを減少させる
+		if (CurrentReason > 0)
 		{
 			num = Decrease_in_reason_time;		 // 理性ゲージ減少量計算
 			CurrentReason -= num;                // 理性ゲージ減少処理
 			Debug.Log("現在の理性ポイント:" + CurrentReason);
 		}
+		//もし理性が0以下なら理性ゲージを0にして死亡処理を行う
 		else
 		{
 			CurrentReason = 0;
+			Die();
 		}
 	}
 }
