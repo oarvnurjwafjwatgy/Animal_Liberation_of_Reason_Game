@@ -50,6 +50,6 @@ public class Controller : MonoBehaviour
 
     public Vector2 GetRightStick()
     {
-        return 
+        return InputValueRightStick;
     }
 }
