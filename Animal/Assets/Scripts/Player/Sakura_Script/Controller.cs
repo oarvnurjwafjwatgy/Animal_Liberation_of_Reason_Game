@@ -8,13 +8,14 @@ using UnityEngine.InputSystem;
 
 public class Controller : MonoBehaviour
 {
-    public PlayerInput playerInput;
+    public PlayerInput PlayerInput;
 
-    private Vector2 input_value;
+    private Vector2 InputValueLeftStick;
+    private Vector2 InputValueRightStick ;
 
     private void Awake()
     {
-        TryGetComponent(out playerInput);
+        TryGetComponent(out PlayerInput);
     }
 
 
@@ -37,12 +38,18 @@ public class Controller : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        input_value = playerInput.actions["Move"].ReadValue<Vector2>();
+        InputValueLeftStick = PlayerInput.actions["Move"].ReadValue<Vector2>();
+        InputValueRightStick = PlayerInput.actions["Lock"].ReadValue<Vector2>();
     }
 
     //レフトスティックの傾きの取得
     public Vector2 GetLeftStick()
     {
-        return input_value;
+        return InputValueLeftStick;
+    }
+
+    public Vector2 GetRightStick()
+    {
+        return InputValueRightStick;
     }
 }
