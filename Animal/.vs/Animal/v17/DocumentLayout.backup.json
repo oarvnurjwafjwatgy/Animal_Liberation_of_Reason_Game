@@ -7,10 +7,6 @@
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scripts\\Status\\Kouki_files\\PlayerDamage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\datti\\OneDrive\\\u30C9\u30AD\u30E5\u30E1\u30F3\u30C8\\GitHub\\Animal_Liberation_of_Reason_Game\\Animal\\Assets\\Scripts\\Status\\Kawa_R_flies\\Test.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scripts\\Status\\Kawa_R_flies\\Test.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\datti\\OneDrive\\\u30C9\u30AD\u30E5\u30E1\u30F3\u30C8\\GitHub\\Animal_Liberation_of_Reason_Game\\Animal\\Assets\\Scripts\\Status\\Kawa_R_flies\\Character_Status.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scripts\\Status\\Kawa_R_flies\\Character_Status.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
@@ -22,7 +18,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Bookmark",
@@ -40,7 +36,7 @@
               "RelativeDocumentMoniker": "Assets\\Scripts\\Status\\Kouki_files\\PlayerDamage.cs",
               "ToolTip": "C:\\Users\\datti\\OneDrive\\\u30C9\u30AD\u30E5\u30E1\u30F3\u30C8\\GitHub\\Animal_Liberation_of_Reason_Game\\Animal\\Assets\\Scripts\\Status\\Kouki_files\\PlayerDamage.cs",
               "RelativeToolTip": "Assets\\Scripts\\Status\\Kouki_files\\PlayerDamage.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAABgAAABGAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-25T12:17:34.283Z",
               "EditorCaption": ""
@@ -48,27 +44,15 @@
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "Test.cs",
-              "DocumentMoniker": "C:\\Users\\datti\\OneDrive\\\u30C9\u30AD\u30E5\u30E1\u30F3\u30C8\\GitHub\\Animal_Liberation_of_Reason_Game\\Animal\\Assets\\Scripts\\Status\\Kawa_R_flies\\Test.cs",
-              "RelativeDocumentMoniker": "Assets\\Scripts\\Status\\Kawa_R_flies\\Test.cs",
-              "ToolTip": "C:\\Users\\datti\\OneDrive\\\u30C9\u30AD\u30E5\u30E1\u30F3\u30C8\\GitHub\\Animal_Liberation_of_Reason_Game\\Animal\\Assets\\Scripts\\Status\\Kawa_R_flies\\Test.cs",
-              "RelativeToolTip": "Assets\\Scripts\\Status\\Kawa_R_flies\\Test.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-25T12:04:55.07Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
               "Title": "Character_Status.cs",
               "DocumentMoniker": "C:\\Users\\datti\\OneDrive\\\u30C9\u30AD\u30E5\u30E1\u30F3\u30C8\\GitHub\\Animal_Liberation_of_Reason_Game\\Animal\\Assets\\Scripts\\Status\\Kawa_R_flies\\Character_Status.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Status\\Kawa_R_flies\\Character_Status.cs",
               "ToolTip": "C:\\Users\\datti\\OneDrive\\\u30C9\u30AD\u30E5\u30E1\u30F3\u30C8\\GitHub\\Animal_Liberation_of_Reason_Game\\Animal\\Assets\\Scripts\\Status\\Kawa_R_flies\\Character_Status.cs",
               "RelativeToolTip": "Assets\\Scripts\\Status\\Kawa_R_flies\\Character_Status.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAABAAAAAAAAAA==",
+              "ViewState": "AgIAACUAAAAAAAAAAAAcwDIAAAAgAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-21T06:12:01.357Z"
+              "WhenOpened": "2025-10-21T06:12:01.357Z",
+              "EditorCaption": ""
             }
           ]
         },

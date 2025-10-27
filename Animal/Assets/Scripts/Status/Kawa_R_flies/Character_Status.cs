@@ -24,6 +24,7 @@ public class Character_Status : MonoBehaviour
 
 	 private Slider hp_gauge;			 //HPゲージUIスライダー参照用変数
 	 private Slider reason_gauge;        //HPゲージUIスライダー参照用変数
+	private Animator animator;		     //アニメーター参照用変数
 
 	private float timer = 0f;       //理性ゲージ減少用タイマー
 
@@ -68,6 +69,8 @@ public class Character_Status : MonoBehaviour
 		GetAttackPower();           // 攻撃力取得
 		GetDefensePower();          // 防御力取得
 		GetMoveSpeed();             // 移動速度取得
+
+		animator = GetComponent<Animator>();
 
 		// HPゲージスライダーコンポーネント取得
 		if (hp_object != null)
@@ -115,15 +118,30 @@ public class Character_Status : MonoBehaviour
 			{
 				case Mode.ANIMAL:
 					CharaMode = Mode.SPSIAL_ANIMAL;
+					animator.SetBool("Reason", true);
 					Debug.Log("モードがスペシャルエニモーに変化した。");
 					break;
 
 				case Mode.SPSIAL_ANIMAL:
 					DefaultGetStatus();
+					animator.SetBool("Reason", false);
 					break;
 			}
 		}
 
+		if(Input.GetKeyDown(KeyCode.K))
+		{
+			switch (CharaMode)
+			{
+				case Mode.ANIMAL:
+					animator.SetTrigger("Attack");
+					break;
+				case Mode.SPSIAL_ANIMAL:
+					animator.SetTrigger("Reason_Attack");
+					break;
+			}
+			
+		}
 
 		switch (CharaMode)
 		{
