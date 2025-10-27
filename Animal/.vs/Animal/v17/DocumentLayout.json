@@ -3,12 +3,24 @@
   "WorkspaceRootPath": "C:\\Users\\datti\\OneDrive\\\u30C9\u30AD\u30E5\u30E1\u30F3\u30C8\\GitHub\\Animal_Liberation_of_Reason_Game\\Animal\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\datti\\OneDrive\\\u30C9\u30AD\u30E5\u30E1\u30F3\u30C8\\GitHub\\Animal_Liberation_of_Reason_Game\\Animal\\Assets\\Scripts\\Status\\Kouki_files\\PlayerDamage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scripts\\Status\\Kouki_files\\PlayerDamage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\datti\\OneDrive\\\u30C9\u30AD\u30E5\u30E1\u30F3\u30C8\\GitHub\\Animal_Liberation_of_Reason_Game\\Animal\\Assets\\Scripts\\Player\\Sakura_Script\\InputPlayer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scripts\\Player\\Sakura_Script\\InputPlayer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\datti\\OneDrive\\\u30C9\u30AD\u30E5\u30E1\u30F3\u30C8\\GitHub\\Animal_Liberation_of_Reason_Game\\Animal\\Assets\\Scripts\\Status\\Kawa_R_flies\\Character_Status.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scripts\\Status\\Kawa_R_flies\\Character_Status.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\datti\\OneDrive\\\u30C9\u30AD\u30E5\u30E1\u30F3\u30C8\\GitHub\\Animal_Liberation_of_Reason_Game\\Animal\\Assets\\Scripts\\Player\\Sakura_Script\\PlayerManager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scripts\\Player\\Sakura_Script\\PlayerManager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\datti\\OneDrive\\\u30C9\u30AD\u30E5\u30E1\u30F3\u30C8\\GitHub\\Animal_Liberation_of_Reason_Game\\Animal\\Assets\\Scripts\\Status\\Kouki_files\\PlayerDamage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scripts\\Status\\Kouki_files\\PlayerDamage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\datti\\OneDrive\\\u30C9\u30AD\u30E5\u30E1\u30F3\u30C8\\GitHub\\Animal_Liberation_of_Reason_Game\\Animal\\Assets\\Scripts\\Player\\Sakura_Script\\Controller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scripts\\Player\\Sakura_Script\\Controller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -31,12 +43,51 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "InputPlayer.cs",
+              "DocumentMoniker": "C:\\Users\\datti\\OneDrive\\\u30C9\u30AD\u30E5\u30E1\u30F3\u30C8\\GitHub\\Animal_Liberation_of_Reason_Game\\Animal\\Assets\\Scripts\\Player\\Sakura_Script\\InputPlayer.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Player\\Sakura_Script\\InputPlayer.cs",
+              "ToolTip": "C:\\Users\\datti\\OneDrive\\\u30C9\u30AD\u30E5\u30E1\u30F3\u30C8\\GitHub\\Animal_Liberation_of_Reason_Game\\Animal\\Assets\\Scripts\\Player\\Sakura_Script\\InputPlayer.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Player\\Sakura_Script\\InputPlayer.cs",
+              "ViewState": "AgIAACIAAAAAAAAAAAAcwDAAAABVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-27T01:59:05.899Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Controller.cs",
+              "DocumentMoniker": "C:\\Users\\datti\\OneDrive\\\u30C9\u30AD\u30E5\u30E1\u30F3\u30C8\\GitHub\\Animal_Liberation_of_Reason_Game\\Animal\\Assets\\Scripts\\Player\\Sakura_Script\\Controller.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Player\\Sakura_Script\\Controller.cs",
+              "ToolTip": "C:\\Users\\datti\\OneDrive\\\u30C9\u30AD\u30E5\u30E1\u30F3\u30C8\\GitHub\\Animal_Liberation_of_Reason_Game\\Animal\\Assets\\Scripts\\Player\\Sakura_Script\\Controller.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Player\\Sakura_Script\\Controller.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACMAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-27T01:58:13.35Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "PlayerManager.cs",
+              "DocumentMoniker": "C:\\Users\\datti\\OneDrive\\\u30C9\u30AD\u30E5\u30E1\u30F3\u30C8\\GitHub\\Animal_Liberation_of_Reason_Game\\Animal\\Assets\\Scripts\\Player\\Sakura_Script\\PlayerManager.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Player\\Sakura_Script\\PlayerManager.cs",
+              "ToolTip": "C:\\Users\\datti\\OneDrive\\\u30C9\u30AD\u30E5\u30E1\u30F3\u30C8\\GitHub\\Animal_Liberation_of_Reason_Game\\Animal\\Assets\\Scripts\\Player\\Sakura_Script\\PlayerManager.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Player\\Sakura_Script\\PlayerManager.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-27T01:53:31.891Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
               "Title": "PlayerDamage.cs",
               "DocumentMoniker": "C:\\Users\\datti\\OneDrive\\\u30C9\u30AD\u30E5\u30E1\u30F3\u30C8\\GitHub\\Animal_Liberation_of_Reason_Game\\Animal\\Assets\\Scripts\\Status\\Kouki_files\\PlayerDamage.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Status\\Kouki_files\\PlayerDamage.cs",
               "ToolTip": "C:\\Users\\datti\\OneDrive\\\u30C9\u30AD\u30E5\u30E1\u30F3\u30C8\\GitHub\\Animal_Liberation_of_Reason_Game\\Animal\\Assets\\Scripts\\Status\\Kouki_files\\PlayerDamage.cs",
               "RelativeToolTip": "Assets\\Scripts\\Status\\Kouki_files\\PlayerDamage.cs",
-              "ViewState": "AgIAAAYAAAAAAAAAAAAAABgAAABGAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-25T12:17:34.283Z",
               "EditorCaption": ""

@@ -39,7 +39,7 @@ public class Controller : MonoBehaviour
     void Update()
     {
         InputValueLeftStick = PlayerInput.actions["Move"].ReadValue<Vector2>();
-        InputValueRightStick = PlayerInput.actions["Lock"].ReadValue<Vector2>();
+        InputValueRightStick = PlayerInput.actions["Look"].ReadValue<Vector2>();
     }
 
     //レフトスティックの傾きの取得
