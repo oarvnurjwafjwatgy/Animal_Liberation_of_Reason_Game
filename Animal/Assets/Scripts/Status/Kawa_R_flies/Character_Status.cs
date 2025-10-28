@@ -42,7 +42,7 @@ public class Character_Status : MonoBehaviour
 	}
 
 	/**********モード*******************/
-	enum Mode
+	public enum Mode
 	{
 		ANIMAL,         // エニモー
 		SPSIAL_ANIMAL   // スペシャルエニモー
@@ -114,19 +114,7 @@ public class Character_Status : MonoBehaviour
 
 		if (Input.GetKeyDown(KeyCode.O))
 		{
-			switch (CharaMode)
-			{
-				case Mode.ANIMAL:
-					CharaMode = Mode.SPSIAL_ANIMAL;
-					animator.SetBool("Reason", true);
-					Debug.Log("モードがスペシャルエニモーに変化した。");
-					break;
-
-				case Mode.SPSIAL_ANIMAL:
-					DefaultGetStatus();
-					animator.SetBool("Reason", false);
-					break;
-			}
+			GetModeChange();
 		}
 
 		if(Input.GetKeyDown(KeyCode.K))
@@ -134,10 +122,10 @@ public class Character_Status : MonoBehaviour
 			switch (CharaMode)
 			{
 				case Mode.ANIMAL:
-					animator.SetTrigger("Attack");
+					
 					break;
 				case Mode.SPSIAL_ANIMAL:
-					animator.SetTrigger("Reason_Attack");
+
 					break;
 			}
 			
@@ -212,6 +200,29 @@ public class Character_Status : MonoBehaviour
 	public float GetMoveSpeed()
 	{
 		return MoveSpeed;
+	}
+
+	public Mode GetMode()
+	{
+		return CharaMode;
+	}
+
+	//モードが切り替え時に呼び出す関数
+	public void GetModeChange()
+	{
+		switch (CharaMode)
+		{
+			case Mode.ANIMAL:
+				CharaMode = Mode.SPSIAL_ANIMAL;
+				animator.SetBool("Reason", true);
+				Debug.Log("モードがスペシャルエニモーに変化した。");
+				break;
+
+			case Mode.SPSIAL_ANIMAL:
+				DefaultGetStatus();
+				animator.SetBool("Reason", false);
+				break;
+		}
 	}
 
 	//切り替え時Animalステータス取得関数

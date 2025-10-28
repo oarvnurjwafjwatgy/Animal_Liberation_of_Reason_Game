@@ -1,6 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(Controller))]
@@ -9,16 +8,23 @@ public class InputPlayer : MonoBehaviour
     public float moveSpeed = 5.0f; // キャラクターの移動速度
     public GameObject cameraObject;
 
-    // 参照するコンポーネント
-    private Rigidbody rb;
+
+    Character_Status character_Status;
+    private Animator animator;
+
+	// 参照するコンポーネント
+	private Rigidbody rb;
     private Controller controller; // 作成した Controller クラス
 
     // Start is called before the first frame update
     void Start()
     {
         cameraObject = transform.GetChild(0).gameObject;
-        //cameraObject = GameObject.Find("Camera");
-    }
+        GameObject My = this.gameObject;
+		character_Status = My.GetComponent<Character_Status>();
+		//cameraObject = GameObject.Find("Camera");
+		animator = GetComponent<Animator>();
+	}
 
     private void Awake()
     {
@@ -31,6 +37,24 @@ public class InputPlayer : MonoBehaviour
             Debug.LogError("Controller コンポーネントが見つかりません！");
         }
     }
+
+	private void OnEnable()
+	{
+        controller.PlayerInput.actions["Attack"].started += OnAttack;
+        controller.PlayerInput.actions["ModeChange"].started += OnModeChange;
+	}
+
+	private void OnDisable()
+	{
+        controller.PlayerInput.actions["Attack"].started -= OnAttack;
+        controller.PlayerInput.actions["ModeChange"].started -= OnModeChange;
+	}
+
+	private void Update()
+    {
+    }
+
+
 
     // 物理演算は FixedUpdate で行います
     private void FixedUpdate()
@@ -71,7 +95,7 @@ public class InputPlayer : MonoBehaviour
         }
         // カメラの縦移動
         float camera_angle_x = cameraObject.transform.localEulerAngles.x;
-        Debug.Log(camera_angle_x);
+        //Debug.Log(camera_angle_x);
         if (rightStickInput.y > 0.25f && (camera_angle_x < 80f || camera_angle_x <= 360f && camera_angle_x > 180f))
         {
             // 上移動
@@ -82,5 +106,33 @@ public class InputPlayer : MonoBehaviour
             // 下移動
             cameraObject.transform.RotateAround(this.transform.position, cameraObject.transform.right, rightStickInput.y * Time.deltaTime * 200f);
         }
+    }
+
+
+    private void OnAttack(InputAction.CallbackContext context)
+    {
+        Debug.Log("攻撃");
+
+        switch(character_Status.GetMode())
+        {
+            case Character_Status.Mode.ANIMAL:
+                // 動物モードの攻撃処理
+                Debug.Log("動物モードの攻撃");
+				animator.SetTrigger("Attack");
+				break;
+
+            case Character_Status.Mode.SPSIAL_ANIMAL:
+                // スペシャルアニマルモードの攻撃処理
+                Debug.Log("スペシャルアニマルモードの攻撃");
+				animator.SetTrigger("Reason_Attack");
+				break;
+		}
+	}
+
+    private void OnModeChange(InputAction.CallbackContext context)
+    {
+        character_Status.GetModeChange();
+
+        Debug.Log("チェンジ");
     }
 }
