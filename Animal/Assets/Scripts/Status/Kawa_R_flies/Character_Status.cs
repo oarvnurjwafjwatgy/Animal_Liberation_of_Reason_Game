@@ -22,12 +22,14 @@ public class Character_Status : MonoBehaviour
 	[SerializeField] protected int ReasonDefensePower = 60;             // キャラクター理性解放時攻撃力
 	[SerializeField] protected float ReasonMoveSpeed = 1.0f;            // キャラクター移動速度
 
-	 private Slider hp_gauge;			 //HPゲージUIスライダー参照用変数
-	 private Slider reason_gauge;        //HPゲージUIスライダー参照用変数
-	private Animator animator;		     //アニメーター参照用変数
+	private Slider hp_gauge;			   //HPゲージUIスライダー参照用変数
+	private Slider reason_gauge;        //HPゲージUIスライダー参照用変数
+	private Animator animator;		   //アニメーター参照用変数
 
 	private float timer = 0f;       //理性ゲージ減少用タイマー
 
+	public GameObject hp_object;
+	public GameObject reason_object;
 
 	public int CurrentHP { get; protected set; }    // キャラクター現在HP(外部読み取り可、内部変更可)
 	public int CurrentReason { get; protected set; }    // キャラクター現在理性HP(外部読み取り可、内部変更可)
@@ -56,10 +58,10 @@ public class Character_Status : MonoBehaviour
 	private void Start()
 	{
 		//HPゲージのオブジェクトを探して自動的に取得させる。
-		GameObject hp_object = GameObject.Find("HP_ber");
+		//hp_object = GameObject.Find("HP_ber");
 
 		//理性ゲージのオブジェクトを探して自動的に取得させる。
-		GameObject reason_object = GameObject.Find("Reason_ber");
+		//reason_object = GameObject.Find("Reason_ber");
 
 		CharaState = State.IDLE;    // 初期状態を待機状態に設定
 		CharaMode = Mode.ANIMAL;    // 初期モードをエニモーに設定
@@ -71,27 +73,6 @@ public class Character_Status : MonoBehaviour
 		GetMoveSpeed();             // 移動速度取得
 
 		animator = GetComponent<Animator>();
-
-		// HPゲージスライダーコンポーネント取得
-		if (hp_object != null)
-		{
-			hp_gauge = hp_object.GetComponent<Slider>();
-
-			// HPゲージのオブジェクトに最大値と現在値を設定
-			hp_gauge.maxValue = MaxHP;
-			hp_gauge.value = CurrentHP;
-		}
-
-		// 理性ゲージスライダーコンポーネント取得
-		if (reason_object != null)
-		{
-			reason_gauge = reason_object.GetComponent<Slider>();
-
-			// 理性ゲージのオブジェクトに最大値と現在値を設定
-			reason_gauge.maxValue = MaxReason;
-			hp_gauge.value = CurrentReason;
-		}
-
 	}
 
 	//更新
@@ -148,6 +129,30 @@ public class Character_Status : MonoBehaviour
 				break;
 		}
 	}
+
+	public void InitGauges()
+	{
+		// HPゲージスライダーコンポーネント取得
+		if (hp_object != null)
+		{
+			hp_gauge = hp_object.GetComponent<Slider>();
+
+			// HPゲージのオブジェクトに最大値と現在値を設定
+			hp_gauge.maxValue = MaxHP;
+			hp_gauge.value = CurrentHP;
+		}
+
+		// 理性ゲージスライダーコンポーネント取得
+		if (reason_object != null)
+		{
+			reason_gauge = reason_object.GetComponent<Slider>();
+
+			// 理性ゲージのオブジェクトに最大値と現在値を設定
+			reason_gauge.maxValue = MaxReason;
+			reason_gauge.value = CurrentReason;
+		}
+	}
+
 
 	//死亡処理関数&ダメージ処理関数
 	protected virtual void TakeDamage(int damage)

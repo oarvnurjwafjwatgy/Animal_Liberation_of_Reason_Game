@@ -3,24 +3,28 @@
   "WorkspaceRootPath": "C:\\Users\\ryuki\\Desktop\\Animal_Liberation_of_Reason_Game\\Animal\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{876C89E8-3DE6-FE5F-7497-1EDBBE7C0BEE}|Assembly-CSharp.csproj|C:\\Users\\ryuki\\Desktop\\Animal_Liberation_of_Reason_Game\\Animal\\Assets\\Scripts\\Status\\Kawa_R_flies\\Character_Status.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{876C89E8-3DE6-FE5F-7497-1EDBBE7C0BEE}|Assembly-CSharp.csproj|solutionrelative:Assets\\Scripts\\Status\\Kawa_R_flies\\Character_Status.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{876C89E8-3DE6-FE5F-7497-1EDBBE7C0BEE}|Assembly-CSharp.csproj|c:\\users\\ryuki\\desktop\\animal_liberation_of_reason_game\\animal\\assets\\scripts\\ui\\kawa_r_file\\uimanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{876C89E8-3DE6-FE5F-7497-1EDBBE7C0BEE}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\ui\\kawa_r_file\\uimanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{876C89E8-3DE6-FE5F-7497-1EDBBE7C0BEE}|Assembly-CSharp.csproj|c:\\users\\ryuki\\desktop\\animal_liberation_of_reason_game\\animal\\assets\\scripts\\player\\sakura_script\\inputplayer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{876C89E8-3DE6-FE5F-7497-1EDBBE7C0BEE}|Assembly-CSharp.csproj|C:\\Users\\ryuki\\Desktop\\Animal_Liberation_of_Reason_Game\\Animal\\assets\\scripts\\player\\sakura_script\\inputplayer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{876C89E8-3DE6-FE5F-7497-1EDBBE7C0BEE}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\player\\sakura_script\\inputplayer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{876C89E8-3DE6-FE5F-7497-1EDBBE7C0BEE}|Assembly-CSharp.csproj|C:\\Users\\ryuki\\Desktop\\Animal_Liberation_of_Reason_Game\\Animal\\assets\\scripts\\status\\kawa_r_flies\\character_status.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{876C89E8-3DE6-FE5F-7497-1EDBBE7C0BEE}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\status\\kawa_r_flies\\character_status.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{876C89E8-3DE6-FE5F-7497-1EDBBE7C0BEE}|Assembly-CSharp.csproj|c:\\users\\ryuki\\desktop\\animal_liberation_of_reason_game\\animal\\assets\\scripts\\player\\kawa_r_scripts\\p1process.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{876C89E8-3DE6-FE5F-7497-1EDBBE7C0BEE}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\player\\kawa_r_scripts\\p1process.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{876C89E8-3DE6-FE5F-7497-1EDBBE7C0BEE}|Assembly-CSharp.csproj|C:\\Users\\ryuki\\Desktop\\Animal_Liberation_of_Reason_Game\\Animal\\assets\\scripts\\player\\sakura_script\\playermanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{876C89E8-3DE6-FE5F-7497-1EDBBE7C0BEE}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\player\\sakura_script\\playermanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{876C89E8-3DE6-FE5F-7497-1EDBBE7C0BEE}|Assembly-CSharp.csproj|C:\\Users\\ryuki\\Desktop\\Animal_Liberation_of_Reason_Game\\Animal\\Assets\\Scripts\\Player\\Sakura_Script\\Controller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{876C89E8-3DE6-FE5F-7497-1EDBBE7C0BEE}|Assembly-CSharp.csproj|solutionrelative:Assets\\Scripts\\Player\\Sakura_Script\\Controller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{876C89E8-3DE6-FE5F-7497-1EDBBE7C0BEE}|Assembly-CSharp.csproj|C:\\Users\\ryuki\\Desktop\\Animal_Liberation_of_Reason_Game\\Animal\\Assets\\Scripts\\Status\\Kouki_files\\PlayerDamage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{876C89E8-3DE6-FE5F-7497-1EDBBE7C0BEE}|Assembly-CSharp.csproj|solutionrelative:Assets\\Scripts\\Status\\Kouki_files\\PlayerDamage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{876C89E8-3DE6-FE5F-7497-1EDBBE7C0BEE}|Assembly-CSharp.csproj|C:\\Users\\ryuki\\Desktop\\Animal_Liberation_of_Reason_Game\\Animal\\Assets\\Scripts\\Player\\Sakura_Script\\PlayerManager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{876C89E8-3DE6-FE5F-7497-1EDBBE7C0BEE}|Assembly-CSharp.csproj|solutionrelative:Assets\\Scripts\\Player\\Sakura_Script\\PlayerManager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -30,11 +34,37 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 5,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "P1Process.cs",
+              "DocumentMoniker": "C:\\Users\\ryuki\\Desktop\\Animal_Liberation_of_Reason_Game\\Animal\\Assets\\Scripts\\Player\\Kawa_R_Scripts\\P1Process.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Player\\Kawa_R_Scripts\\P1Process.cs",
+              "ToolTip": "C:\\Users\\ryuki\\Desktop\\Animal_Liberation_of_Reason_Game\\Animal\\Assets\\Scripts\\Player\\Kawa_R_Scripts\\P1Process.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Player\\Kawa_R_Scripts\\P1Process.cs",
+              "ViewState": "AgIAADAAAAAAAAAAAAAIwDoAAAAZAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-28T05:46:31.023Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "UIManager.cs",
+              "DocumentMoniker": "C:\\Users\\ryuki\\Desktop\\Animal_Liberation_of_Reason_Game\\Animal\\Assets\\Scripts\\UI\\kawa_R_file\\UIManager.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\UI\\kawa_R_file\\UIManager.cs",
+              "ToolTip": "C:\\Users\\ryuki\\Desktop\\Animal_Liberation_of_Reason_Game\\Animal\\Assets\\Scripts\\UI\\kawa_R_file\\UIManager.cs",
+              "RelativeToolTip": "Assets\\Scripts\\UI\\kawa_R_file\\UIManager.cs",
+              "ViewState": "AgIAAB4AAAAAAAAAAAAIwAwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-28T02:42:46.713Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -44,14 +74,14 @@
               "RelativeDocumentMoniker": "Assets\\Scripts\\Player\\Sakura_Script\\InputPlayer.cs",
               "ToolTip": "C:\\Users\\ryuki\\Desktop\\Animal_Liberation_of_Reason_Game\\Animal\\Assets\\Scripts\\Player\\Sakura_Script\\InputPlayer.cs",
               "RelativeToolTip": "Assets\\Scripts\\Player\\Sakura_Script\\InputPlayer.cs",
-              "ViewState": "AgIAAFkAAAAAAAAAAAAgwH4AAAApAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAH4AAAApAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-27T01:59:05.899Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 5,
               "Title": "Controller.cs",
               "DocumentMoniker": "C:\\Users\\ryuki\\Desktop\\Animal_Liberation_of_Reason_Game\\Animal\\Assets\\Scripts\\Player\\Sakura_Script\\Controller.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Player\\Sakura_Script\\Controller.cs",
@@ -59,8 +89,7 @@
               "RelativeToolTip": "Assets\\Scripts\\Player\\Sakura_Script\\Controller.cs",
               "ViewState": "AgIAABsAAAAAAAAAAAAIwBIAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-27T01:58:13.35Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-27T01:58:13.35Z"
             },
             {
               "$type": "Document",
@@ -70,32 +99,19 @@
               "RelativeDocumentMoniker": "Assets\\Scripts\\Player\\Sakura_Script\\PlayerManager.cs",
               "ToolTip": "C:\\Users\\ryuki\\Desktop\\Animal_Liberation_of_Reason_Game\\Animal\\Assets\\Scripts\\Player\\Sakura_Script\\PlayerManager.cs",
               "RelativeToolTip": "Assets\\Scripts\\Player\\Sakura_Script\\PlayerManager.cs",
-              "ViewState": "AgIAAAYAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAtAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-27T01:53:31.891Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "PlayerDamage.cs",
-              "DocumentMoniker": "C:\\Users\\ryuki\\Desktop\\Animal_Liberation_of_Reason_Game\\Animal\\Assets\\Scripts\\Status\\Kouki_files\\PlayerDamage.cs",
-              "RelativeDocumentMoniker": "Assets\\Scripts\\Status\\Kouki_files\\PlayerDamage.cs",
-              "ToolTip": "C:\\Users\\ryuki\\Desktop\\Animal_Liberation_of_Reason_Game\\Animal\\Assets\\Scripts\\Status\\Kouki_files\\PlayerDamage.cs",
-              "RelativeToolTip": "Assets\\Scripts\\Status\\Kouki_files\\PlayerDamage.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAFAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-25T12:17:34.283Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 2,
               "Title": "Character_Status.cs",
               "DocumentMoniker": "C:\\Users\\ryuki\\Desktop\\Animal_Liberation_of_Reason_Game\\Animal\\Assets\\Scripts\\Status\\Kawa_R_flies\\Character_Status.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Status\\Kawa_R_flies\\Character_Status.cs",
               "ToolTip": "C:\\Users\\ryuki\\Desktop\\Animal_Liberation_of_Reason_Game\\Animal\\Assets\\Scripts\\Status\\Kawa_R_flies\\Character_Status.cs",
               "RelativeToolTip": "Assets\\Scripts\\Status\\Kawa_R_flies\\Character_Status.cs",
-              "ViewState": "AgIAAOIAAAAAAAAAAAAhwO4AAAAVAAAAAAAAAA==",
+              "ViewState": "AgIAAAgBAAAAAAAAAAAAwEoAAAAmAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-25T12:17:34.283Z",
               "EditorCaption": ""
