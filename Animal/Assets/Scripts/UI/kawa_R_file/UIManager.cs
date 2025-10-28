@@ -14,29 +14,20 @@ public class UIManager : MonoBehaviour
     public List<GameObject> ui_list = new List<GameObject>();
     public Transform canvasParent;
 
-	Transform pos;
-
     void Start()
     {
-
-        GameObject Canvas = GameObject.Find("Player_Canvas");
-
-        Transform HPBarPosition = Canvas.transform.Find("1PBarPosition");
-
-
-
-        canvasParent = GetComponent<Transform>();
         canvasParent.transform.localPosition = Vector3.zero;
-        //CreateUI(UI_ID.GAUGE_HP, HPBarPosition);
-
     }
 
-    public void CreateUI(UI_ID ui_id,Transform pos)
+    public void CreateUI(UI_ID ui_id, Transform pos)
     {
         switch (ui_id)
         {
-            case UI_ID.GAUGE_HP:
-                GameObject ListObjects_HP = GameObject.Instantiate
+			//もしUI_IDがGAUGE_HPならば
+			case UI_ID.GAUGE_HP:
+
+				//HPゲージ生成してキャンバスの子に設定
+				GameObject ListObjects_HP = GameObject.Instantiate
                 (Resources.Load("Prefab/UI/HP_ber")) as GameObject;
 
                 ListObjects_HP.transform.SetParent(canvasParent, false);
@@ -47,9 +38,11 @@ public class UIManager : MonoBehaviour
 
                 break;
 
+			//もしUI_IDがGAUGE_REASONならば
+			case UI_ID.GAUGE_REASON:
 
-            case UI_ID.GAUGE_REASON:
-                GameObject ListObjects_Reason = GameObject.Instantiate
+				//Reasonゲージ生成してキャンバスの子に設定
+				GameObject ListObjects_Reason = GameObject.Instantiate
                    (Resources.Load("Prefab/UI/Reason_ber")) as GameObject;
 
                 ListObjects_Reason.transform.SetParent(canvasParent, false);
@@ -59,5 +52,5 @@ public class UIManager : MonoBehaviour
                 ui_list.Add(ListObjects_Reason);   //リストに追加
                 break;
         }
-	}
+    }
 }
