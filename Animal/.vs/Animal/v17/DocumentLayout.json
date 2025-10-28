@@ -3,15 +3,15 @@
   "WorkspaceRootPath": "C:\\Users\\ryuki\\Desktop\\Animal_Liberation_of_Reason_Game\\Animal\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{876C89E8-3DE6-FE5F-7497-1EDBBE7C0BEE}|Assembly-CSharp.csproj|C:\\Users\\ryuki\\Desktop\\Animal_Liberation_of_Reason_Game\\Animal\\assets\\scripts\\ui\\kawa_r_file\\uimanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{876C89E8-3DE6-FE5F-7497-1EDBBE7C0BEE}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\ui\\kawa_r_file\\uimanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{876C89E8-3DE6-FE5F-7497-1EDBBE7C0BEE}|Assembly-CSharp.csproj|C:\\Users\\ryuki\\Desktop\\Animal_Liberation_of_Reason_Game\\Animal\\assets\\scripts\\player\\kawa_r_scripts\\p1process.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{876C89E8-3DE6-FE5F-7497-1EDBBE7C0BEE}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\player\\kawa_r_scripts\\p1process.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{876C89E8-3DE6-FE5F-7497-1EDBBE7C0BEE}|Assembly-CSharp.csproj|c:\\users\\ryuki\\desktop\\animal_liberation_of_reason_game\\animal\\assets\\scripts\\status\\kawa_r_flies\\character_status.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{876C89E8-3DE6-FE5F-7497-1EDBBE7C0BEE}|Assembly-CSharp.csproj|c:\\users\\ryuki\\desktop\\animal_liberation_of_reason_game\\animal\\assets\\scripts\\ui\\kawa_r_file\\uimanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{876C89E8-3DE6-FE5F-7497-1EDBBE7C0BEE}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\ui\\kawa_r_file\\uimanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{876C89E8-3DE6-FE5F-7497-1EDBBE7C0BEE}|Assembly-CSharp.csproj|C:\\Users\\ryuki\\Desktop\\Animal_Liberation_of_Reason_Game\\Animal\\assets\\scripts\\status\\kawa_r_flies\\character_status.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{876C89E8-3DE6-FE5F-7497-1EDBBE7C0BEE}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\status\\kawa_r_flies\\character_status.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
@@ -34,7 +34,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 4,
+          "SelectedChildIndex": 5,
           "Children": [
             {
               "$type": "Bookmark",
@@ -62,8 +62,7 @@
               "RelativeToolTip": "Assets\\Scripts\\Status\\Kawa_R_flies\\Character_Status.cs",
               "ViewState": "AgIAAPYAAAAAAAAAAAAiwPgAAAAfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-25T12:17:34.283Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-25T12:17:34.283Z"
             },
             {
               "$type": "Document",
@@ -79,7 +78,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "UIManager.cs",
               "DocumentMoniker": "C:\\Users\\ryuki\\Desktop\\Animal_Liberation_of_Reason_Game\\Animal\\Assets\\Scripts\\UI\\kawa_R_file\\UIManager.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\UI\\kawa_R_file\\UIManager.cs",
@@ -92,13 +91,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "P1Process.cs",
               "DocumentMoniker": "C:\\Users\\ryuki\\Desktop\\Animal_Liberation_of_Reason_Game\\Animal\\Assets\\Scripts\\Player\\Kawa_R_Scripts\\P1Process.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Player\\Kawa_R_Scripts\\P1Process.cs",
               "ToolTip": "C:\\Users\\ryuki\\Desktop\\Animal_Liberation_of_Reason_Game\\Animal\\Assets\\Scripts\\Player\\Kawa_R_Scripts\\P1Process.cs",
               "RelativeToolTip": "Assets\\Scripts\\Player\\Kawa_R_Scripts\\P1Process.cs",
-              "ViewState": "AgIAADAAAAAAAAAAAAAIwDoAAAAZAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAASAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-28T05:46:31.023Z",
               "EditorCaption": ""

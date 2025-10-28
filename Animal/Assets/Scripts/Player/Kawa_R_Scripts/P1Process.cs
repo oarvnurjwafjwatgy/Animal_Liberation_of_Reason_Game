@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class P1Process : MonoBehaviour
 {
@@ -65,26 +64,5 @@ public class P1Process : MonoBehaviour
 		{
 			character_Status.InitGauges();
 		}
-
-
-		//if (hpGaugeObj != null)
-		//{
-		//	UnityEngine.UI.Slider slider = hpGaugeObj.GetComponent<UnityEngine.UI.Slider>();
-
-		//	if (slider != null)
-		//	{
-		//		character_Status.hp_gauge = slider;
-		//	}
-		//	else
-		//	{
-		//		Debug.LogError("Slider コンポーネントが見つかりません");
-		//	}
-		//}
-		//else
-		//{
-		//	Debug.LogError("HPゲージの GameObject が null です");
-		//}
-
-
 	}
 }
