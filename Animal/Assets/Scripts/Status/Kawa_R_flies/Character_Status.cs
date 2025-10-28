@@ -128,6 +128,8 @@ public class Character_Status : MonoBehaviour
 				}
 				break;
 		}
+
+		CheckAnimatorStateTag();
 	}
 
 	public void InitGauges()
@@ -241,11 +243,14 @@ public class Character_Status : MonoBehaviour
 	//死亡処理関数
 	protected virtual void Die()
 	{
+		//もし理性解放中に死亡したなら現在HPを0に設定する
+		if (CharaMode == Mode.SPSIAL_ANIMAL)
+		{
+			CurrentHP = 0;  // 現在HPを0に設定
+		}
+
 		hp_gauge.value = 0;
 		CharaState = State.DEAD; // 状態を死亡状態に変更
-		Debug.Log($"{gameObject.name} は死亡した。");
-
-		gameObject.SetActive(false); // キャラクターオブジェクトを非アクティブ化(仮)
 	}
 
 	protected virtual void Mode_Animal(int damage)
@@ -276,7 +281,36 @@ public class Character_Status : MonoBehaviour
 		else
 		{
 			CurrentReason = 0;
+			animator.SetBool("Reason_Dead", true);
 			Die();
+		}
+	}
+
+
+
+	// Animatorの現在のステートのTagをチェックし、
+	// 死亡状態であればオブジェクトを非アクティブ化する関数
+	private void CheckAnimatorStateTag()
+	{
+		if (animator == null) return;
+
+		// 現在のAnimatorStateInfoを取得 (通常はベースレイヤー: 0)
+		AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+
+		// キャラクターが死亡状態の場合のみTagをチェック
+		if (CharaState == State.DEAD)
+		{
+			// アニメーションステートのTagが "Dead" であるかをチェック
+			if (stateInfo.IsTag("Dead"))
+			{
+				// 既に死亡ログが出ていなければログを出し、ゲームオブジェクトを非アクティブ化
+				if (gameObject.activeSelf) // 処理が複数回実行されるのを防ぐため
+				{
+					Debug.Log($"{gameObject.name} はアニメーション" +
+					$"Tag 'Dead' に到達したため、オブジェクトを非アクティブ化します。");
+					gameObject.SetActive(false);
+				}
+			}
 		}
 	}
 }
