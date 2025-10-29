@@ -50,11 +50,11 @@ public class P2Process : MonoBehaviour
 	private void Set_2_Player()
 	{
 		character_Status = this.GetComponent<Character_Status>();
-		GameObject hpGaugeObj = ui_manager.ui_list[4];
+		GameObject hpGaugeObj = ui_manager.ui_list[3];
 
 		character_Status.hp_object = hpGaugeObj;
 
-		GameObject ReasonGaugeObj = ui_manager.ui_list[3];
+		GameObject ReasonGaugeObj = ui_manager.ui_list[2];
 
 		character_Status.reason_object = ReasonGaugeObj;
 
