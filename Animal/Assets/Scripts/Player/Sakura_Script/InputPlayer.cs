@@ -7,24 +7,29 @@ public class InputPlayer : MonoBehaviour
 {
     public float moveSpeed = 5.0f; // キャラクターの移動速度
     public GameObject cameraObject;
+    public GameObject normalObject;
+    public GameObject reasonObject;
 
 
     Character_Status character_Status;
     private Animator animator;
 
-	// 参照するコンポーネント
-	private Rigidbody rb;
+    // 参照するコンポーネント
+    private Rigidbody rb;
     private Controller controller; // 作成した Controller クラス
 
     // Start is called before the first frame update
     void Start()
     {
         cameraObject = transform.GetChild(0).gameObject;
+        normalObject = transform.GetChild(1).gameObject;
+        reasonObject = transform.GetChild(2).gameObject;
+
         GameObject My = this.gameObject;
-		character_Status = My.GetComponent<Character_Status>();
-		//cameraObject = GameObject.Find("Camera");
-		animator = GetComponent<Animator>();
-	}
+        character_Status = My.GetComponent<Character_Status>();
+        //cameraObject = GameObject.Find("Camera");
+        animator = GetComponent<Animator>();
+    }
 
     private void Awake()
     {
@@ -38,19 +43,19 @@ public class InputPlayer : MonoBehaviour
         }
     }
 
-	private void OnEnable()
-	{
+    private void OnEnable()
+    {
         controller.PlayerInput.actions["Attack"].started += OnAttack;
         controller.PlayerInput.actions["ModeChange"].started += OnModeChange;
-	}
+    }
 
-	private void OnDisable()
-	{
+    private void OnDisable()
+    {
         controller.PlayerInput.actions["Attack"].started -= OnAttack;
         controller.PlayerInput.actions["ModeChange"].started -= OnModeChange;
-	}
+    }
 
-	private void Update()
+    private void Update()
     {
     }
 
@@ -62,24 +67,28 @@ public class InputPlayer : MonoBehaviour
         // Controller クラスが正しく取得できているか確認
         if (controller != null && rb != null)
         {
-            // 1. Controller クラスからスティックの入力値を取得
-            Vector2 leftStickInput = controller.GetLeftStick();
+            // Controller クラスが正しく取得できているか確認
+            if (controller != null && rb != null)
+            {
+                // 1. Controller クラスからスティックの入力値を取得
+                Vector2 leftStickInput = controller.GetLeftStick();
 
-            // 2. 入力値 (Vector2) を 3D の移動方向 (Vector3) に変換
-            Vector3 moveDirection = new Vector3(leftStickInput.x, 0, leftStickInput.y);
+                // 2. 入力値 (Vector2) を 3D の移動方向 (Vector3) に変換
+                Vector3 moveDirection = new Vector3(leftStickInput.x, 0, leftStickInput.y);
 
-            Vector3 cameraForward = Vector3.Scale(cameraObject.transform.forward, new Vector3(1,0,1)).normalized;
-            Vector3 moveForward = cameraForward * leftStickInput.y + cameraObject.transform.right * leftStickInput.x;
-            rb.velocity = moveForward * moveSpeed + new Vector3(0, rb.velocity.y, 0);
+                // 3. Rigidbody の速度 (velocity) を変更して移動させる
+                Vector3 cameraForward = Vector3.Scale(cameraObject.transform.forward, new Vector3(1, 0, 1)).normalized;
+                Vector3 moveForward = cameraForward * leftStickInput.y + cameraObject.transform.right * leftStickInput.x;
+                rb.velocity = moveForward * moveSpeed + new Vector3(0, rb.velocity.y, 0);
 
-            // 3. Rigidbody の速度 (velocity) を変更して移動させる
-            /*rb.velocity = new Vector3(
-                moveDirection.x * moveSpeed,
-                rb.velocity.y, // Y軸は変更しない
-                moveDirection.z * moveSpeed
-            );*/
+                if (moveForward != new Vector3(0f, 0f, 0f))
+                {
+                    normalObject.transform.rotation = Quaternion.LookRotation(moveForward);
+                    reasonObject.transform.rotation = Quaternion.LookRotation(moveForward);
+                }
 
-            this.UpdateCamera();
+                this.UpdateCamera();
+            }
         }
     }
 
@@ -113,21 +122,21 @@ public class InputPlayer : MonoBehaviour
     {
         Debug.Log("攻撃");
 
-        switch(character_Status.GetMode())
+        switch (character_Status.GetMode())
         {
             case Character_Status.Mode.ANIMAL:
                 // 動物モードの攻撃処理
                 Debug.Log("動物モードの攻撃");
-				animator.SetTrigger("Attack");
-				break;
+                animator.SetTrigger("Attack");
+                break;
 
             case Character_Status.Mode.SPSIAL_ANIMAL:
                 // スペシャルアニマルモードの攻撃処理
                 Debug.Log("スペシャルアニマルモードの攻撃");
-				animator.SetTrigger("Reason_Attack");
-				break;
-		}
-	}
+                animator.SetTrigger("Reason_Attack");
+                break;
+        }
+    }
 
     private void OnModeChange(InputAction.CallbackContext context)
     {
