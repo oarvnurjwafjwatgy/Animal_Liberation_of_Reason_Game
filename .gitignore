@@ -9,6 +9,7 @@
 
 # Auto-generated VS/JetBrains Rider files
 .vscode/
+.vs/
 *.csproj
 *.unityproj
 *.sln
