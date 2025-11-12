@@ -310,6 +310,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 5
   cameraObject: {fileID: 0}
+  normalObject: {fileID: 0}
+  reasonObject: {fileID: 0}
 --- !u!95 &3501031209913266763
 Animator:
   serializedVersion: 5

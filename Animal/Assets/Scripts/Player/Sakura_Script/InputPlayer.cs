@@ -81,13 +81,31 @@ public class InputPlayer : MonoBehaviour
                 Vector3 moveForward = cameraForward * leftStickInput.y + cameraObject.transform.right * leftStickInput.x;
                 rb.velocity = moveForward * moveSpeed + new Vector3(0, rb.velocity.y, 0);
 
-                if (moveForward != new Vector3(0f, 0f, 0f))
-                {
-                    normalObject.transform.rotation = Quaternion.LookRotation(moveForward);
-                    reasonObject.transform.rotation = Quaternion.LookRotation(moveForward);
-                }
 
                 this.UpdateCamera();
+            }
+        }
+    }
+
+    private void LateUpdate()
+    {
+        // Controller クラスが正しく取得できているか確認
+        if (controller != null && rb != null)
+        {
+            // 1. Controller クラスからスティックの入力値を取得
+            Vector2 leftStickInput = controller.GetLeftStick();
+
+            // 2. 入力値 (Vector2) を 3D の移動方向 (Vector3) に変換
+            Vector3 moveDirection = new Vector3(leftStickInput.x, 0, leftStickInput.y);
+
+            // 3. Rigidbody の速度 (velocity) を変更して移動させる
+            Vector3 cameraForward = Vector3.Scale(cameraObject.transform.forward, new Vector3(1, 0, 1)).normalized;
+            Vector3 moveForward = cameraForward * leftStickInput.y + cameraObject.transform.right * leftStickInput.x;
+
+            if (moveForward != new Vector3(0f, 0f, 0f))
+            {
+                normalObject.transform.rotation = Quaternion.LookRotation(moveForward);
+                reasonObject.transform.rotation = Quaternion.LookRotation(moveForward);
             }
         }
     }
