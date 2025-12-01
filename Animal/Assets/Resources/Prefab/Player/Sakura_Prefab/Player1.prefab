@@ -310,6 +310,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 5
   cameraObject: {fileID: 0}
+  normalObject: {fileID: 0}
+  reasonObject: {fileID: 0}
 --- !u!95 &3501031209913266763
 Animator:
   serializedVersion: 5
@@ -951,6 +953,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3713961731527961260}
   - component: {fileID: 6373939964140953816}
+  - component: {fileID: 5980127886487813967}
   m_Layer: 0
   m_Name: Camera
   m_TagString: Untagged
@@ -1024,3 +1027,20 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!114 &5980127886487813967
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7465081162866053270}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fec0610ac4944644db3d630beb235cc8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cam: {fileID: 0}
+  x: 0
+  y: 0
+  w: 1
+  h: 1

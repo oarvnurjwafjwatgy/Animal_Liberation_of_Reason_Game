@@ -10,6 +10,8 @@ public class PlayerManager : MonoBehaviour
     //プレイヤーの出現位置 (インスペクターから設定できるように private を削除)
     [SerializeField] private List<Transform> PlayerTransforms = new List<Transform>();
 
+    public int playerCount;
+
     void Start()
     {
         // 接続されているコントローラーの数を参照
@@ -22,6 +24,7 @@ public class PlayerManager : MonoBehaviour
         // 実際にスポーンする人数は、「接続されたコントローラー数」と「最大人数」の「少ない方」
         // (例: コントローラーが5個でも、maxPlayersが4なら、4人まで)
         int playersToSpawn = Mathf.Min(gamepadCount, maxPlayers);
+        playerCount = playersToSpawn;
 
         // 要望: 2～4人の場合のみ生成する
         if (playersToSpawn < 1)

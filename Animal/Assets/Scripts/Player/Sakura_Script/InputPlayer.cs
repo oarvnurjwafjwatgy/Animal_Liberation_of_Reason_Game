@@ -9,6 +9,7 @@ public class InputPlayer : MonoBehaviour
     public GameObject cameraObject;
     public GameObject normalObject;
     public GameObject reasonObject;
+    private Quaternion cachedRotate;
 
 
     Character_Status character_Status;
@@ -24,10 +25,10 @@ public class InputPlayer : MonoBehaviour
         cameraObject = transform.GetChild(0).gameObject;
         normalObject = transform.GetChild(1).gameObject;
         reasonObject = transform.GetChild(2).gameObject;
+        cachedRotate = normalObject.transform.rotation;
 
         GameObject My = this.gameObject;
         character_Status = My.GetComponent<Character_Status>();
-        //cameraObject = GameObject.Find("Camera");
         animator = GetComponent<Animator>();
     }
 
@@ -47,12 +48,14 @@ public class InputPlayer : MonoBehaviour
     {
         controller.PlayerInput.actions["Attack"].started += OnAttack;
         controller.PlayerInput.actions["ModeChange"].started += OnModeChange;
+        controller.PlayerInput.actions["CameraReset"].started += OnCameraReset;
     }
 
     private void OnDisable()
     {
         controller.PlayerInput.actions["Attack"].started -= OnAttack;
         controller.PlayerInput.actions["ModeChange"].started -= OnModeChange;
+        controller.PlayerInput.actions["CameraReset"].started -= OnCameraReset;
     }
 
     private void Update()
@@ -81,13 +84,43 @@ public class InputPlayer : MonoBehaviour
                 Vector3 moveForward = cameraForward * leftStickInput.y + cameraObject.transform.right * leftStickInput.x;
                 rb.velocity = moveForward * moveSpeed + new Vector3(0, rb.velocity.y, 0);
 
-                if (moveForward != new Vector3(0f, 0f, 0f))
-                {
-                    normalObject.transform.rotation = Quaternion.LookRotation(moveForward);
-                    reasonObject.transform.rotation = Quaternion.LookRotation(moveForward);
-                }
 
+                // カメラの位置の更新
                 this.UpdateCamera();
+            }
+        }
+    }
+
+    // アニメーションの影響上、プレイヤーの向き更新は LateUpdate で行う
+    private void LateUpdate()
+    {
+        // Controller クラスが正しく取得できているか確認
+        if (controller != null && rb != null)
+        {
+            // Controller クラスからスティックの入力値を取得
+            Vector2 leftStickInput = controller.GetLeftStick();
+
+            // 入力値 (Vector2) を 3D の移動方向 (Vector3) に変換
+            Vector3 moveDirection = new Vector3(leftStickInput.x, 0, leftStickInput.y);
+
+            // Rigidbody の速度 (velocity) を変更して移動させる
+            Vector3 cameraForward = Vector3.Scale(cameraObject.transform.forward, new Vector3(1, 0, 1)).normalized;
+            Vector3 moveForward = cameraForward * leftStickInput.y + cameraObject.transform.right * leftStickInput.x;
+
+            // Lスティックが入力されている時は、向きを正面にしその向きを保存する
+            if (moveForward != new Vector3(0f, 0f, 0f))
+            {
+                Quaternion tmp = Quaternion.LookRotation(moveForward) * Quaternion.AngleAxis(-90, Vector3.up);
+
+                normalObject.transform.rotation = tmp;
+                reasonObject.transform.rotation = tmp;
+                cachedRotate = tmp;
+            }
+            // 未入力の時は、保存した向きを呼び出し続ける
+            else
+            {
+                normalObject.transform.rotation = cachedRotate;
+                reasonObject.transform.rotation = cachedRotate;
             }
         }
     }
@@ -105,15 +138,15 @@ public class InputPlayer : MonoBehaviour
         // カメラの縦移動
         float camera_angle_x = cameraObject.transform.localEulerAngles.x;
         //Debug.Log(camera_angle_x);
-        if (rightStickInput.y > 0.25f && (camera_angle_x < 80f || camera_angle_x <= 360f && camera_angle_x > 180f))
-        {
-            // 上移動
-            cameraObject.transform.RotateAround(this.transform.position, cameraObject.transform.right, rightStickInput.y * Time.deltaTime * 200f);
-        }
-        if (rightStickInput.y < -0.25f && (camera_angle_x > 280f || camera_angle_x >= 0f && camera_angle_x < 180f))
+        if (rightStickInput.y > 0.25f && (camera_angle_x > 280f || camera_angle_x >= 0f && camera_angle_x < 180f))
         {
             // 下移動
-            cameraObject.transform.RotateAround(this.transform.position, cameraObject.transform.right, rightStickInput.y * Time.deltaTime * 200f);
+            cameraObject.transform.RotateAround(this.transform.position, cameraObject.transform.right, -rightStickInput.y * Time.deltaTime * 200f);
+        }
+        if (rightStickInput.y < -0.25f && (camera_angle_x < 80f || camera_angle_x <= 360f && camera_angle_x > 180f))
+        {
+            // 上移動
+            cameraObject.transform.RotateAround(this.transform.position, cameraObject.transform.right, -rightStickInput.y * Time.deltaTime * 200f);
         }
     }
 
@@ -143,5 +176,13 @@ public class InputPlayer : MonoBehaviour
         character_Status.GetModeChange();
 
         Debug.Log("チェンジ");
+    }
+
+    private void OnCameraReset(InputAction.CallbackContext context)
+    {
+        cameraObject.transform.position = normalObject.transform.position + new Vector3(0f, 1f, 0f) + normalObject.transform.right * -3f;
+        cameraObject.transform.rotation = normalObject.transform.rotation * Quaternion.AngleAxis(90, Vector3.up);
+
+        Debug.Log("カメラリセット");
     }
 }
