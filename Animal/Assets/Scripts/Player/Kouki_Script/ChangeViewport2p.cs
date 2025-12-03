@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ChangeViewport : MonoBehaviour
+public class ChangeViewport2p : MonoBehaviour
 {
     public Camera cam;
     public float x = 0f;
@@ -17,8 +17,10 @@ public class ChangeViewport : MonoBehaviour
         cam = GetComponent<Camera>();
 
         playerManager = GameObject.Find("PlayerManager");
-        var playerManagerClass = playerManager.GetComponent<PlayerManager>().playerCount;
-        Debug.Log(playerManagerClass.ToString());
+        var pm_playerCount = playerManager.GetComponent<PlayerManager>().playerCount;
+
+        this.SetViewport(pm_playerCount);
+        //Debug.Log(pm_playerCount.ToString());
     }
 
     // Update is called once per frame
@@ -27,6 +29,24 @@ public class ChangeViewport : MonoBehaviour
         if (cam != null)
         {
             cam.rect = new Rect(x, y, w, h);
+        }
+    }
+
+    private void SetViewport(int player_count)
+    {
+        if (player_count <= 2)
+        {
+            x = 0.5f;
+            y = 0f;
+            w = 0.5f;
+            h = 1f;
+        }
+        else
+        {
+            x = 0.5f;
+            y = 0.5f;
+            w = 0.5f;
+            h = 0.5f;
         }
     }
 }
