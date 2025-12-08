@@ -9,11 +9,14 @@ public class InputPlayer : MonoBehaviour
     public GameObject cameraObject;
     public GameObject normalObject;
     public GameObject reasonObject;
+    public GameObject ghostObject;
     private Quaternion cachedRotate;
 
 
     Character_Status character_Status;
     private Animator animator;
+
+    private bool deathFlag;
 
     // 参照するコンポーネント
     private Rigidbody rb;
@@ -25,11 +28,14 @@ public class InputPlayer : MonoBehaviour
         cameraObject = transform.GetChild(0).gameObject;
         normalObject = transform.GetChild(1).gameObject;
         reasonObject = transform.GetChild(2).gameObject;
+        ghostObject = transform.GetChild(3).gameObject;
         cachedRotate = normalObject.transform.rotation;
 
         GameObject My = this.gameObject;
         character_Status = My.GetComponent<Character_Status>();
         animator = GetComponent<Animator>();
+
+        deathFlag = false;
     }
 
     private void Awake()
@@ -79,14 +85,21 @@ public class InputPlayer : MonoBehaviour
                 // 2. 入力値 (Vector2) を 3D の移動方向 (Vector3) に変換
                 Vector3 moveDirection = new Vector3(leftStickInput.x, 0, leftStickInput.y);
 
+                GameObject camera = cameraObject;
+                if (deathFlag)
+                    camera = ghostObject;
+
                 // 3. Rigidbody の速度 (velocity) を変更して移動させる
-                Vector3 cameraForward = Vector3.Scale(cameraObject.transform.forward, new Vector3(1, 0, 1)).normalized;
-                Vector3 moveForward = cameraForward * leftStickInput.y + cameraObject.transform.right * leftStickInput.x;
+                Vector3 cameraForward = Vector3.Scale(camera.transform.forward, new Vector3(1, 0, 1)).normalized;
+                Vector3 moveForward = cameraForward * leftStickInput.y + camera.transform.right * leftStickInput.x;
                 rb.velocity = moveForward * moveSpeed + new Vector3(0, rb.velocity.y, 0);
 
 
                 // カメラの位置の更新
-                this.UpdateCamera();
+                if (!deathFlag)
+                    this.UpdateCamera();
+                else
+                    this.UpdateGhostCamera();
             }
         }
     }
@@ -103,9 +116,13 @@ public class InputPlayer : MonoBehaviour
             // 入力値 (Vector2) を 3D の移動方向 (Vector3) に変換
             Vector3 moveDirection = new Vector3(leftStickInput.x, 0, leftStickInput.y);
 
+            GameObject camera = cameraObject;
+            if (deathFlag)
+                camera = ghostObject;
+
             // Rigidbody の速度 (velocity) を変更して移動させる
-            Vector3 cameraForward = Vector3.Scale(cameraObject.transform.forward, new Vector3(1, 0, 1)).normalized;
-            Vector3 moveForward = cameraForward * leftStickInput.y + cameraObject.transform.right * leftStickInput.x;
+            Vector3 cameraForward = Vector3.Scale(camera.transform.forward, new Vector3(1, 0, 1)).normalized;
+            Vector3 moveForward = cameraForward * leftStickInput.y + camera.transform.right * leftStickInput.x;
 
             // Lスティックが入力されている時は、向きを正面にしその向きを保存する
             if (moveForward != new Vector3(0f, 0f, 0f))
@@ -150,7 +167,32 @@ public class InputPlayer : MonoBehaviour
         }
     }
 
+    private void UpdateGhostCamera()
+    {
+        // ControllerクラスからRスティックの入力値を取得
+        Vector2 rightStickInput = controller.GetRightStick();
 
+        // カメラの横移動
+        if (rightStickInput.x > 0.25f || rightStickInput.x < -0.25f)
+        {
+            ghostObject.transform.RotateAround(this.transform.position, Vector3.up, rightStickInput.x * Time.deltaTime * 200f);
+        }
+        // カメラの縦移動
+        float camera_angle_x = ghostObject.transform.localEulerAngles.x;
+        //Debug.Log(camera_angle_x);
+        if (rightStickInput.y > 0.25f && (camera_angle_x > 280f || camera_angle_x >= 0f && camera_angle_x < 180f))
+        {
+            // 下移動
+            ghostObject.transform.RotateAround(this.transform.position, ghostObject.transform.right, -rightStickInput.y * Time.deltaTime * 200f);
+        }
+        if (rightStickInput.y < -0.25f && (camera_angle_x < 80f || camera_angle_x <= 360f && camera_angle_x > 180f))
+        {
+            // 上移動
+            ghostObject.transform.RotateAround(this.transform.position, ghostObject.transform.right, -rightStickInput.y * Time.deltaTime * 200f);
+        }
+    }
+
+    
     private void OnAttack(InputAction.CallbackContext context)
     {
         Debug.Log("攻撃");
@@ -185,4 +227,17 @@ public class InputPlayer : MonoBehaviour
 
         Debug.Log("カメラリセット");
     }
+
+    public void SetDeath()
+    {
+        deathFlag = true;
+
+        cameraObject.SetActive(false);
+        normalObject.SetActive(false);
+        reasonObject.SetActive(false);
+        ghostObject.SetActive(true);
+
+        rb.useGravity = false;
+    }
+
 }
