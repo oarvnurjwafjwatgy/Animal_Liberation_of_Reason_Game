@@ -15,6 +15,8 @@ public class Character_Status : MonoBehaviour
 	[Header("理性ゲージ解放時の減少設定")]
 	[SerializeField] protected int Decrease_in_reason_time = 1;         // 理性ゲージ減少ダメージ
 
+	[Header("通常時に時間経過によって理性ゲージ回復する量の設定")]
+	[SerializeField] protected int Heal_in_reason_point = 1;             // 理性ゲージ回復量
 
 	[Header("理性解放状態ステータス")]
 	[SerializeField] protected int ReasonHP = 200;                      // キャラクター理性解放時最大HP
@@ -116,6 +118,12 @@ public class Character_Status : MonoBehaviour
 		{
 			case Mode.ANIMAL:
 				// エニモーモードの処理
+				timer += Time.deltaTime;
+				if (timer >= 1f)
+				{
+					Mode_Animal();
+					timer = 0f;
+				}
 				break;
 			// スペシャルエニモーモードの理性ゲージ減少処理関数呼び出し
 			case Mode.SPSIAL_ANIMAL:
@@ -128,7 +136,6 @@ public class Character_Status : MonoBehaviour
 				}
 				break;
 		}
-
 		CheckAnimatorStateTag();
 	}
 
@@ -162,7 +169,7 @@ public class Character_Status : MonoBehaviour
 		// モードごとのダメージ処理分岐
 		if (CharaMode == Mode.ANIMAL)
 		{
-			Mode_Animal(damage);  // エニモーモードのダメージ処理関数呼び出し
+			//Mode_Animal();  // エニモーモードのダメージ処理関数呼び出し
 		}
 		else if (CharaMode == Mode.SPSIAL_ANIMAL)
 		{
@@ -253,16 +260,18 @@ public class Character_Status : MonoBehaviour
 		CharaState = State.DEAD; // 状態を死亡状態に変更
 	}
 
-	protected virtual void Mode_Animal(int damage)
+	//モードがエニモー状態の時処理関数
+	protected virtual void Mode_Animal()
 	{
-		// エニモーモードの受けたダメージ処理
+		int heal_num = 0;
+		// 理性ゲージ回復処理
+		if (MaxReason != CurrentReason)
+		{
+			heal_num = MaxReason;
+			CurrentReason += Heal_in_reason_point;
 
-		// ダメージ計算（防御力を考慮）
-		int actualDamage = Mathf.Max(damage - DefensePower, 0);
-		Debug.Log($"{gameObject.name} は" + actualDamage + "のダメージを受けた。");
-		CurrentHP -= actualDamage;
-
-		Debug.Log("現在のHP:" + CurrentHP);
+			Debug.Log("現在の理性ポイント:" + CurrentReason);
+		}
 	}
 
 	//スペシャルエニモーモード理性ゲージ減少処理関数
