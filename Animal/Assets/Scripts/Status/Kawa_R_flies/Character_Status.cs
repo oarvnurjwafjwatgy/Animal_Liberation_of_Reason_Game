@@ -18,6 +18,10 @@ public class Character_Status : MonoBehaviour
 	[Header("通常時に時間経過によって理性ゲージ回復する量の設定")]
 	[SerializeField] protected int Heal_in_reason_point = 1;             // 理性ゲージ回復量
 
+	[Header("キャラクターごとの固有スキル設定一覧")]
+	[Header("毎時体力回復能力(ダチョウ)")]
+	[SerializeField] protected int Heal_in_hp_point = 1;				 // 体力回復量(ダチョウ固有)
+
 	[Header("理性解放状態ステータス")]
 	[SerializeField] protected int ReasonHP = 200;                      // キャラクター理性解放時最大HP
 	[SerializeField] protected int ReasonAttackPower = 50;              // キャラクター理性解放時攻撃力
@@ -25,10 +29,10 @@ public class Character_Status : MonoBehaviour
 	[SerializeField] protected float ReasonMoveSpeed = 1.0f;            // キャラクター移動速度
 
 	private Slider hp_gauge;			   //HPゲージUIスライダー参照用変数
-	private Slider reason_gauge;        //HPゲージUIスライダー参照用変数
-	private Animator animator;		   //アニメーター参照用変数
+	private Slider reason_gauge;		   //HPゲージUIスライダー参照用変数
+	private Animator animator;			   //アニメーター参照用変数
 
-	private float timer = 0f;       //理性ゲージ減少用タイマー
+	private float timer = 0f;			   //タイマー系の変数
 
 	public GameObject hp_object;
 	public GameObject reason_object;
@@ -52,9 +56,19 @@ public class Character_Status : MonoBehaviour
 		SPSIAL_ANIMAL   // スペシャルエニモー
 	}
 
+	/**********キャラクタータイプ*******************/
+	public enum CharacterType
+	{
+		NONE,           // 無し
+		LION,           // ライオン
+		OSTRICH,        // ダチョウ
+		RHINOCELOS,     // サイ
+		RATEL,          // ラーテル
+	}
 
-	State CharaState; // キャラクター状態変数
-	Mode CharaMode;   // キャラクターモード変数
+	State CharaState;			// キャラクター状態変数
+	Mode CharaMode;				// キャラクターモード変数
+	CharacterType CharaAnim;    // キャラクタータイプ変数
 
 	//初期化
 	private void Start()
@@ -65,14 +79,15 @@ public class Character_Status : MonoBehaviour
 		//理性ゲージのオブジェクトを探して自動的に取得させる。
 		//reason_object = GameObject.Find("Reason_ber");
 
-		CharaState = State.IDLE;    // 初期状態を待機状態に設定
-		CharaMode = Mode.ANIMAL;    // 初期モードをエニモーに設定
-		CurrentHP = MaxHP;          // 現在HPに最大HPを代入
-		CurrentReason = MaxReason;  // 現在理性ポイントに最大理性ポイントを代入
-		GetResonPoint();            // 理性ゲージ取得
-		GetAttackPower();           // 攻撃力取得
-		GetDefensePower();          // 防御力取得
-		GetMoveSpeed();             // 移動速度取得
+		CharaState = State.IDLE;		// 初期状態を待機状態に設定
+		CharaMode = Mode.ANIMAL;		// 初期モードをエニモーに設定
+		CharaAnim =CharacterType.NONE;  // 初期キャラクタータイプを一旦無しに設定
+		CurrentHP = MaxHP;				// 現在HPに最大HPを代入
+		CurrentReason = MaxReason;		// 現在理性ポイントに最大理性ポイントを代入
+		GetResonPoint();				// 理性ゲージ取得
+		GetAttackPower();				// 攻撃力取得
+		GetDefensePower();				// 防御力取得
+		GetMoveSpeed();					// 移動速度取得
 
 		animator = GetComponent<Animator>();
 	}
@@ -114,6 +129,9 @@ public class Character_Status : MonoBehaviour
 			
 		}
 
+		//一旦固有スキル関数をUpdate内で呼び出し
+		UniqueSkill();
+
 		switch (CharaMode)
 		{
 			case Mode.ANIMAL:
@@ -125,6 +143,7 @@ public class Character_Status : MonoBehaviour
 					timer = 0f;
 				}
 				break;
+
 			// スペシャルエニモーモードの理性ゲージ減少処理関数呼び出し
 			case Mode.SPSIAL_ANIMAL:
 
@@ -170,6 +189,7 @@ public class Character_Status : MonoBehaviour
 		if (CharaMode == Mode.ANIMAL)
 		{
 			//Mode_Animal();  // エニモーモードのダメージ処理関数呼び出し
+			CurrentHP -= damage; // HP減少処理
 		}
 		else if (CharaMode == Mode.SPSIAL_ANIMAL)
 		{
@@ -321,5 +341,50 @@ public class Character_Status : MonoBehaviour
 				}
 			}
 		}
+	}
+
+	//常時呼び出し固有スキル関数
+	protected virtual void UniqueSkill()
+	{
+		CharaAnim = CharacterType.OSTRICH;//お試しでダチョウに設定
+		
+		// キャラクター固有のスキル処理をここに実装
+		switch (CharaAnim)
+		{
+			//ライオンを選択した場合固有スキル発動
+			case CharacterType.LION:
+				UniqueSkill_Lion();
+				break;
+			//ダチョウを選択した場合固有スキル発動
+			case CharacterType.OSTRICH:
+				UniqueSkill_Ostrich();
+				break;
+		}
+	}
+
+	//ライオンの固有スキル処理関数
+	void UniqueSkill_Lion()
+	{
+	}
+
+	//ダチョウの固有スキル処理関数
+	void UniqueSkill_Ostrich()
+	{
+		/*ダチョウの固有スキルは体力を
+		時間経過によって回復する*/
+		int ostrich_heal = Heal_in_hp_point;
+
+		timer += Time.deltaTime;
+
+		if (timer >= 1f)
+		{
+			// HP回復処理
+			if (MaxHP != CurrentHP)
+			{
+				CurrentHP += ostrich_heal;
+			}
+			timer = 0f;
+		}
+
 	}
 }
