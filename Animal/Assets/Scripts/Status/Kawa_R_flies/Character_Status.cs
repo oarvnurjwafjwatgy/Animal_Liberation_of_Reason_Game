@@ -40,8 +40,10 @@ public class Character_Status : MonoBehaviour
 	public int CurrentHP { get; protected set; }    // キャラクター現在HP(外部読み取り可、内部変更可)
 	public int CurrentReason { get; protected set; }    // キャラクター現在理性HP(外部読み取り可、内部変更可)
 
-	/**********状態*******************/
-	enum State
+    InputPlayer input;
+
+    /**********状態*******************/
+    enum State
 	{
 		IDLE,       // 待機状態
 		MOVE,       // 移動状態
@@ -90,6 +92,8 @@ public class Character_Status : MonoBehaviour
 		GetMoveSpeed();					// 移動速度取得
 
 		animator = GetComponent<Animator>();
+
+		input = GetComponent<InputPlayer>();
 	}
 
 	//更新
@@ -337,7 +341,7 @@ public class Character_Status : MonoBehaviour
 				{
 					Debug.Log($"{gameObject.name} はアニメーション" +
 					$"Tag 'Dead' に到達したため、オブジェクトを非アクティブ化します。");
-					gameObject.SetActive(false);
+					input.SetDeath();
 				}
 			}
 		}
