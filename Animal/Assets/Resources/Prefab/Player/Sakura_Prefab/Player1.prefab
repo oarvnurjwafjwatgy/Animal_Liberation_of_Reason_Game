@@ -352,6 +352,8 @@ MonoBehaviour:
   DefensePower: 20
   MoveSpeed: 5
   Decrease_in_reason_time: 1
+  Heal_in_reason_point: 1
+  Heal_in_hp_point: 1
   ReasonHP: 200
   ReasonAttackPower: 50
   ReasonDefensePower: 60
@@ -1044,3 +1046,4 @@ MonoBehaviour:
   y: 0
   w: 1
   h: 1
+  playerManager: {fileID: 0}
