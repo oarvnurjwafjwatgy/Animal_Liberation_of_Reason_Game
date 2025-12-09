@@ -66,6 +66,7 @@ public class InputPlayer : MonoBehaviour
 
     private void Update()
     {
+        this.GhostUpDown();
     }
 
 
@@ -192,6 +193,20 @@ public class InputPlayer : MonoBehaviour
         }
     }
 
+    private void GhostUpDown()
+    {
+        if (!deathFlag) return;
+
+        // 下降
+        if (controller.PlayerInput.actions["Descent"].IsPressed())
+            this.OnDescent();
+        // 上昇
+        else if (controller.PlayerInput.actions["Jump"].IsPressed())
+            this.OnAscending();
+        else
+            this.RemoveUpDown();
+    }
+
     
     private void OnAttack(InputAction.CallbackContext context)
     {
@@ -227,6 +242,25 @@ public class InputPlayer : MonoBehaviour
 
         Debug.Log("カメラリセット");
     }
+
+    private void OnDescent()
+    {
+        Debug.Log("下降");
+        rb.velocity = new Vector3(rb.velocity.x, -5f, rb.velocity.z);
+    }
+
+    private void OnAscending()
+    {
+        Debug.Log("上昇");
+        rb.velocity = new Vector3(rb.velocity.x, 5f, rb.velocity.z);
+    }
+
+    private void RemoveUpDown()
+    {
+        Debug.Log("上下キャンセル");
+        rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+    }
+
 
     public void SetDeath()
     {
