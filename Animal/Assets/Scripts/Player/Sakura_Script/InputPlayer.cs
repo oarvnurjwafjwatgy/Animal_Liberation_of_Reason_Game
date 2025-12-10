@@ -257,7 +257,7 @@ public class InputPlayer : MonoBehaviour
 
     private void RemoveUpDown()
     {
-        Debug.Log("上下キャンセル");
+        //Debug.Log("上下キャンセル");
         rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
     }
 
@@ -272,6 +272,9 @@ public class InputPlayer : MonoBehaviour
         ghostObject.SetActive(true);
 
         rb.useGravity = false;
+
+        ChangeLayer change_layer = this.GetComponent<ChangeLayer>();
+        change_layer.SetLayer();
     }
 
 }

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5713425040927305468}
   - component: {fileID: 5681790173263700740}
   - component: {fileID: 4263328017263134569}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: ReasonForm
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -130,7 +130,8 @@ GameObject:
   - component: {fileID: 7374693167339410131}
   - component: {fileID: 4172659695648593839}
   - component: {fileID: 3926799458560520178}
-  m_Layer: 0
+  - component: {fileID: 2168775542101524467}
+  m_Layer: 7
   m_Name: CubeParent
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -387,6 +388,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 338b26ad8cf94d24c8e4f5061ee30379, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &2168775542101524467
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2612373100166667135}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd059289593e5c648bbdd725313419b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  layerName: Ghost
 --- !u!1 &3379213519982879829
 GameObject:
   m_ObjectHideFlags: 0
@@ -399,7 +413,7 @@ GameObject:
   - component: {fileID: 7189202780315224503}
   - component: {fileID: 2827347672282809095}
   - component: {fileID: 1445935383985221782}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -502,7 +516,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3273450164883428974}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Player1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -534,7 +548,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7178144783650406258}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Ghost
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -569,7 +583,7 @@ GameObject:
   - component: {fileID: 8855563245110121701}
   - component: {fileID: 5460864000511298800}
   - component: {fileID: 8447209306499746341}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Sphere (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -674,7 +688,7 @@ GameObject:
   - component: {fileID: 6594953503278125212}
   - component: {fileID: 3357240412966454277}
   - component: {fileID: 3771765365976804922}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -779,7 +793,7 @@ GameObject:
   - component: {fileID: 6967906766035534082}
   - component: {fileID: 5732732438529259464}
   - component: {fileID: 8787355130532701186}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Hand
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -886,7 +900,7 @@ GameObject:
   - component: {fileID: 8797885696753262987}
   - component: {fileID: 118223459204080169}
   - component: {fileID: 2389718485199239770}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Sphere (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -990,7 +1004,7 @@ GameObject:
   - component: {fileID: 3713961731527961260}
   - component: {fileID: 6373939964140953816}
   - component: {fileID: 5980127886487813967}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Camera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1093,7 +1107,7 @@ GameObject:
   - component: {fileID: 4599837583825971828}
   - component: {fileID: 1180300729312599087}
   - component: {fileID: 5841982318849594468}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: GhostCamera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
