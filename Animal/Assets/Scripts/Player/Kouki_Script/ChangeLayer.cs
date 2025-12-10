@@ -16,6 +16,7 @@ public class ChangeLayer : MonoBehaviour
             return;
         }
 
+        // 自身のレイヤーをlayerにする
         gameObject.layer = layer;
 
         // 全ての子オブジェクトのレイヤーを切り替える

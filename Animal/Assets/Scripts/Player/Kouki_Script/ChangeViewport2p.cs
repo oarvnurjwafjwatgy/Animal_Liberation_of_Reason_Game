@@ -11,19 +11,20 @@ public class ChangeViewport2p : MonoBehaviour
     public float h = 1f;
     [SerializeField] GameObject playerManager;
 
-    // Start is called before the first frame update
     void Start()
     {
+        // 自身のカメラコンポーネントを取得する
         cam = GetComponent<Camera>();
 
+        // プレイヤーマネージャー オブジェクトを探し、代入する
         playerManager = GameObject.Find("PlayerManager");
+        // プレイヤーマネージャーより、参加人数を受け取る
         var pm_playerCount = playerManager.GetComponent<PlayerManager>().playerCount;
 
+        // カメラの表示位置を変更する
         this.SetViewport(pm_playerCount);
-        //Debug.Log(pm_playerCount.ToString());
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (cam != null)
@@ -34,6 +35,7 @@ public class ChangeViewport2p : MonoBehaviour
 
     private void SetViewport(int player_count)
     {
+        // 2人モード：画面右側に表示
         if (player_count <= 2)
         {
             x = 0.5f;
@@ -41,6 +43,7 @@ public class ChangeViewport2p : MonoBehaviour
             w = 0.5f;
             h = 1f;
         }
+        // 3,4人モード：画面右上に表示
         else
         {
             x = 0.5f;

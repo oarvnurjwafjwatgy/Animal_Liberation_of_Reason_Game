@@ -6,10 +6,10 @@ using UnityEngine.InputSystem;
 public class InputPlayer : MonoBehaviour
 {
     public float moveSpeed = 5.0f; // キャラクターの移動速度
-    public GameObject cameraObject;
-    public GameObject normalObject;
-    public GameObject reasonObject;
-    public GameObject ghostObject;
+    private GameObject cameraObject;
+    private GameObject normalObject;
+    private GameObject reasonObject;
+    private GameObject ghostObject;
     private Quaternion cachedRotate;
 
 
@@ -25,6 +25,7 @@ public class InputPlayer : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        // 子オブジェクトをそれぞれ受け取り、格納する
         cameraObject = transform.GetChild(0).gameObject;
         normalObject = transform.GetChild(1).gameObject;
         reasonObject = transform.GetChild(2).gameObject;
@@ -66,6 +67,7 @@ public class InputPlayer : MonoBehaviour
 
     private void Update()
     {
+        // 観戦者の上昇下降の処理
         this.GhostUpDown();
     }
 
@@ -143,6 +145,7 @@ public class InputPlayer : MonoBehaviour
         }
     }
 
+    // 通常時のカメラ更新
     private void UpdateCamera()
     {
         // ControllerクラスからRスティックの入力値を取得
@@ -168,6 +171,7 @@ public class InputPlayer : MonoBehaviour
         }
     }
 
+    // 観戦モード時のカメラ更新
     private void UpdateGhostCamera()
     {
         // ControllerクラスからRスティックの入力値を取得
@@ -195,6 +199,7 @@ public class InputPlayer : MonoBehaviour
 
     private void GhostUpDown()
     {
+        // スペクテイター時以外は処理しない
         if (!deathFlag) return;
 
         // 下降
@@ -203,6 +208,7 @@ public class InputPlayer : MonoBehaviour
         // 上昇
         else if (controller.PlayerInput.actions["Jump"].IsPressed())
             this.OnAscending();
+        // 上昇も下降もさせない時は、velocity.yを0にする
         else
             this.RemoveUpDown();
     }
@@ -264,15 +270,19 @@ public class InputPlayer : MonoBehaviour
 
     public void SetDeath()
     {
+        // 死亡フラグをtrueにする
         deathFlag = true;
 
+        // 観戦者用に各アクティブ状態を変更する
         cameraObject.SetActive(false);
         normalObject.SetActive(false);
         reasonObject.SetActive(false);
         ghostObject.SetActive(true);
 
+        // 重力を無効にする
         rb.useGravity = false;
 
+        // 自身と子オブジェクトのレイヤーをGhostにする
         ChangeLayer change_layer = this.GetComponent<ChangeLayer>();
         change_layer.SetLayer();
     }
