@@ -85,7 +85,7 @@ public class Character_Status : MonoBehaviour
 		CharaMode = Mode.ANIMAL;        // 初期モードをエニモーに設定
 		CurrentHP = MaxHP;              // 現在HPに最大HPを代入
 		CurrentReason = MaxReason;      // 現在理性ポイントに最大理性ポイントを代入
-		SelectAnimal();					// 選択キャラクター設定関数呼び出し
+		SelectAnimal();                 // 選択キャラクター設定関数呼び出し
 		GetResonPoint();                // 理性ゲージ取得
 		GetAttackPower();               // 攻撃力取得
 		GetDefensePower();              // 防御力取得
@@ -119,9 +119,39 @@ public class Character_Status : MonoBehaviour
 			GetModeChange();
 		}
 
-		//一旦固有スキル関数をUpdate内で呼び出し
-		UniqueSkill();
+		UniqueSkill();					//一旦固有スキル関数をUpdate内で呼び出し
+		JudgeModeChange();              //毎度切替を判定する
+		CheckAnimatorStateTag();
+	}
 
+	//選択キャラクターによってキャラクタータイプを設定する
+	private void SelectAnimal()
+	{
+		if (SelectLion)
+		{
+			CharaAnim = CharacterType.LION;
+		}
+		else if (SelectOstrich)
+		{
+			CharaAnim = CharacterType.OSTRICH;
+		}
+		else if (SelectRhinocelos)
+		{
+			CharaAnim = CharacterType.RHINOCELOS;
+		}
+		else if (SelectRatel)
+		{
+			CharaAnim = CharacterType.RATEL;
+		}
+		else
+		{
+			CharaAnim = CharacterType.NONE;
+		}
+	}
+
+	//モード切替発動によってチェンジする判定
+	private void JudgeModeChange()
+	{
 		switch (CharaMode)
 		{
 			case Mode.ANIMAL:
@@ -148,32 +178,6 @@ public class Character_Status : MonoBehaviour
 					timer = 0f;
 				}
 				break;
-		}
-		CheckAnimatorStateTag();
-	}
-
-	//選択キャラクターによってキャラクタータイプを設定する
-	private void SelectAnimal()
-	{
-		if(SelectLion)
-		{
-			CharaAnim = CharacterType.LION;
-		}
-		else if (SelectOstrich)
-		{
-			CharaAnim = CharacterType.OSTRICH;
-		}
-		else if (SelectRhinocelos)
-		{
-			CharaAnim = CharacterType.RHINOCELOS;
-		}
-		else if (SelectRatel)
-		{
-			CharaAnim = CharacterType.RATEL;
-		}
-		else
-		{
-			CharaAnim = CharacterType.NONE;
 		}
 	}
 
@@ -378,12 +382,19 @@ public class Character_Status : MonoBehaviour
 			case CharacterType.OSTRICH:
 				UniqueSkill_Ostrich();
 				break;
+			case CharacterType.RHINOCELOS:
+				UniqueSkill_Rhinocelos();
+				break;
+			case CharacterType.RATEL:
+				UniqueSkill_Ratel();
+				break;
 		}
 	}
 
 	//ライオンの固有スキル処理関数
 	void UniqueSkill_Lion()
 	{
+		Debug.Log("ライオンの固有スキル発動中");
 	}
 
 	//ダチョウの固有スキル処理関数
@@ -413,5 +424,17 @@ public class Character_Status : MonoBehaviour
 			//0なら死亡処理関数呼び出し
 			Die();
 		}
+	}
+
+	//サイの固有スキル処理関数
+	void UniqueSkill_Rhinocelos()
+	{
+		Debug.Log("サイの固有スキル発動中");
+	}
+
+	//ラーテルの固有スキル処理関数
+	void UniqueSkill_Ratel()
+	{
+		Debug.Log("ラーテルの固有スキル発動中");
 	}
 }
