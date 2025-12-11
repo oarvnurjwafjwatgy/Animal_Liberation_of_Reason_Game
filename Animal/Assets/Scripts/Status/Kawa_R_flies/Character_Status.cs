@@ -3,6 +3,12 @@ using UnityEngine.UI;
 
 public class Character_Status : MonoBehaviour
 {
+	[Header("選択キャラクター")]
+	[SerializeField] protected bool SelectLion = false;        // ライオン選択フラグ
+	[SerializeField] protected bool SelectOstrich = false;     // ダチョウ選択フラグ
+	[SerializeField] protected bool SelectRhinocelos = false;  // サイ選択フラグ
+	[SerializeField] protected bool SelectRatel = false;       // ラーテル選択フラグ
+
 	/******ステータス変数*************/
 	[Header("基本ステータス")]
 	[SerializeField] protected int MaxHP = 400;                         // キャラクター最大HP
@@ -20,7 +26,7 @@ public class Character_Status : MonoBehaviour
 
 	[Header("キャラクターごとの固有スキル設定一覧")]
 	[Header("毎時体力回復能力(ダチョウ)")]
-	[SerializeField] protected int Heal_in_hp_point = 1;				 // 体力回復量(ダチョウ固有)
+	[SerializeField] protected int Heal_in_hp_point = 1;                 // 体力回復量(ダチョウ固有)
 
 	[Header("理性解放状態ステータス")]
 	[SerializeField] protected int ReasonHP = 200;                      // キャラクター理性解放時最大HP
@@ -28,11 +34,11 @@ public class Character_Status : MonoBehaviour
 	[SerializeField] protected int ReasonDefensePower = 60;             // キャラクター理性解放時攻撃力
 	[SerializeField] protected float ReasonMoveSpeed = 1.0f;            // キャラクター移動速度
 
-	private Slider hp_gauge;			   //HPゲージUIスライダー参照用変数
-	private Slider reason_gauge;		   //HPゲージUIスライダー参照用変数
-	private Animator animator;			   //アニメーター参照用変数
+	private Slider hp_gauge;               //HPゲージUIスライダー参照用変数
+	private Slider reason_gauge;           //HPゲージUIスライダー参照用変数
+	private Animator animator;             //アニメーター参照用変数
 
-	private float timer = 0f;			   //タイマー系の変数
+	private float timer = 0f;              //タイマー系の変数
 
 	public GameObject hp_object;
 	public GameObject reason_object;
@@ -40,10 +46,10 @@ public class Character_Status : MonoBehaviour
 	public int CurrentHP { get; protected set; }    // キャラクター現在HP(外部読み取り可、内部変更可)
 	public int CurrentReason { get; protected set; }    // キャラクター現在理性HP(外部読み取り可、内部変更可)
 
-    InputPlayer input;
+	InputPlayer input;
 
-    /**********状態*******************/
-    enum State
+	/**********状態*******************/
+	enum State
 	{
 		IDLE,       // 待機状態
 		MOVE,       // 移動状態
@@ -68,8 +74,8 @@ public class Character_Status : MonoBehaviour
 		RATEL,          // ラーテル
 	}
 
-	State CharaState;			// キャラクター状態変数
-	Mode CharaMode;				// キャラクターモード変数
+	State CharaState;           // キャラクター状態変数
+	Mode CharaMode;             // キャラクターモード変数
 	CharacterType CharaAnim;    // キャラクタータイプ変数
 
 	//初期化
@@ -77,9 +83,9 @@ public class Character_Status : MonoBehaviour
 	{
 		CharaState = State.IDLE;        // 初期状態を待機状態に設定
 		CharaMode = Mode.ANIMAL;        // 初期モードをエニモーに設定
-		CharaAnim = CharacterType.NONE;  // 初期キャラクタータイプを一旦無しに設定
 		CurrentHP = MaxHP;              // 現在HPに最大HPを代入
 		CurrentReason = MaxReason;      // 現在理性ポイントに最大理性ポイントを代入
+		SelectAnimal();					// 選択キャラクター設定関数呼び出し
 		GetResonPoint();                // 理性ゲージ取得
 		GetAttackPower();               // 攻撃力取得
 		GetDefensePower();              // 防御力取得
@@ -144,6 +150,31 @@ public class Character_Status : MonoBehaviour
 				break;
 		}
 		CheckAnimatorStateTag();
+	}
+
+	//選択キャラクターによってキャラクタータイプを設定する
+	private void SelectAnimal()
+	{
+		if(SelectLion)
+		{
+			CharaAnim = CharacterType.LION;
+		}
+		else if (SelectOstrich)
+		{
+			CharaAnim = CharacterType.OSTRICH;
+		}
+		else if (SelectRhinocelos)
+		{
+			CharaAnim = CharacterType.RHINOCELOS;
+		}
+		else if (SelectRatel)
+		{
+			CharaAnim = CharacterType.RATEL;
+		}
+		else
+		{
+			CharaAnim = CharacterType.NONE;
+		}
 	}
 
 	public void InitGauges()
@@ -292,7 +323,7 @@ public class Character_Status : MonoBehaviour
 		//もし理性が0より大きいなら理性ゲージを減少させる
 		if (CurrentReason > 0)
 		{
-			num = Decrease_in_reason_time;		 // 理性ゲージ減少量計算
+			num = Decrease_in_reason_time;       // 理性ゲージ減少量計算
 			CurrentReason -= num;                // 理性ゲージ減少処理
 			Debug.Log("現在の理性ポイント:" + CurrentReason);
 		}
@@ -336,8 +367,6 @@ public class Character_Status : MonoBehaviour
 	//常時呼び出し固有スキル関数
 	protected virtual void UniqueSkill()
 	{
-		CharaAnim = CharacterType.OSTRICH;//お試しでダチョウに設定
-		
 		// キャラクター固有のスキル処理をここに実装
 		switch (CharaAnim)
 		{
