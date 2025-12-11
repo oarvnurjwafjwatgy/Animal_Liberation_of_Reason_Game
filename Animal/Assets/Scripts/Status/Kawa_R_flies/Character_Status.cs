@@ -75,21 +75,15 @@ public class Character_Status : MonoBehaviour
 	//初期化
 	private void Start()
 	{
-		//HPゲージのオブジェクトを探して自動的に取得させる。
-		//hp_object = GameObject.Find("HP_ber");
-
-		//理性ゲージのオブジェクトを探して自動的に取得させる。
-		//reason_object = GameObject.Find("Reason_ber");
-
-		CharaState = State.IDLE;		// 初期状態を待機状態に設定
-		CharaMode = Mode.ANIMAL;		// 初期モードをエニモーに設定
-		CharaAnim =CharacterType.NONE;  // 初期キャラクタータイプを一旦無しに設定
-		CurrentHP = MaxHP;				// 現在HPに最大HPを代入
-		CurrentReason = MaxReason;		// 現在理性ポイントに最大理性ポイントを代入
-		GetResonPoint();				// 理性ゲージ取得
-		GetAttackPower();				// 攻撃力取得
-		GetDefensePower();				// 防御力取得
-		GetMoveSpeed();					// 移動速度取得
+		CharaState = State.IDLE;        // 初期状態を待機状態に設定
+		CharaMode = Mode.ANIMAL;        // 初期モードをエニモーに設定
+		CharaAnim = CharacterType.NONE;  // 初期キャラクタータイプを一旦無しに設定
+		CurrentHP = MaxHP;              // 現在HPに最大HPを代入
+		CurrentReason = MaxReason;      // 現在理性ポイントに最大理性ポイントを代入
+		GetResonPoint();                // 理性ゲージ取得
+		GetAttackPower();               // 攻撃力取得
+		GetDefensePower();              // 防御力取得
+		GetMoveSpeed();                 // 移動速度取得
 
 		animator = GetComponent<Animator>();
 
@@ -119,32 +113,22 @@ public class Character_Status : MonoBehaviour
 			GetModeChange();
 		}
 
-		if(Input.GetKeyDown(KeyCode.K))
-		{
-			switch (CharaMode)
-			{
-				case Mode.ANIMAL:
-					
-					break;
-				case Mode.SPSIAL_ANIMAL:
-
-					break;
-			}
-			
-		}
-
 		//一旦固有スキル関数をUpdate内で呼び出し
 		UniqueSkill();
 
 		switch (CharaMode)
 		{
 			case Mode.ANIMAL:
-				// エニモーモードの処理
-				timer += Time.deltaTime;
-				if (timer >= 1f)
+				//もし死亡状態でなければ理性ゲージ回復処理を行う
+				if (CharaState != State.DEAD)
 				{
-					Mode_Animal();
-					timer = 0f;
+					// エニモーモードの処理
+					timer += Time.deltaTime;
+					if (timer >= 1f)
+					{
+						ReasonHeal();
+						timer = 0f;
+					}
 				}
 				break;
 
@@ -154,7 +138,7 @@ public class Character_Status : MonoBehaviour
 				timer += Time.deltaTime;
 				if (timer >= 1f)
 				{
-					Mode_SpsialAnimal();
+					ReasonDecrease();
 					timer = 0f;
 				}
 				break;
@@ -192,7 +176,7 @@ public class Character_Status : MonoBehaviour
 		// モードごとのダメージ処理分岐
 		if (CharaMode == Mode.ANIMAL)
 		{
-			//Mode_Animal();  // エニモーモードのダメージ処理関数呼び出し
+			//ReasonHeal();  // エニモーモードのダメージ処理関数呼び出し
 			CurrentHP -= damage; // HP減少処理
 		}
 		else if (CharaMode == Mode.SPSIAL_ANIMAL)
@@ -202,10 +186,11 @@ public class Character_Status : MonoBehaviour
 			CurrentReason -= actualDamage; // 理性ゲージ減少処理
 		}
 
-		// HPが0以下になった場合の処理
-		if (CurrentHP <= 0)
+		// 死亡判定
+		if (CurrentHP <= 0 || CurrentReason <= 0)
 		{
 			CurrentHP = 0;
+			CurrentReason = 0;
 			Die();  // 死亡処理関数呼び出し
 		}
 	}
@@ -268,7 +253,6 @@ public class Character_Status : MonoBehaviour
 	{
 		CharaMode = Mode.ANIMAL;
 		Debug.Log("モードがエニモーに変化した。");
-
 	}
 
 	//死亡処理関数
@@ -281,25 +265,27 @@ public class Character_Status : MonoBehaviour
 		}
 
 		hp_gauge.value = 0;
+		reason_gauge.value = 0;
+		Debug.Log("キャラクターが死亡しました。");
+
 		CharaState = State.DEAD; // 状態を死亡状態に変更
 	}
 
-	//モードがエニモー状態の時処理関数
-	protected virtual void Mode_Animal()
+	//エニモー状態時、理性ゲージを回復
+	protected virtual void ReasonHeal()
 	{
 		int heal_num = 0;
-		// 理性ゲージ回復処理
+
 		if (MaxReason != CurrentReason)
 		{
 			heal_num = MaxReason;
 			CurrentReason += Heal_in_reason_point;
-
 			Debug.Log("現在の理性ポイント:" + CurrentReason);
 		}
 	}
 
 	//スペシャルエニモーモード理性ゲージ減少処理関数
-	protected virtual void Mode_SpsialAnimal()
+	protected virtual void ReasonDecrease()
 	{
 		int num = 0;
 
@@ -374,21 +360,29 @@ public class Character_Status : MonoBehaviour
 	//ダチョウの固有スキル処理関数
 	void UniqueSkill_Ostrich()
 	{
-		/*ダチョウの固有スキルは体力を
-		時間経過によって回復する*/
-		int ostrich_heal = Heal_in_hp_point;
-
-		timer += Time.deltaTime;
-
-		if (timer >= 1f)
+		//0でないなら体力回復処理
+		if (CurrentHP != 0)
 		{
-			// HP回復処理
-			if (MaxHP != CurrentHP)
-			{
-				CurrentHP += ostrich_heal;
-			}
-			timer = 0f;
-		}
+			/*ダチョウの固有スキルは体力を
+			時間経過によって回復する*/
+			int ostrich_heal = Heal_in_hp_point;
 
+			timer += Time.deltaTime;
+
+			if (timer >= 1f)
+			{
+				// HP回復処理
+				if (MaxHP != CurrentHP)
+				{
+					CurrentHP += ostrich_heal;
+				}
+				timer = 0f;
+			}
+		}
+		else
+		{
+			//0なら死亡処理関数呼び出し
+			Die();
+		}
 	}
 }
