@@ -34,6 +34,9 @@ public class Character_Status : MonoBehaviour
 	[SerializeField] protected int ReasonDefensePower = 60;             // キャラクター理性解放時攻撃力
 	[SerializeField] protected float ReasonMoveSpeed = 1.0f;            // キャラクター移動速度
 
+	[Header("プレイヤー識別番号(1~4)")]
+	public int playerID;
+
 	private Slider hp_gauge;               //HPゲージUIスライダー参照用変数
 	private Slider reason_gauge;           //HPゲージUIスライダー参照用変数
 	private Animator animator;             //アニメーター参照用変数
@@ -76,11 +79,19 @@ public class Character_Status : MonoBehaviour
 
 	State CharaState;           // キャラクター状態変数
 	Mode CharaMode;             // キャラクターモード変数
-	CharacterType CharaAnim;    // キャラクタータイプ変数
+	public CharacterType CharaAnim;    // キャラクタータイプ変数
 
 	//初期化
 	private void Start()
 	{
+		// 予約表から自分の情報を取得
+		CharacterType selected = Animal_Select.playerChoices[playerID];
+
+		if (selected != CharacterType.NONE)
+		{
+			CharaAnim = selected; // 選択された動物を反映
+		}
+
 		CharaState = State.IDLE;        // 初期状態を待機状態に設定
 		CharaMode = Mode.ANIMAL;        // 初期モードをエニモーに設定
 		CurrentHP = MaxHP;              // 現在HPに最大HPを代入

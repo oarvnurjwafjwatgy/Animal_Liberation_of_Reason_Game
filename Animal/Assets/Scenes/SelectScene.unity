@@ -346,8 +346,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ecddc6187975af74cbd9cdca0afbcfa0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  buttonID: 2
-  animalName: RHINOCELOS
+  playerID: 0
+  animalType: 3
 --- !u!1 &752509495
 GameObject:
   m_ObjectHideFlags: 0
@@ -398,7 +398,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_FirstSelected: {fileID: 0}
+  m_FirstSelected: {fileID: 1489556619}
   m_sendNavigationEvents: 1
   m_DragThreshold: 10
 --- !u!4 &752509498
@@ -747,8 +747,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ecddc6187975af74cbd9cdca0afbcfa0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  buttonID: 0
-  animalName: LION
+  playerID: 0
+  animalType: 1
 --- !u!1 &1631395455
 GameObject:
   m_ObjectHideFlags: 0
@@ -996,8 +996,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ecddc6187975af74cbd9cdca0afbcfa0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  buttonID: 1
-  animalName: OSTRICH
+  playerID: 0
+  animalType: 2
 --- !u!1 &1770088619
 GameObject:
   m_ObjectHideFlags: 0
@@ -1143,8 +1143,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ecddc6187975af74cbd9cdca0afbcfa0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  buttonID: 3
-  animalName: RATEL
+  playerID: 0
+  animalType: 4
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
