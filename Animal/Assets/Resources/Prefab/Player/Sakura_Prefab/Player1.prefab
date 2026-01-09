@@ -361,8 +361,10 @@ MonoBehaviour:
   ReasonAttackPower: 50
   ReasonDefensePower: 60
   ReasonMoveSpeed: 1
+  playerID: 1
   hp_object: {fileID: 0}
   reason_object: {fileID: 0}
+  CharaAnim: 0
 --- !u!114 &4172659695648593839
 MonoBehaviour:
   m_ObjectHideFlags: 0

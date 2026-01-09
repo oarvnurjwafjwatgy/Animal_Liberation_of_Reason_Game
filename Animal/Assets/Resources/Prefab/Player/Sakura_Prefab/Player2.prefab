@@ -771,10 +771,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 5
-  cameraObject: {fileID: 0}
-  normalObject: {fileID: 0}
-  reasonObject: {fileID: 0}
-  ghostObject: {fileID: 0}
 --- !u!95 &5989496326221996648
 Animator:
   serializedVersion: 5
@@ -808,6 +804,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf40602d50eb93f4b8a7754d6137f445, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SelectLion: 0
+  SelectOstrich: 0
+  SelectRhinocelos: 0
+  SelectRatel: 0
   MaxHP: 400
   MaxReason: 100
   ReasonPoint: 100
@@ -821,8 +821,10 @@ MonoBehaviour:
   ReasonAttackPower: 50
   ReasonDefensePower: 60
   ReasonMoveSpeed: 1
+  playerID: 2
   hp_object: {fileID: 0}
   reason_object: {fileID: 0}
+  CharaAnim: 0
 --- !u!114 &1647005903223363213
 MonoBehaviour:
   m_ObjectHideFlags: 0
