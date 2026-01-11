@@ -1,132 +1,223 @@
-using UnityEngine;
-using UnityEngine.EventSystems;
+ï»¿using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 public class Animal_Select : MonoBehaviour
 {
-	// Ã“I”z—ñ‚Å‘SƒvƒŒƒCƒ„[‚Ì‘I‘ğ‚ğŠÇ— (ƒCƒ“ƒfƒbƒNƒX0‚Í–¢g—p)
+	// é™çš„é…åˆ—ï¼šå…¨ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼(1~4P)ã®é¸ã‚“ã å‹•ç‰©ã‚’ä¿å­˜
 	public static Character_Status.CharacterType[] playerChoices = new Character_Status.CharacterType[5];
-	
-	[Header("‚±‚Ì‘I‘ğˆ‚Ì“®•¨ƒ^ƒCƒv")]
+	// é™çš„é…åˆ—ï¼šå„ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒä»Šã©ã®ãƒœã‚¿ãƒ³(0~3)ã«ã„ã‚‹ã‹ã‚’è¨˜éŒ²
+	public static int[] playerPositions = new int[] { 0, 0, 0, 0, 0 };
+
+	/******Unityã®Inspectorã§è¨­å®šå¯èƒ½ãªé …ç›®********/
+
+	//ãƒœã‚¿ãƒ³ã«ã‚ã‚‹å‹•ç‰©ã‚¿ã‚¤ãƒ—
+	[Header("ã“ã®é¸æŠè‚¢ã®å‹•ç‰©ã‚¿ã‚¤ãƒ—")]
 	public Character_Status.CharacterType animalType;
 
-	[Header("İ’è")]
-	public string mainSceneName = "MainGameScene";
+	//ã‚·ãƒ¼ãƒ³
+	[Header("è¨­å®š")]
+	public string mainSceneName = "SampleScene";
 
-	private int dynamicRequiredPlayers;     // •K—v‚ÈƒvƒŒƒCƒ„[” (Ú‘±‚³‚ê‚Ä‚¢‚éƒQ[ƒ€ƒpƒbƒh”‚ÉŠî‚Ã‚­)
-	private bool allPlayersReady = false;	// ‘Sˆõ‚ªƒLƒƒƒ‰‚ğ‘I‚ñ‚¾‚©
-	private bool isTransitioning = false;	// ƒV[ƒ“ˆÚ“®’†‚©
+	//æº–å‚™å®Œäº†ã‚¤ãƒ©ã‚¹ãƒˆ
+	[Header("æº–å‚™å®Œäº†ã‚¤ãƒ©ã‚¹ãƒˆ")]
+	public static GameObject readyImage;
+
+	//ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®é¸æŠãƒãƒ¼ã‚¯
+	[Header("Playerãƒãƒ¼ã‚¯")]
+	public GameObject[] pFrames;
+
+	//å‹•ç‰©é¸æŠãƒœã‚¿ãƒ³ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹
+	[Header("ãƒœã‚¿ãƒ³ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ (0~3)")]
+	public int buttonIndex;
+
+	private int dynamicRequiredPlayers;         // å‹•çš„å‚åŠ äººæ•°
+	private bool allPlayersReady = false;       // å…¨å“¡æ±ºå®šæ¸ˆã¿ãƒ•ãƒ©ã‚°
+	private bool isTransitioning = false;       // ã‚·ãƒ¼ãƒ³é·ç§»ä¸­ãƒ•ãƒ©ã‚°
 
 
 	void Awake()
 	{
-		//‰Šú‰»ˆ—i”z—ñ‚ğ1‚¸‚Âƒ`ƒFƒbƒN‚µ‚Ä‚­j:‘S‚ÄNONE‚É‚·‚é
-		for (int i = 0; i < playerChoices.Length; i++)
-			playerChoices[i] = Character_Status.CharacterType.NONE;
+		// å…¨ãƒœã‚¿ãƒ³å…±é€šã§1å›ã ã‘æ¢ã›ã°OK
+		if (readyImage == null)
+		{
+			foreach (GameObject obj in Resources.FindObjectsOfTypeAll<GameObject>())
+			{
+				if (obj.name == "ReadyImage")
+				{
+					readyImage = obj;
+					break;
+				}
+			}
+		}
+
+		// ã‚·ãƒ¼ãƒ³é–‹å§‹æ™‚ã«å…¨ã¦ã®æƒ…å ±ã‚’ãƒªã‚»ãƒƒãƒˆ
+		// buttonIndex 0 ã®ãƒœã‚¿ãƒ³ãŒä»£è¡¨ã—ã¦ 1å›ã ã‘ãƒ­ã‚°ã‚’å‡ºã™
+		if (buttonIndex == 0)
+		{
+			for (int i = 0; i < playerChoices.Length; i++)
+			{
+				playerChoices[i] = Character_Status.CharacterType.NONE;
+				playerPositions[i] = 0;
+			}
+			Debug.Log("<color=white>Selection Data Reset.</color>");
+		}
 	}
 
+
+	//æ›´æ–°
 	void Update()
 	{
-		// ƒV[ƒ“ˆÚ“®’†‚Í“ü—Í‚ğó‚¯•t‚¯‚È‚¢
+	//ã‚·ãƒ¼ãƒ³é·ç§»ä¸­ã¯ä»¥ä¸‹ã®å‡¦ç†ã‚’é€šã•ãªã„
 		if (isTransitioning) return;
 
-		/* “®“I‚É•K—v‚ÈƒvƒŒƒCƒ„[”‚ğİ’è (2`4l)
-		Gamepad.all.Count‚ÍŒ»İPC‚ÉŒq‚ª‚Á‚Ä‚é”‚ğƒJƒEƒ“ƒg‚µ‚Ä‚­‚ê‚éB
-		Math.Clamp(’l,Å¬,Å‘å)@”ÍˆÍ‚Éû‚Ü‚é‚æ‚¤‚É‚µ‚Ä‚­‚ê‚é‚à‚Ì*/
+		// æ¥ç¶šã•ã‚Œã¦ã„ã‚‹ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ©ãƒ¼æ•°ã‚’ç¢ºèª
 		dynamicRequiredPlayers = Mathf.Clamp(Gamepad.all.Count, 2, 4);
 
-		/*ƒZƒŒƒNƒg’†‚Å‚Í‚±‚ÌƒIƒuƒWƒFƒNƒg‚ª‘I‘ğ‚³‚ê‚Ä‚¢‚éê‡‚Ì‚İ“ü—Í‚ğó‚¯•t‚¯‚é
-		‚±‚ê‚É‚æ‚èˆ—‚ªŒÂ•Ê‰»‚¹‚¸‹¤’Ê‚µ‚Ä“®‚©‚·‚±‚Æ‚ª‰Â”\‚©‚Æ*/
-		if (EventSystem.current.currentSelectedGameObject == this.gameObject)
+		//ç§»å‹•å…¥åŠ›å‡¦ç† (Index 0 ã®ãƒœã‚¿ãƒ³ãŒä»£è¡¨ã—ã¦è¨ˆç®—)
+		if (buttonIndex == 0)
 		{
-			// --- ‘SƒvƒŒƒCƒ„[‚Ì“ü—Í‚ğƒ‹[ƒv‚Åƒ`ƒFƒbƒN ---
-			for (int i = 0; i < Gamepad.all.Count; i++)
+			for (int pID = 1; pID <= 4; pID++)
 			{
-				var pad = Gamepad.all[i];   //„˜_‚É‚ÄGamepad.all[i]‚ªi”Ô–Ú‚ÌƒRƒ“ƒgƒ[ƒ‰[‚ğw‚·
-				int pID = i + 1;            // ƒvƒŒƒCƒ„[ID‚Íi+1 (P1=1, P2=2, ...)
+				//é¸æŠä¸­ã®ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒæ±ºå®šæ¸ˆã¿ãªã‚‰ç§»å‹•ä¸å¯
+				if (playerChoices[pID] != Character_Status.CharacterType.NONE) continue;
 
-				// 1. ƒLƒƒƒ‰Œˆ’è (Aƒ{ƒ^ƒ“‰Ÿ‚³‚ê‚½Û‚É‚Ü‚¾ƒLƒƒƒ‰‚ğ–¢‘I‘ğ‚Ìê‡)
-				if (pad.buttonSouth.wasPressedThisFrame && !allPlayersReady)
+				//å…¨ä½“ã®å‚æˆ¦äººæ•°ã‚ˆã‚Šå¤šã„ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼IDã¯ç„¡è¦–
+				if (pID <= Gamepad.all.Count)
 				{
-					SetChoice(pID);
-					CheckAllPlayersReady(); // €”õó‹µ‚ğŠm”F
+					var pad = Gamepad.all[pID - 1];     //æ¨è«–ã«ã¦å‚æˆ¦äººæ•°ã‚’padã«æ ¼ç´
+
+					// å³ç§»å‹• (3ã®æ¬¡ã¯0ã«æˆ»ã‚‹ãƒ«ãƒ¼ãƒ—)
+					if (pad.leftStick.right.wasPressedThisFrame
+					|| pad.dpad.right.wasPressedThisFrame)
+					{
+						playerPositions[pID] = (playerPositions[pID] + 1) % 4;
+						Debug.Log($"<color=yellow>{pID}P Move Right: Index {playerPositions[pID]}</color>");
+					}
+					// å·¦ç§»å‹• (0ã®æ¬¡ã¯3ã«å›ã‚‹ãƒ«ãƒ¼ãƒ—)
+					if (pad.leftStick.left.wasPressedThisFrame
+					|| pad.dpad.left.wasPressedThisFrame)
+					{
+						playerPositions[pID] = (playerPositions[pID] + 3) % 4;
+						Debug.Log($"<color=yellow>{pID}P Move Left: Index {playerPositions[pID]}</color>");
+					}
 				}
 
-				// 2. ƒLƒƒƒ“ƒZƒ‹ (Bƒ{ƒ^ƒ“)
-				if (pad.buttonEast.wasPressedThisFrame)
+				// ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰2Pç§»å‹•(ãƒ‡ãƒãƒƒã‚¯ç”¨)
+				if (pID == 2)
 				{
-					CancelChoice(pID);
-					allPlayersReady = false; //1l‚ÍƒLƒƒƒ“ƒZƒ‹‚µ‚½‚Ì‚Å‘Sˆõ€”õŠ®—¹‚Ífalse‚É–ß‚·
-				}
-
-				// 3. ƒoƒgƒ‹ŠJn (‘SˆõReady‚Ì‚ÉStartƒ{ƒ^ƒ“‚Ü‚½‚ÍMenuƒ{ƒ^ƒ“)
-				if (allPlayersReady && (pad.startButton.wasPressedThisFrame || pad.selectButton.wasPressedThisFrame))
-				{
-					StartBattle();
+					if (Input.GetKeyDown(KeyCode.RightArrow))
+					{
+						playerPositions[2] = (playerPositions[2] + 1) % 4;
+						Debug.Log("<color=yellow>2P (KB) Move Right</color>");
+					}
+					if (Input.GetKeyDown(KeyCode.LeftArrow))
+					{
+						playerPositions[2] = (playerPositions[2] + 3) % 4;
+						Debug.Log("<color=yellow>2P (KB) Move Left</color>");
+					}
 				}
 			}
+		}
 
-			// --- ƒfƒoƒbƒO—pƒL[ƒ{[ƒh“ü—Í ---
-			// Œˆ’è(Z/Enter) / ƒLƒƒƒ“ƒZƒ‹(X/Backspace)
-			if (Input.GetKeyDown(KeyCode.Z)) { SetChoice(1); CheckAllPlayersReady(); }
-			if (Input.GetKeyDown(KeyCode.Return)) { SetChoice(2); CheckAllPlayersReady(); }
-			if (Input.GetKeyDown(KeyCode.X)) { CancelChoice(1); allPlayersReady = false; }
-			if (Input.GetKeyDown(KeyCode.Backspace)) { CancelChoice(2); allPlayersReady = false; }
+		/*********å„ãƒœã‚¿ãƒ³ã®è¡¨ç¤ºã¨ã€Œæ±ºå®šãƒ»ã‚­ãƒ£ãƒ³ã‚»ãƒ«ã€åˆ¤å®š************/
+		//1Pã‹ã‚‰ç¾åœ¨ã®æœ€å¤§å‚åŠ äººæ•°ã¾ã§å‡¦ç†
+		for (int pID = 1; pID <= dynamicRequiredPlayers; pID++)
+		{
+			// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ãƒ•ãƒ¬ãƒ¼ãƒ ãŒè¨­å®šã•ã‚Œã¦ã„ãªã‘ã‚Œã°ã‚¹ã‚­ãƒƒãƒ—
+			if (pID > pFrames.Length || pFrames[pID - 1] == null) continue;
 
-			// ƒL[ƒ{[ƒh‚Å‚Ìƒoƒgƒ‹ŠJn (‘SˆõReady‚É Space)
-			if (allPlayersReady && Input.GetKeyDown(KeyCode.Space))
+			// ã“ã®ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒã€Œã“ã®ãƒœã‚¿ãƒ³ã€ã«ã„ã‚‹ã‹ã€ã¾ãŸã¯ã“ã“ã§æ±ºå®šæ¸ˆã¿ã‹
+			bool isHere = (playerPositions[pID] == buttonIndex);
+			bool isDecidedHere = (playerChoices[pID] ==
+			animalType && animalType != Character_Status.CharacterType.NONE);
+
+
+			// ãƒãƒ¼ã‚¯ã®è¡¨ç¤ºåˆ‡æ›¿ (ã“ã“ã«ã„ãªã„æ™‚ã¯å¼·åˆ¶çš„ã«æ¶ˆã™ã“ã¨ã§ã€Œå…¨å“¡å‡ºç¾ã€ã‚’é˜²ã)
+			pFrames[pID - 1].SetActive(isDecidedHere || (playerChoices[pID] == Character_Status.CharacterType.NONE && isHere));
+
+
+			// ã€æ±ºå®šåˆ¤å®šã€‘ãã®ãƒœã‚¿ãƒ³ã®ä¸Šã«ã„ã‚‹æ™‚ã ã‘
+			if (isHere && playerChoices[pID] == Character_Status.CharacterType.NONE)
 			{
-				StartBattle();
+				//é¸æŠãƒãƒ¼ã‚¯ãŒãƒœã‚¿ãƒ³ã®ä¸Šã«ã‚ã‚‹ãƒ»ãƒœã‚¿ãƒ³æœªæ±ºå®šã®æ™‚
+				if (pID <= Gamepad.all.Count && Gamepad.all[pID - 1].buttonSouth.wasPressedThisFrame)
+				{
+					SetChoice(pID);             //æ±ºå®šå‡¦ç†
+					CheckAllPlayersReady();     //å…¨å“¡æ±ºå®šæ¸ˆã¿ã‹ãƒã‚§ãƒƒã‚¯
+				}
+				//ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰2Pç”¨æ±ºå®šãƒœã‚¿ãƒ³(ãƒ‡ãƒãƒƒã‚¯ç”¨)
+				else if (pID == 2 && Input.GetKeyDown(KeyCode.Return))
+				{
+					SetChoice(2);
+					CheckAllPlayersReady();
+				}
+			}
+			// ã€ã‚­ãƒ£ãƒ³ã‚»ãƒ«åˆ¤å®šã€‘ãã®ãƒœã‚¿ãƒ³ã§æ±ºå®šæ¸ˆã¿ã®æ™‚ã ã‘
+			else if (isDecidedHere)
+			{
+				//å‚æˆ¦ä¸­ã®ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‹ã¤ã‚­ãƒ£ãƒ³ã‚»ãƒ«ãƒœã‚¿ãƒ³ãŒæŠ¼ã•ã‚ŒãŸã‚‰
+				if (pID <= Gamepad.all.Count && Gamepad.all[pID - 1].buttonEast.wasPressedThisFrame)
+				{
+					CancelChoice(pID);      //ã‚­ãƒ£ãƒ³ã‚»ãƒ«å‡¦ç†
+				}
+				//ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰2Pç”¨ã‚­ãƒ£ãƒ³ã‚»ãƒ«ãƒœã‚¿ãƒ³(ãƒ‡ãƒãƒƒã‚¯ç”¨)
+				else if (pID == 2 && Input.GetKeyDown(KeyCode.Backspace))
+				{
+					CancelChoice(2);
+				}
 			}
 		}
+
+		// é–‹å§‹åˆ¤å®š
+		//startPadã«å‚åŠ äººæ•°è€…ã®èª°ã‹ãŒã‚¹ã‚¿ãƒ¼ãƒˆãƒœã‚¿ãƒ³ã‚’æŠ¼ã—ãŸã‹åˆ¤å®šã—ãŸã‚‰
+		//ã“ã®ãƒ•ãƒ©ã‚°ã¯trueã«ãªã‚‹
+		bool startPad = (Gamepad.all.Count > 0 && Gamepad.all[0].startButton.wasPressedThisFrame);
+
+		//å…¨å“¡æ±ºå®šæ¸ˆã¿ã‹ã¤ã‚¹ã‚¿ãƒ¼ãƒˆãƒœã‚¿ãƒ³orã‚¹ãƒšãƒ¼ã‚¹ã‚­ãƒ¼ãŒæŠ¼ã•ã‚ŒãŸã‚‰ãƒãƒˆãƒ«é–‹å§‹
+		if (allPlayersReady && (startPad || Input.GetKeyDown(KeyCode.Space))) StartBattle();
 	}
 
-	// ƒvƒŒƒCƒ„[‚Ì‘I‘ğ‚ğİ’è
-	void SetChoice(int playerId)
+	//æ±ºå®šå‡¦ç†
+	void SetChoice(int pID)
 	{
-		playerChoices[playerId] = animalType;//—\–ñ•\‚É‘I‘ğ‚ğ“o˜^
-		Debug.Log($"<color=cyan>{playerId}P Œˆ’è:</color> {animalType}");
+		playerChoices[pID] = animalType;    //é¸ã‚“ã å‹•ç‰©ã‚’é…åˆ—ã«ä¿å­˜
+		Debug.Log($"<color=cyan>{pID}P æ±ºå®š:</color> {animalType}");
 	}
 
-	// ƒvƒŒƒCƒ„[‚ÌƒLƒƒƒ‰‘I‘ğ‚ğƒLƒƒƒ“ƒZƒ‹
-	void CancelChoice(int playerId)
+	//ã‚­ãƒ£ãƒ³ã‚»ãƒ«å‡¦ç†
+	void CancelChoice(int pID)
 	{
-		//”z—ñ‚Ì’†g‚ªNONEˆÈŠO‚È‚çƒLƒƒƒ“ƒZƒ‹ˆ—Às
-		if (playerChoices[playerId] != Character_Status.CharacterType.NONE)
-		{
-			//‚»‚ÌƒvƒŒƒCƒ„[‚ª‘I‚ñ‚¾ƒLƒƒƒ‰ƒNƒ^[‚ğNONE‚É–ß‚·
-			playerChoices[playerId] = Character_Status.CharacterType.NONE;
-			Debug.Log($"<color=red>{playerId}P ƒLƒƒƒ“ƒZƒ‹‚µ‚Ü‚µ‚½</color>"); // Ô•¶šƒƒO
-		}
+		playerChoices[pID] = Character_Status.CharacterType.NONE;   //é¸æŠçŠ¶æ…‹ã‚’ãƒªã‚»ãƒƒãƒˆ
+		allPlayersReady = false;                                    //å…¨å“¡æ±ºå®šæ¸ˆã¿ãƒ•ãƒ©ã‚°ã‚’ãƒªã‚»ãƒƒãƒˆ
+		readyImage.SetActive(false);                                //æº–å‚™å®Œäº†ã‚¤ãƒ©ã‚¹ãƒˆéè¡¨ç¤º
+		Debug.Log($"<color=red>{pID}P ã‚­ãƒ£ãƒ³ã‚»ãƒ«</color>");
 	}
 
-	// ‘SƒvƒŒƒCƒ„[‚ª€”õŠ®—¹‚©Šm”F
+	//å…¨å“¡æ±ºå®šæ¸ˆã¿ãƒã‚§ãƒƒã‚¯
 	void CheckAllPlayersReady()
 	{
-		int readyCount = 0;//€”õŠ®—¹‚µ‚½ƒvƒŒƒCƒ„[”ƒJƒEƒ“ƒg
+		int count = 0;      //æº–å‚™å®Œäº†ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼æ•°ã‚«ã‚¦ãƒ³ãƒˆ
 
-		// —\–ñ•\‚ğƒ`ƒFƒbƒN‚µ‚Ä€”õŠ®—¹”‚ğƒJƒEƒ“ƒg
+		//å‚åŠ ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼å…¨å“¡åˆ†ãƒ«ãƒ¼ãƒ—
 		for (int i = 1; i <= dynamicRequiredPlayers; i++)
-		{
-			// NONEˆÈŠO‚ª‘I‚Î‚ê‚Ä‚¢‚ê‚Î€”õŠ®—¹‚Æ‚İ‚È‚·
-			if (playerChoices[i] != Character_Status.CharacterType.NONE)
-				readyCount++;
-		}
+			//é¸æŠæ¸ˆã¿ãªã‚‰ã‚«ã‚¦ãƒ³ãƒˆã‚¢ãƒƒãƒ—
+			if (playerChoices[i] != Character_Status.CharacterType.NONE) count++;
 
-		//—\–ñ•\‚Ì€”õŠ®—¹”‚ª•K—v”‚É’B‚µ‚½‚ç‘Sˆõ€”õŠ®—¹‚Æ‚·‚é
-		if (readyCount >= dynamicRequiredPlayers)
+		//å…¨å“¡æ±ºå®šæ¸ˆã¿ãªã‚‰ãƒ•ãƒ©ã‚°ã‚’ç«‹ã¦ã‚‹
+		if (count >= dynamicRequiredPlayers)
 		{
-			allPlayersReady = true; // ‘Sˆõ€”õŠ®—¹
-			Debug.Log("<color=yellow>READY? (Startƒ{ƒ^ƒ“‚©SpaceƒL[‚ÅŠJnI)</color>");
+			allPlayersReady = true;     //Areyoureadyï¼Ÿ
+			readyImage.SetActive(true); //æº–å‚™å®Œäº†ã‚¤ãƒ©ã‚¹ãƒˆè¡¨ç¤º
+			Debug.Log("<color=orange>ALL PLAYERS READY!</color>");
 		}
 	}
 
-	// ƒoƒgƒ‹ƒV[ƒ“‚ÖˆÚ“®
+	//ãƒãƒˆãƒ«ã‚·ãƒ¼ãƒ³ã¸ç§»è¡Œ
 	void StartBattle()
 	{
-		Debug.Log("<color=orange>GO!! ƒV[ƒ“ˆÚ“®ŠJn</color>");
-		isTransitioning = true;
-		SceneManager.LoadScene(mainSceneName);
+		Debug.Log("<color=green>Scene Transition Start.</color>");
+		isTransitioning = true;                     // ã‚·ãƒ¼ãƒ³é·ç§»ä¸­ãƒ•ãƒ©ã‚°ã‚’ç«‹ã¦ã‚‹
+		SceneManager.LoadScene(mainSceneName);      //ã‚·ãƒ¼ãƒ³ç§»è¡Œ
 	}
 }

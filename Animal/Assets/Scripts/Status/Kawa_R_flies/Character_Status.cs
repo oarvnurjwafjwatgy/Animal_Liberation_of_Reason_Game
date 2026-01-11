@@ -84,19 +84,21 @@ public class Character_Status : MonoBehaviour
 	//初期化
 	private void Start()
 	{
-		// 予約表から自分の情報を取得
-		CharacterType selected = Animal_Select.playerChoices[playerID];
+		//まずインスペクターのチェックボックスで判定 (以前の仕様を維持)
+		SelectAnimal();
 
+		// 次に予約表をチェック。選ばれていれば上書きする
+		CharacterType selected = Animal_Select.playerChoices[playerID];
 		if (selected != CharacterType.NONE)
 		{
-			CharaAnim = selected; // 選択された動物を反映
+			CharaAnim = selected;
+			Debug.Log($"{playerID}P のキャラを予約表から反映: {CharaAnim}");
 		}
 
 		CharaState = State.IDLE;        // 初期状態を待機状態に設定
 		CharaMode = Mode.ANIMAL;        // 初期モードをエニモーに設定
 		CurrentHP = MaxHP;              // 現在HPに最大HPを代入
 		CurrentReason = MaxReason;      // 現在理性ポイントに最大理性ポイントを代入
-		SelectAnimal();                 // 選択キャラクター設定関数呼び出し
 		GetResonPoint();                // 理性ゲージ取得
 		GetAttackPower();               // 攻撃力取得
 		GetDefensePower();              // 防御力取得
