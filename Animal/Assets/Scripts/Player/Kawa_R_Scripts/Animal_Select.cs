@@ -190,7 +190,7 @@ public class Animal_Select : MonoBehaviour
 	{
 		playerChoices[pID] = Character_Status.CharacterType.NONE;   //選択状態をリセット
 		allPlayersReady = false;                                    //全員決定済みフラグをリセット
-		readyImage.SetActive(false);                                //準備完了イラスト非表示
+		if (readyImage != null) readyImage.SetActive(false);        //準備完了イラスト非表示
 		Debug.Log($"<color=red>{pID}P キャンセル</color>");
 	}
 
@@ -208,7 +208,7 @@ public class Animal_Select : MonoBehaviour
 		if (count >= dynamicRequiredPlayers)
 		{
 			allPlayersReady = true;     //Areyouready？
-			readyImage.SetActive(true); //準備完了イラスト表示
+			if (readyImage != null) readyImage.SetActive(true); //準備完了イラスト表示
 			Debug.Log("<color=orange>ALL PLAYERS READY!</color>");
 		}
 	}
