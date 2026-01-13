@@ -71,8 +71,8 @@ public class Animal_Select : MonoBehaviour
 	//シーン遷移中は以下の処理を通さない
 		if (isTransitioning) return;
 
-		// 接続されているコントローラー数を確認
-		dynamicRequiredPlayers = Mathf.Clamp(Gamepad.all.Count, 2, 4);
+		// 参加人数を確認
+		dynamicRequiredPlayers = GameDataManager.SelectedPlayerCount;
 
 		//移動入力処理 (Index 0 のボタンが代表して計算)
 		if (buttonIndex == 0)
