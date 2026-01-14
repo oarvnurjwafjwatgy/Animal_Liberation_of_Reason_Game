@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using UnityEngine.TextCore.Text;
 
 public class Animal_Select : MonoBehaviour
 {
@@ -35,7 +36,6 @@ public class Animal_Select : MonoBehaviour
 	private bool allPlayersReady = false;       // 全員決定済みフラグ
 	private bool isTransitioning = false;       // シーン遷移中フラグ
 
-
 	void Awake()
 	{
 		// 全ボタン共通で1回だけ探せばOK
@@ -51,16 +51,21 @@ public class Animal_Select : MonoBehaviour
 			}
 		}
 
-		// シーン開始時に全ての情報をリセット
-		// buttonIndex 0 のボタンが代表して 1回だけログを出す
+		// --- シーン開始時に全ての情報を「強制」リセット ---
+		// どのボタンが担当してもいいですが、重複しないように buttonIndex == 0 の時だけ実行
 		if (buttonIndex == 0)
 		{
 			for (int i = 0; i < playerChoices.Length; i++)
 			{
-				playerChoices[i] = Character_Status.CharacterType.NONE;
-				playerPositions[i] = 0;
+				playerChoices[i] = Character_Status.CharacterType.NONE; // 選択をなしにする
+				playerPositions[i] = 0; // カーソルを左端に戻す
 			}
-			Debug.Log("<color=white>Selection Data Reset.</color>");
+
+			// 準備完了フラグとイラストも初期化
+			allPlayersReady = false;
+			if (readyImage != null) readyImage.SetActive(false);
+
+			Debug.Log("<color=white>Selection Data Forced Reset.</color>");
 		}
 	}
 
@@ -68,35 +73,36 @@ public class Animal_Select : MonoBehaviour
 	//更新
 	void Update()
 	{
-	//シーン遷移中は以下の処理を通さない
+		// シーンが始まってから 0.1秒経つまでは、一切の入力を無視する
+		if (Time.timeSinceLevelLoad < 0.1f) return;
+
+		//シーン遷移中は以下の処理を通さない
 		if (isTransitioning) return;
 
-		// 参加人数を確認
+		// 参加人数を確認 (人数選択画面での決定を反映)
 		dynamicRequiredPlayers = GameDataManager.SelectedPlayerCount;
 
 		//移動入力処理 (Index 0 のボタンが代表して計算)
 		if (buttonIndex == 0)
 		{
-			for (int pID = 1; pID <= 4; pID++)
+			for (int pID = 1; pID <= dynamicRequiredPlayers; pID++) // 参戦人数分ループ
 			{
 				//選択中のプレイヤーが決定済みなら移動不可
 				if (playerChoices[pID] != Character_Status.CharacterType.NONE) continue;
 
-				//全体の参戦人数より多いプレイヤーIDは無視
+				//実際にコントローラーが接続されている場合のみ入力を受け取る
 				if (pID <= Gamepad.all.Count)
 				{
-					var pad = Gamepad.all[pID - 1];     //推論にて参戦人数をpadに格納
+					var pad = Gamepad.all[pID - 1];
 
 					// 右移動 (3の次は0に戻るループ)
-					if (pad.leftStick.right.wasPressedThisFrame
-					|| pad.dpad.right.wasPressedThisFrame)
+					if (pad.leftStick.right.wasPressedThisFrame || pad.dpad.right.wasPressedThisFrame)
 					{
 						playerPositions[pID] = (playerPositions[pID] + 1) % 4;
 						Debug.Log($"<color=yellow>{pID}P Move Right: Index {playerPositions[pID]}</color>");
 					}
 					// 左移動 (0の次は3に回るループ)
-					if (pad.leftStick.left.wasPressedThisFrame
-					|| pad.dpad.left.wasPressedThisFrame)
+					if (pad.leftStick.left.wasPressedThisFrame || pad.dpad.left.wasPressedThisFrame)
 					{
 						playerPositions[pID] = (playerPositions[pID] + 3) % 4;
 						Debug.Log($"<color=yellow>{pID}P Move Left: Index {playerPositions[pID]}</color>");
@@ -109,12 +115,10 @@ public class Animal_Select : MonoBehaviour
 					if (Input.GetKeyDown(KeyCode.RightArrow))
 					{
 						playerPositions[2] = (playerPositions[2] + 1) % 4;
-						Debug.Log("<color=yellow>2P (KB) Move Right</color>");
 					}
 					if (Input.GetKeyDown(KeyCode.LeftArrow))
 					{
 						playerPositions[2] = (playerPositions[2] + 3) % 4;
-						Debug.Log("<color=yellow>2P (KB) Move Left</color>");
 					}
 				}
 			}
@@ -124,24 +128,21 @@ public class Animal_Select : MonoBehaviour
 		//1Pから現在の最大参加人数まで処理
 		for (int pID = 1; pID <= dynamicRequiredPlayers; pID++)
 		{
-			// プレイヤーのフレームが設定されていなければスキップ
+			// 枠（pFrames）の数を超えないように安全チェックを追加
 			if (pID > pFrames.Length || pFrames[pID - 1] == null) continue;
 
 			// このプレイヤーが「このボタン」にいるか、またはここで決定済みか
 			bool isHere = (playerPositions[pID] == buttonIndex);
-			bool isDecidedHere = (playerChoices[pID] ==
-			animalType && animalType != Character_Status.CharacterType.NONE);
+			bool isDecidedHere = (playerChoices[pID] == animalType && animalType != Character_Status.CharacterType.NONE);
 
-
-			// マークの表示切替 (ここにいない時は強制的に消すことで「全員出現」を防ぐ)
+			// マークの表示切替
 			pFrames[pID - 1].SetActive(isDecidedHere || (playerChoices[pID] == Character_Status.CharacterType.NONE && isHere));
 
-
-			// 【決定判定】そのボタンの上にいる時だけ
+			// そのボタンの上にいる時だけ
 			if (isHere && playerChoices[pID] == Character_Status.CharacterType.NONE)
 			{
-				//選択マークがボタンの上にある・ボタン未決定の時
-				if (pID <= Gamepad.all.Count && Gamepad.all[pID - 1].buttonSouth.wasPressedThisFrame)
+				// コントローラー接続チェックを厳密化
+				if (pID <= Gamepad.all.Count && Gamepad.all[pID - 1] != null && Gamepad.all[pID - 1].buttonSouth.wasPressedThisFrame)
 				{
 					SetChoice(pID);             //決定処理
 					CheckAllPlayersReady();     //全員決定済みかチェック
@@ -157,7 +158,7 @@ public class Animal_Select : MonoBehaviour
 			else if (isDecidedHere)
 			{
 				//参戦中のプレイヤーかつキャンセルボタンが押されたら
-				if (pID <= Gamepad.all.Count && Gamepad.all[pID - 1].buttonEast.wasPressedThisFrame)
+				if (pID <= Gamepad.all.Count && Gamepad.all[pID - 1] != null && Gamepad.all[pID - 1].buttonEast.wasPressedThisFrame)
 				{
 					CancelChoice(pID);      //キャンセル処理
 				}
@@ -169,10 +170,16 @@ public class Animal_Select : MonoBehaviour
 			}
 		}
 
-		// 開始判定
-		//startPadに参加人数者の誰かがスタートボタンを押したか判定したら
-		//このフラグはtrueになる
-		bool startPad = (Gamepad.all.Count > 0 && Gamepad.all[0].startButton.wasPressedThisFrame);
+		//誰のスタートボタンでも反応するように変更
+		bool startPad = false;
+		foreach (var pad in Gamepad.all)
+		{
+			if (pad.startButton.wasPressedThisFrame)
+			{
+				startPad = true;
+				break;
+			}
+		}
 
 		//全員決定済みかつスタートボタンorスペースキーが押されたらバトル開始
 		if (allPlayersReady && (startPad || Input.GetKeyDown(KeyCode.Space))) StartBattle();

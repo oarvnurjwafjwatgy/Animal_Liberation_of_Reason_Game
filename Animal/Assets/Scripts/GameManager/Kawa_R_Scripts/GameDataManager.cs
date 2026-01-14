@@ -13,7 +13,7 @@ public class GameDataManager : MonoBehaviour
 		SelectedPlayerCount = count;
 		Debug.Log($"<color=orange>参加人数を {count}名に設定しました。</color>");
 
-		// キャラクター選択シーンへ遷移（シーン名は自分のプロジェクトに合わせてね）
+		// キャラクター選択シーンへ遷移
 		SceneManager.LoadScene("SelectScene");
 	}
 }
