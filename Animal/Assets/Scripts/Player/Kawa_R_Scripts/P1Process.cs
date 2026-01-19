@@ -36,14 +36,14 @@ public class P1Process : MonoBehaviour
 		ReasonPosition.position = new Vector3
 		(ReasonPosition.position.x + 25, ReasonPosition.position.y, ReasonPosition.position.z);
 
-		ui_manager.CreateUI(UIManager.UI_ID.GAUGE_REASON, ReasonPosition);
+		ui_manager.CreateUI(UIManager.UI_ID.GAUGE_REASON, ReasonPosition,1);
 
 
 		//HPゲージ位置調整&ゲージ生成
 		BarPosition.position = new Vector3
 		(BarPosition.position.x, BarPosition.position.y - 10, BarPosition.position.z);
 
-		ui_manager.CreateUI(UIManager.UI_ID.GAUGE_HP, BarPosition);
+		ui_manager.CreateUI(UIManager.UI_ID.GAUGE_HP, BarPosition, 1);
 	}
 
 
