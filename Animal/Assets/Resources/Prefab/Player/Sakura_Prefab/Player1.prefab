@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 4263328017263134569}
   m_Layer: 7
   m_Name: ReasonForm
-  m_TagString: Untagged
+  m_TagString: Player1
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -132,8 +132,8 @@ GameObject:
   - component: {fileID: 3926799458560520178}
   - component: {fileID: 2168775542101524467}
   m_Layer: 7
-  m_Name: CubeParent
-  m_TagString: Player
+  m_Name: Player1
+  m_TagString: Player1
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -310,7 +310,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d3b09433949b91498ba9680542f11c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  attackRange: 2
+  attackOffset: 1
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 0
   moveSpeed: 5
+  Collision: {fileID: 3948951764499293846, guid: 17be2a59e58dc044ca67771528c72d8e, type: 3}
 --- !u!95 &3501031209913266763
 Animator:
   serializedVersion: 5
@@ -416,8 +422,8 @@ GameObject:
   - component: {fileID: 2827347672282809095}
   - component: {fileID: 1445935383985221782}
   m_Layer: 7
-  m_Name: Cube
-  m_TagString: Untagged
+  m_Name: Player1
+  m_TagString: Player1
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -520,7 +526,7 @@ GameObject:
   - component: {fileID: 3273450164883428974}
   m_Layer: 7
   m_Name: Player1
-  m_TagString: Untagged
+  m_TagString: Player1
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -552,7 +558,7 @@ GameObject:
   - component: {fileID: 7178144783650406258}
   m_Layer: 7
   m_Name: Ghost
-  m_TagString: Untagged
+  m_TagString: Player1
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -587,7 +593,7 @@ GameObject:
   - component: {fileID: 8447209306499746341}
   m_Layer: 7
   m_Name: Sphere (1)
-  m_TagString: Untagged
+  m_TagString: Player1
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -692,7 +698,7 @@ GameObject:
   - component: {fileID: 3771765365976804922}
   m_Layer: 7
   m_Name: Sphere
-  m_TagString: Untagged
+  m_TagString: Player1
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -797,7 +803,7 @@ GameObject:
   - component: {fileID: 8787355130532701186}
   m_Layer: 7
   m_Name: Hand
-  m_TagString: Untagged
+  m_TagString: Player1
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -904,7 +910,7 @@ GameObject:
   - component: {fileID: 2389718485199239770}
   m_Layer: 7
   m_Name: Sphere (2)
-  m_TagString: Untagged
+  m_TagString: Player1
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1008,7 +1014,7 @@ GameObject:
   - component: {fileID: 5980127886487813967}
   m_Layer: 7
   m_Name: Camera
-  m_TagString: Untagged
+  m_TagString: Player1
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

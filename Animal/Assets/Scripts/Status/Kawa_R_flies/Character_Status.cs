@@ -219,7 +219,7 @@ public class Character_Status : MonoBehaviour
 
 
 	//死亡処理関数&ダメージ処理関数
-	protected virtual void TakeDamage(int damage)
+	public virtual void TakeDamage(int damage)
 	{
 		// モードごとのダメージ処理分岐
 		if (CharaMode == Mode.ANIMAL)
