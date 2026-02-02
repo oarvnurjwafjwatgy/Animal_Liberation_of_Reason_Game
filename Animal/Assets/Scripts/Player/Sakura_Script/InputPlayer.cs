@@ -240,6 +240,7 @@ public class InputPlayer : MonoBehaviour
                 // スペシャルアニマルモードの攻撃処理
                 Debug.Log("スペシャルアニマルモードの攻撃");
                 animator.SetTrigger("Reason_Attack");
+                AttackCollider();
                 break;
         }
     }
@@ -317,15 +318,18 @@ public class InputPlayer : MonoBehaviour
     }
 
 
-
+    // 攻撃与えたら
     private void OnTriggerEnter(Collider other)
     {
         GameObject collsionobj = other.gameObject;
 
+        Character_Status damage = collsionobj.GetComponentInParent<Character_Status>();
+
+
         switch (collsionobj.tag)
         {
-            case "Player1": Debug.Log("1Pダメージ"); ColliderDelete(); break;
-            case "Player2": Debug.Log("2Pダメージ"); ColliderDelete(); break;
+            case "Player1": Debug.Log("1Pダメージ");  damage.TakeDamage(50); ColliderDelete() ; break;
+            case "Player2": Debug.Log("2Pダメージ"); damage.TakeDamage(50); ColliderDelete(); break;
             
             
         }

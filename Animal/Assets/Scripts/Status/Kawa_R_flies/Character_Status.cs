@@ -231,11 +231,12 @@ public class Character_Status : MonoBehaviour
 		{
 			// ダメージ計算（防御力を考慮）
 			int actualDamage = Mathf.Max(damage - DefensePower, 0);
-			CurrentReason -= actualDamage; // 理性ゲージ減少処理
+            CurrentReason -= actualDamage; // 理性ゲージ減少処理
+			CurrentHP -= (int)((float)damage * 0.1f); // HP減少処理
 		}
 
-		// 死亡判定
-		if (CurrentHP <= 0 || CurrentReason <= 0)
+        // 死亡判定
+        if (CurrentHP <= 0 || CurrentReason <= 0)
 		{
 			CurrentHP = 0;
 			CurrentReason = 0;
