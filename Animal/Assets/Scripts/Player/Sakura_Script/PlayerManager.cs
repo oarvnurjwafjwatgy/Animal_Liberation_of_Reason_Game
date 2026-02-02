@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem; // ★ PlayerInput を使うために必須です
+using UnityEngine.InputSystem;
 
 public class PlayerManager : MonoBehaviour
 {
@@ -64,11 +64,5 @@ public class PlayerManager : MonoBehaviour
                 Debug.LogWarning($"P{i + 1} のスポーン地点が設定されていません。");
             }
         }
-    }
-
-    // Update は空のままでOK
-    void Update()
-    {
-
     }
 }

@@ -5,12 +5,18 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(Controller))]
 public class InputPlayer : MonoBehaviour
 {
+    [Header("攻撃の設定")]
+    public float attackRange = 2.0f;   // 攻撃が届く距離
+    public float attackOffset = 1.0f;  // 攻撃判定を出す位置（自分の中心からどれくらい前か）
+    public LayerMask enemyLayer;       // インスペクターで「Player」レイヤーを選択
+
     public float moveSpeed = 5.0f; // キャラクターの移動速度
     private GameObject cameraObject;
     private GameObject normalObject;
     private GameObject reasonObject;
     private GameObject ghostObject;
     private Quaternion cachedRotate;
+    private GameObject collisionObject;
 
 
     Character_Status character_Status;
@@ -21,6 +27,8 @@ public class InputPlayer : MonoBehaviour
     // 参照するコンポーネント
     private Rigidbody rb;
     private Controller controller; // 作成した Controller クラス
+
+    [SerializeField] private GameObject Collision;
 
     // Start is called before the first frame update
     void Start()
@@ -213,10 +221,11 @@ public class InputPlayer : MonoBehaviour
             this.RemoveUpDown();
     }
 
-    
+
     private void OnAttack(InputAction.CallbackContext context)
     {
         Debug.Log("攻撃");
+        if (deathFlag) return; // 死亡中は攻撃できない
 
         switch (character_Status.GetMode())
         {
@@ -224,6 +233,7 @@ public class InputPlayer : MonoBehaviour
                 // 動物モードの攻撃処理
                 Debug.Log("動物モードの攻撃");
                 animator.SetTrigger("Attack");
+                AttackCollider();
                 break;
 
             case Character_Status.Mode.SPSIAL_ANIMAL:
@@ -287,4 +297,44 @@ public class InputPlayer : MonoBehaviour
         change_layer.SetLayer();
     }
 
+    private void PerformAttack()
+    {
+    }
+
+
+    // アニメーションで攻撃の当たり判定を出す
+    public void AttackCollider()
+    {
+
+        Vector3 spawnPosition = normalObject.transform.position  + new Vector3(0f,0.5f,0f) +normalObject.transform.right * 3f;
+
+        collisionObject = Instantiate(Collision, spawnPosition, Quaternion.identity, this.gameObject.transform);
+    }
+
+    public void ColliderDelete()
+    {
+        Destroy(collisionObject);
+    }
+
+
+
+    private void OnTriggerEnter(Collider other)
+    {
+        GameObject collsionobj = other.gameObject;
+
+        switch (collsionobj.tag)
+        {
+            case "Player1": Debug.Log("1Pダメージ"); ColliderDelete(); break;
+            case "Player2": Debug.Log("2Pダメージ"); ColliderDelete(); break;
+            
+            
+        }
+
+       
+
+    }
+
+
+
 }
+
