@@ -77,11 +77,11 @@ public class Character_Status : MonoBehaviour
 		RATEL,          // ラーテル
 	}
 
-	State CharaState;           // キャラクター状態変数
-	Mode CharaMode;             // キャラクターモード変数
-	public CharacterType CharaAnim;    // キャラクタータイプ変数
-
-	//初期化
+	State CharaState;									// キャラクター状態変数
+	Mode CharaMode;										// キャラクターモード変数
+	public CharacterType CharaAnim;						// キャラクタータイプ変数
+	public bool IsDead => CharaState == State.DEAD;     // 死亡状態かどうかを外部から判定できるプロパティ
+														// 初期化
 	private void Start()
 	{
 		//まずインスペクターのチェックボックスで判定 (以前の仕様を維持)

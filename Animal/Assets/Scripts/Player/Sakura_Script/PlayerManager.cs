@@ -1,81 +1,112 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class PlayerManager : MonoBehaviour
 {
-    //プレイヤーのプレファブを設定 (インスペクターから設定できるように private を削除)
-    [SerializeField] private List<GameObject> PlayerPrefab = new List<GameObject>();
-    //プレイヤーの出現位置 (インスペクターから設定できるように private を削除)
-    [SerializeField] private List<Transform> PlayerTransforms = new List<Transform>();
+	[SerializeField] private List<GameObject> PlayerPrefab = new List<GameObject>();
+	[SerializeField] private List<Transform> PlayerTransforms = new List<Transform>();
 
-    public int playerCount;
+	public int playerCount;
 
-    void Start()
-    {
-        // 接続されているコントローラーの数を参照
-        var gamepads = Gamepad.all;
-        int gamepadCount = gamepads.Count;
+	// 生成されたプレイヤーを監視するためのリスト
+	private List<Character_Status> spawnedPlayers = new List<Character_Status>();
 
-        // スポーン可能な最大人数は、プレハブの数、またはスポーン地点の数の「少ない方」
-        int maxPlayers = Mathf.Min(PlayerPrefab.Count, PlayerTransforms.Count);
+	//初期化
+	void Start()
+	{
+		var gamepads = Gamepad.all;
+		int gamepadCount = gamepads.Count;
+		spawnedPlayers.Clear(); // リストを初期化
 
-        // 実際にスポーンする人数は、「接続されたコントローラー数」と「最大人数」の「少ない方」
-        // (例: コントローラーが5個でも、maxPlayersが4なら、4人まで)
-        int playersToSpawn = Mathf.Min(gamepadCount, maxPlayers);
-        playerCount = playersToSpawn;
+		int maxPlayers = Mathf.Min(PlayerPrefab.Count, PlayerTransforms.Count);
+		int playersToSpawn = Mathf.Min(gamepadCount, maxPlayers);
+		playerCount = playersToSpawn;
 
-        // 要望: 2～4人の場合のみ生成する
-        if (playersToSpawn < 1)
-        {
-            Debug.LogWarning($"接続されたコントローラーが {playersToSpawn} 個です。2個以上必要です。");
-            return; // 2人未満なら処理を中断
-        }
+		if (playersToSpawn < 1)
+		{
+			Debug.LogWarning($"接続されたコントローラーが {playersToSpawn} 個です。2個以上必要です。");
+			return;
+		}
 
-        // (もし4人より多くても4人に制限する場合)
-        if (playersToSpawn > 4)
-        {
-            playersToSpawn = 4;
-        }
+		if (playersToSpawn > 4) { playersToSpawn = 4; }
 
-        Debug.Log($"コントローラー {gamepadCount} 個を検知。{playersToSpawn} 人のプレイヤーを生成します。");
+		Debug.Log($"コントローラー {gamepadCount} 個を検知。{playersToSpawn} 人のプレイヤーを生成します。");
 
-        // 決定した人数 (playersToSpawn) だけループ（これでエラーは起きません）
-        for (int i = 1; i < 4; i++)
-        {
-            // プレイヤー選択で NONE が選ばれている場合はスキップ
-            if (Animal_Select.playerChoices[i] == Character_Status.CharacterType.NONE)
-                continue;
+		// キャラ選択の数に基づいてプレイヤーを生成
+		for (int i = 1; i <= 4; i++)
+		{
+			//キャラを選択したPlayer以外ならスキップ
+			if (Animal_Select.playerChoices[i] == Character_Status.CharacterType.NONE)
+				continue;
 
-            //コントローラーが物理的に繋がっているか確認
-            int padIndex = i - 1; // 1PはGamepad.all[0]
-            if (padIndex >= gamepads.Count)
-            {
+			int padIndex = i - 1;
+
+			// コントローラーの数が足りない場合は警告を出してループを抜ける
+			if (padIndex >= gamepads.Count)
+			{
 				Debug.LogWarning($"{i}Pのキャラは選ばれていますが、コントローラーが足りません。");
 				break;
 			}
 
-
-			//プレイヤーの生成
+			// 生成するプレイヤーのインスタンスを作成
 			PlayerInput newPlayer = PlayerInput.Instantiate(
-                prefab: PlayerPrefab[padIndex],         // padIndex番目のプレハブ (P1=Lion, P2=Rhino...)
-                playerIndex: padIndex,                  // プレイヤー番号 (0, 1, 2, 3)
-                controlScheme: "Gamepad",               // "Gamepad" スキーマを使う
-                pairWithDevice: gamepads[padIndex]      // padIndex番目のコントローラーを割り当て
-            );
+				prefab: PlayerPrefab[padIndex],
+				playerIndex: padIndex,
+				controlScheme: "Gamepad",
+				pairWithDevice: gamepads[padIndex]
+			);
 
-			//スポーン位置の設定
-			// 生成したプレイヤーを、i番目のスポーン地点に移動・回転させる
+			// 生成したプレイヤーを指定の位置に配置
 			if (PlayerTransforms[padIndex] != null)
-            {
-                newPlayer.transform.position = PlayerTransforms[padIndex].position;
-                newPlayer.transform.rotation = PlayerTransforms[padIndex].rotation;
-            }
-            else
-            {
-                Debug.LogWarning($"P{i + 1} のスポーン地点が設定されていません。");
-            }
-        }
-    }
+			{
+				newPlayer.transform.position = PlayerTransforms[padIndex].position;
+				newPlayer.transform.rotation = PlayerTransforms[padIndex].rotation;
+			}
+
+			//生成したキャラのステータスをリストに保存
+			Character_Status status = newPlayer.GetComponent<Character_Status>();
+			//情報が取れたらリストに追加
+			if (status != null)
+			{
+				spawnedPlayers.Add(status);
+			}
+		}
+	}
+
+	//更新
+	void Update()
+	{
+		// 1. まず生存人数を数える
+		int aliveCount = 0;
+
+		//生存リストにいるプレイヤーを毎時確認し数を数える
+		foreach (var player in spawnedPlayers)
+		{
+			//生存者のみを数える
+			if (player != null && !player.IsDead)
+			{
+				aliveCount++;	//カウントアップ
+			}
+		}
+
+		playerCount = aliveCount;   //生存人数を更新
+
+
+		// 2. ここで「残り1人」になった時の判定をする
+		// playerCountが 1 かつ、最初から1人プレイでない場合（複数人で始めた場合）
+		if (playerCount == 1)
+		{
+			Debug.Log("決着！残り1人になりました。");
+
+			// ここに「リザルト画面へ行く」などの処理を書きます
+			SceneManager.LoadScene("ResultScene"); 
+		}
+		else if (playerCount == 0)
+		{
+			Debug.Log("全員死亡（引き分け）");
+			//わんちゃんサドンデス式をここに書くかも
+		}
+	}
 }
