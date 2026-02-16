@@ -1,81 +1,111 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerManager : MonoBehaviour
 {
-    //ƒvƒŒƒCƒ„[‚ÌƒvƒŒƒtƒ@ƒu‚ğİ’è (ƒCƒ“ƒXƒyƒNƒ^[‚©‚çİ’è‚Å‚«‚é‚æ‚¤‚É private ‚ğíœ)
+    private const int MaxSupportedPlayers = 4;
+
+    // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ãƒ—ãƒ¬ãƒ•ã‚¡ãƒ–ã‚’è¨­å®š (ã‚¤ãƒ³ã‚¹ãƒšã‚¯ã‚¿ãƒ¼ã‹ã‚‰è¨­å®šã§ãã‚‹ã‚ˆã†ã« private ã‚’å‰Šé™¤)
     [SerializeField] private List<GameObject> PlayerPrefab = new List<GameObject>();
-    //ƒvƒŒƒCƒ„[‚ÌoŒ»ˆÊ’u (ƒCƒ“ƒXƒyƒNƒ^[‚©‚çİ’è‚Å‚«‚é‚æ‚¤‚É private ‚ğíœ)
+    // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®å‡ºç¾ä½ç½® (ã‚¤ãƒ³ã‚¹ãƒšã‚¯ã‚¿ãƒ¼ã‹ã‚‰è¨­å®šã§ãã‚‹ã‚ˆã†ã« private ã‚’å‰Šé™¤)
     [SerializeField] private List<Transform> PlayerTransforms = new List<Transform>();
 
     public int playerCount;
 
     void Start()
     {
-        // Ú‘±‚³‚ê‚Ä‚¢‚éƒRƒ“ƒgƒ[ƒ‰[‚Ì”‚ğQÆ
+        // æ¥ç¶šã•ã‚Œã¦ã„ã‚‹ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ©ãƒ¼ã®æ•°ã‚’å‚ç…§
         var gamepads = Gamepad.all;
         int gamepadCount = gamepads.Count;
 
-        // ƒXƒ|[ƒ“‰Â”\‚ÈÅ‘ål”‚ÍAƒvƒŒƒnƒu‚Ì”A‚Ü‚½‚ÍƒXƒ|[ƒ“’n“_‚Ì”‚Ìu­‚È‚¢•ûv
+        // ã‚¹ãƒãƒ¼ãƒ³å¯èƒ½ãªæœ€å¤§äººæ•°ã¯ã€ãƒ—ãƒ¬ãƒãƒ–ã®æ•°ã€ã¾ãŸã¯ã‚¹ãƒãƒ¼ãƒ³åœ°ç‚¹ã®æ•°ã®ã€Œå°‘ãªã„æ–¹ã€
         int maxPlayers = Mathf.Min(PlayerPrefab.Count, PlayerTransforms.Count);
 
-        // ÀÛ‚ÉƒXƒ|[ƒ“‚·‚él”‚ÍAuÚ‘±‚³‚ê‚½ƒRƒ“ƒgƒ[ƒ‰[”v‚ÆuÅ‘ål”v‚Ìu­‚È‚¢•ûv
-        // (—á: ƒRƒ“ƒgƒ[ƒ‰[‚ª5ŒÂ‚Å‚àAmaxPlayers‚ª4‚È‚çA4l‚Ü‚Å)
+        // å®Ÿéš›ã«ã‚¹ãƒãƒ¼ãƒ³ã™ã‚‹äººæ•°ã¯ã€ã€Œæ¥ç¶šã•ã‚ŒãŸã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ©ãƒ¼æ•°ã€ã¨ã€Œæœ€å¤§äººæ•°ã€ã®ã€Œå°‘ãªã„æ–¹ã€
         int playersToSpawn = Mathf.Min(gamepadCount, maxPlayers);
         playerCount = playersToSpawn;
 
-        // —v–]: 2`4l‚Ìê‡‚Ì‚İ¶¬‚·‚é
         if (playersToSpawn < 1)
         {
-            Debug.LogWarning($"Ú‘±‚³‚ê‚½ƒRƒ“ƒgƒ[ƒ‰[‚ª {playersToSpawn} ŒÂ‚Å‚·B2ŒÂˆÈã•K—v‚Å‚·B");
-            return; // 2l–¢–‚È‚çˆ—‚ğ’†’f
+            Debug.LogWarning($"æ¥ç¶šã•ã‚ŒãŸã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ©ãƒ¼ãŒ {playersToSpawn} å€‹ã§ã™ã€‚1å€‹ä»¥ä¸Šå¿…è¦ã§ã™ã€‚");
+            return;
         }
 
-        // (‚à‚µ4l‚æ‚è‘½‚­‚Ä‚à4l‚É§ŒÀ‚·‚éê‡)
-        if (playersToSpawn > 4)
+        if (playersToSpawn > MaxSupportedPlayers)
         {
-            playersToSpawn = 4;
+            playersToSpawn = MaxSupportedPlayers;
         }
 
-        Debug.Log($"ƒRƒ“ƒgƒ[ƒ‰[ {gamepadCount} ŒÂ‚ğŒŸ’mB{playersToSpawn} l‚ÌƒvƒŒƒCƒ„[‚ğ¶¬‚µ‚Ü‚·B");
+        Debug.Log($"ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ©ãƒ¼ {gamepadCount} å€‹ã‚’æ¤œçŸ¥ã€‚{playersToSpawn} äººã®ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‚’ç”Ÿæˆã—ã¾ã™ã€‚");
 
-        // Œˆ’è‚µ‚½l” (playersToSpawn) ‚¾‚¯ƒ‹[ƒvi‚±‚ê‚ÅƒGƒ‰[‚Í‹N‚«‚Ü‚¹‚ñj
-        for (int i = 1; i < 4; i++)
+        for (int i = 1; i <= playersToSpawn; i++)
         {
-            // ƒvƒŒƒCƒ„[‘I‘ğ‚Å NONE ‚ª‘I‚Î‚ê‚Ä‚¢‚éê‡‚ÍƒXƒLƒbƒv
             if (Animal_Select.playerChoices[i] == Character_Status.CharacterType.NONE)
+            {
                 continue;
+            }
 
-            //ƒRƒ“ƒgƒ[ƒ‰[‚ª•¨—“I‚ÉŒq‚ª‚Á‚Ä‚¢‚é‚©Šm”F
-            int padIndex = i - 1; // 1P‚ÍGamepad.all[0]
+            int padIndex = i - 1;
             if (padIndex >= gamepads.Count)
             {
-				Debug.LogWarning($"{i}P‚ÌƒLƒƒƒ‰‚Í‘I‚Î‚ê‚Ä‚¢‚Ü‚·‚ªAƒRƒ“ƒgƒ[ƒ‰[‚ª‘«‚è‚Ü‚¹‚ñB");
-				break;
-			}
+                Debug.LogWarning($"{i}Pã®ã‚­ãƒ£ãƒ©ã¯é¸ã°ã‚Œã¦ã„ã¾ã™ãŒã€ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ©ãƒ¼ãŒè¶³ã‚Šã¾ã›ã‚“ã€‚");
+                break;
+            }
 
+            GameObject selectedPrefab = GetSelectedPlayerPrefab(i);
+            if (selectedPrefab == null)
+            {
+                Debug.LogWarning($"{i}Pã®ãƒ—ãƒ¬ãƒ•ã‚¡ãƒ–ã‚’å–å¾—ã§ãã¾ã›ã‚“ã§ã—ãŸã€‚");
+                continue;
+            }
 
-			//ƒvƒŒƒCƒ„[‚Ì¶¬
-			PlayerInput newPlayer = PlayerInput.Instantiate(
-                prefab: PlayerPrefab[padIndex],         // padIndex”Ô–Ú‚ÌƒvƒŒƒnƒu (P1=Lion, P2=Rhino...)
-                playerIndex: padIndex,                  // ƒvƒŒƒCƒ„[”Ô† (0, 1, 2, 3)
-                controlScheme: "Gamepad",               // "Gamepad" ƒXƒL[ƒ}‚ğg‚¤
-                pairWithDevice: gamepads[padIndex]      // padIndex”Ô–Ú‚ÌƒRƒ“ƒgƒ[ƒ‰[‚ğŠ„‚è“–‚Ä
+            PlayerInput newPlayer = PlayerInput.Instantiate(
+                prefab: selectedPrefab,
+                playerIndex: padIndex,
+                controlScheme: "Gamepad",
+                pairWithDevice: gamepads[padIndex]
             );
 
-			//ƒXƒ|[ƒ“ˆÊ’u‚Ìİ’è
-			// ¶¬‚µ‚½ƒvƒŒƒCƒ„[‚ğAi”Ô–Ú‚ÌƒXƒ|[ƒ“’n“_‚ÉˆÚ“®E‰ñ“]‚³‚¹‚é
-			if (PlayerTransforms[padIndex] != null)
+            if (PlayerTransforms[padIndex] != null)
             {
                 newPlayer.transform.position = PlayerTransforms[padIndex].position;
                 newPlayer.transform.rotation = PlayerTransforms[padIndex].rotation;
             }
             else
             {
-                Debug.LogWarning($"P{i + 1} ‚ÌƒXƒ|[ƒ“’n“_‚ªİ’è‚³‚ê‚Ä‚¢‚Ü‚¹‚ñB");
+                Debug.LogWarning($"P{i} ã®ã‚¹ãƒãƒ¼ãƒ³åœ°ç‚¹ãŒè¨­å®šã•ã‚Œã¦ã„ã¾ã›ã‚“ã€‚");
             }
         }
+    }
+
+    private GameObject GetSelectedPlayerPrefab(int playerId)
+    {
+        Character_Status.CharacterType selectedType = Animal_Select.playerChoices[playerId];
+
+        string resourcePath = selectedType switch
+        {
+            Character_Status.CharacterType.RHINOCELOS => "Prefab/Player/Sakura_Prefab/ã‚µã‚¤/Sai",
+            Character_Status.CharacterType.OSTRICH => "Prefab/Player/Sakura_Prefab/ãƒ€ãƒãƒ§ã‚¦/bird",
+            Character_Status.CharacterType.LION => "Prefab/Player/Sakura_Prefab/ãƒ©ã‚¤ã‚ªãƒ³/Red_lion",
+            Character_Status.CharacterType.RATEL => "Prefab/Player/Sakura_Prefab/ãƒ©ãƒ¼ãƒ†ãƒ«/ratel",
+            _ => string.Empty
+        };
+
+        if (!string.IsNullOrEmpty(resourcePath))
+        {
+            GameObject resourcePrefab = Resources.Load<GameObject>(resourcePath);
+            if (resourcePrefab != null)
+            {
+                return resourcePrefab;
+            }
+        }
+
+        if (playerId - 1 < PlayerPrefab.Count)
+        {
+            return PlayerPrefab[playerId - 1];
+        }
+
+        return null;
     }
 }
