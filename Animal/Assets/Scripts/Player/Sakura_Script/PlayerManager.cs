@@ -42,22 +42,35 @@ public class PlayerManager : MonoBehaviour
         Debug.Log($"コントローラー {gamepadCount} 個を検知。{playersToSpawn} 人のプレイヤーを生成します。");
 
         // 決定した人数 (playersToSpawn) だけループ（これでエラーは起きません）
-        for (int i = 0; i < playersToSpawn; i++)
+        for (int i = 1; i < 4; i++)
         {
-            // ★重要★ Instantiate の代わりに PlayerInput.Instantiate を使う
-            // これにより、プレハブ生成とコントローラー割り当てを同時に行う
-            PlayerInput newPlayer = PlayerInput.Instantiate(
-                prefab: PlayerPrefab[i],         // i番目のプレハブ (P1=Lion, P2=Rhino...)
-                playerIndex: i,                // プレイヤー番号 (0, 1, 2, 3)
-                controlScheme: "Gamepad",      // "Gamepad" スキーマを使う
-                pairWithDevice: gamepads[i]    // i番目のコントローラーを割り当て
+            // プレイヤー選択で NONE が選ばれている場合はスキップ
+            if (Animal_Select.playerChoices[i] == Character_Status.CharacterType.NONE)
+                continue;
+
+            //コントローラーが物理的に繋がっているか確認
+            int padIndex = i - 1; // 1PはGamepad.all[0]
+            if (padIndex >= gamepads.Count)
+            {
+				Debug.LogWarning($"{i}Pのキャラは選ばれていますが、コントローラーが足りません。");
+				break;
+			}
+
+
+			//プレイヤーの生成
+			PlayerInput newPlayer = PlayerInput.Instantiate(
+                prefab: PlayerPrefab[padIndex],         // padIndex番目のプレハブ (P1=Lion, P2=Rhino...)
+                playerIndex: padIndex,                  // プレイヤー番号 (0, 1, 2, 3)
+                controlScheme: "Gamepad",               // "Gamepad" スキーマを使う
+                pairWithDevice: gamepads[padIndex]      // padIndex番目のコントローラーを割り当て
             );
 
-            // 生成したプレイヤーを、i番目のスポーン地点に移動・回転させる
-            if (PlayerTransforms[i] != null)
+			//スポーン位置の設定
+			// 生成したプレイヤーを、i番目のスポーン地点に移動・回転させる
+			if (PlayerTransforms[padIndex] != null)
             {
-                newPlayer.transform.position = PlayerTransforms[i].position;
-                newPlayer.transform.rotation = PlayerTransforms[i].rotation;
+                newPlayer.transform.position = PlayerTransforms[padIndex].position;
+                newPlayer.transform.rotation = PlayerTransforms[padIndex].rotation;
             }
             else
             {
