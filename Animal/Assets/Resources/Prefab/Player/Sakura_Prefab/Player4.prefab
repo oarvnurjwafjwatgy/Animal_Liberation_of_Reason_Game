@@ -192,8 +192,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d3b09433949b91498ba9680542f11c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  attackRange: 2
+  attackOffset: 1
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 0
   moveSpeed: 5
-  cameraObject: {fileID: 0}
+  Collision: {fileID: 0}
 --- !u!1 &2364469458963955409
 GameObject:
   m_ObjectHideFlags: 0
@@ -253,10 +258,10 @@ Camera:
   m_LensShift: {x: 0, y: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
-    x: 0
+    x: 0.5
     y: 0
-    width: 1
-    height: 1
+    width: 0.5
+    height: 0.5
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60

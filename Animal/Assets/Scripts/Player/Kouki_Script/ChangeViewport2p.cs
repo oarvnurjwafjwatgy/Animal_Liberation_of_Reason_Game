@@ -16,10 +16,15 @@ public class ChangeViewport2p : MonoBehaviour
         // 自身のカメラコンポーネントを取得する
         cam = GetComponent<Camera>();
 
-        // プレイヤーマネージャー オブジェクトを探し、代入する
-        playerManager = GameObject.Find("PlayerManager");
-        // プレイヤーマネージャーより、参加人数を受け取る
-        var pm_playerCount = playerManager.GetComponent<PlayerManager>().playerCount;
+        // 参加人数はNONEになるまでで分かるようなので、NONEでないプレイヤー(参加者)を数える
+        var pm_playerCount = 0;
+        for (int i = 0; i < 4; i++)
+        {
+            if (Animal_Select.playerChoices[i] == Character_Status.CharacterType.NONE)
+                continue;
+
+            pm_playerCount++;
+        }
 
         // カメラの表示位置を変更する
         this.SetViewport(pm_playerCount);
