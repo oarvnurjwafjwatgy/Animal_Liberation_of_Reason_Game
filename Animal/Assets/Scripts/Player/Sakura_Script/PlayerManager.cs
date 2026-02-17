@@ -3,110 +3,89 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
-public class PlayerManager : MonoBehaviour
+public partial class PlayerManager : MonoBehaviour
 {
-	[SerializeField] private List<GameObject> PlayerPrefab = new List<GameObject>();
-	[SerializeField] private List<Transform> PlayerTransforms = new List<Transform>();
+    [HideInInspector] // インスペクターには出さなくて良い場合はこれをつける
+    public int playerCount;
 
-	public int playerCount;
+    [Header("プレイヤーの土台プレハブ")]
+    [SerializeField] private GameObject PlayerBasePrefab;
 
-	// 生成されたプレイヤーを監視するためのリスト
-	private List<Character_Status> spawnedPlayers = new List<Character_Status>();
+    [Header("動物プレハブ設定 (Element 0=LION, 1=OSTRICH...)")]
+    [SerializeField] private List<GameObject> AnimalPrefabs = new List<GameObject>();
+    [SerializeField] private List<GameObject> AnimalReasonPrefabs = new List<GameObject>();
 
-	//初期化
-	void Start()
-	{
-		var gamepads = Gamepad.all;
-		int gamepadCount = gamepads.Count;
-		spawnedPlayers.Clear(); // リストを初期化
+    [Header("出現位置")]
+    [SerializeField] private List<Transform> PlayerTransforms = new List<Transform>();
 
-		int maxPlayers = Mathf.Min(PlayerPrefab.Count, PlayerTransforms.Count);
-		int playersToSpawn = Mathf.Min(gamepadCount, maxPlayers);
-		playerCount = playersToSpawn;
+    void Start()
+    {
+        int playersToSpawn = GameDataManager.SelectedPlayerCount;
+        playerCount = playersToSpawn;
+        var gamepads = Gamepad.all;
 
-		if (playersToSpawn < 1)
-		{
-			Debug.LogWarning($"接続されたコントローラーが {playersToSpawn} 個です。2個以上必要です。");
-			return;
-		}
+        for (int i = 1; i <= playersToSpawn; i++)
+        {
+            // 1. 選択された動物のタイプを取得 (1Pなら index 1)
+            Character_Status.CharacterType selectedType = Animal_Select.playerChoices[i];
 
-		if (playersToSpawn > 4) { playersToSpawn = 4; }
+            // NONE（未選択）の場合は生成をスキップ
+            if (selectedType == Character_Status.CharacterType.NONE) continue;
 
-		Debug.Log($"コントローラー {gamepadCount} 個を検知。{playersToSpawn} 人のプレイヤーを生成します。");
+            // Enumをintに変換してプレハブのインデックスとして使用
+            int animalIndex = (int)selectedType - 1;
 
-		// キャラ選択の数に基づいてプレイヤーを生成
-		for (int i = 1; i <= 4; i++)
-		{
-			//キャラを選択したPlayer以外ならスキップ
-			if (Animal_Select.playerChoices[i] == Character_Status.CharacterType.NONE)
-				continue;
+            // 2. プレイヤーの土台（カメラや移動スクリプト入り）を生成
+            int padIndex = i - 1;
+            PlayerInput newPlayer = PlayerInput.Instantiate(
+                prefab: PlayerBasePrefab,
+                playerIndex: padIndex,
+                controlScheme: "Gamepad",
+                pairWithDevice: (padIndex < gamepads.Count) ? gamepads[padIndex] : null
+            );
 
-			int padIndex = i - 1;
+            // 3. 動物モデル（通常・理性）を生成し、プレイヤーの子にする
+            GameObject normalModel = Instantiate(AnimalPrefabs[animalIndex], newPlayer.transform);
+            GameObject reasonModel = Instantiate(AnimalReasonPrefabs[animalIndex], newPlayer.transform);
+            reasonModel.SetActive(false); // 理性モデルは最初はオフ
 
-			// コントローラーの数が足りない場合は警告を出してループを抜ける
-			if (padIndex >= gamepads.Count)
-			{
-				Debug.LogWarning($"{i}Pのキャラは選ばれていますが、コントローラーが足りません。");
-				break;
-			}
+            // 4. 各コンポーネントに生成したモデルを登録する
+            SetupPlayer(newPlayer.gameObject, i, normalModel, reasonModel);
 
-			// 生成するプレイヤーのインスタンスを作成
-			PlayerInput newPlayer = PlayerInput.Instantiate(
-				prefab: PlayerPrefab[padIndex],
-				playerIndex: padIndex,
-				controlScheme: "Gamepad",
-				pairWithDevice: gamepads[padIndex]
-			);
+            // 5. 初期位置へ移動
+            if (PlayerTransforms[padIndex] != null)
+            {
+                newPlayer.transform.position = PlayerTransforms[padIndex].position;
+                newPlayer.transform.rotation = PlayerTransforms[padIndex].rotation;
+            }
+        }
+    }
 
-			// 生成したプレイヤーを指定の位置に配置
-			if (PlayerTransforms[padIndex] != null)
-			{
-				newPlayer.transform.position = PlayerTransforms[padIndex].position;
-				newPlayer.transform.rotation = PlayerTransforms[padIndex].rotation;
-			}
+    private void SetupPlayer(GameObject playerObj, int pID, GameObject normal, GameObject reason)
+    {
+        // カメラは子オブジェクトの0番目
+        if (playerObj.transform.childCount > 0)
+        {
+            GameObject camObj = playerObj.transform.GetChild(0).gameObject;
 
-			//生成したキャラのステータスをリストに保存
-			Character_Status status = newPlayer.GetComponent<Character_Status>();
-			//情報が取れたらリストに追加
-			if (status != null)
-			{
-				spawnedPlayers.Add(status);
-			}
-		}
-	}
+            // Viewportスクリプトの制御
+            var v1 = camObj.GetComponent<ChangeViewport1p>();
+            var v2 = camObj.GetComponent<ChangeViewport2p>();
 
-	//更新
-	void Update()
-	{
-		// 1. まず生存人数を数える
-		int aliveCount = 0;
+            if (v1 != null) v1.enabled = (pID == 1);
+            if (v2 != null) v2.enabled = (pID == 2);
+        }
 
-		//生存リストにいるプレイヤーを毎時確認し数を数える
-		foreach (var player in spawnedPlayers)
-		{
-			//生存者のみを数える
-			if (player != null && !player.IsDead)
-			{
-				aliveCount++;	//カウントアップ
-			}
-		}
+        // ステータスの設定
+        var status = playerObj.GetComponent<Character_Status>();
+        if (status != null) status.playerID = pID;
 
-		playerCount = aliveCount;   //生存人数を更新
-
-
-		// 2. ここで「残り1人」になった時の判定をする
-		// playerCountが 1 かつ、最初から1人プレイでない場合（複数人で始めた場合）
-		if (playerCount == 1)
-		{
-			Debug.Log("決着！残り1人になりました。");
-
-			// ここに「リザルト画面へ行く」などの処理を書きます
-			SceneManager.LoadScene("ResultScene"); 
-		}
-		else if (playerCount == 0)
-		{
-			Debug.Log("全員死亡（引き分け）");
-			//わんちゃんサドンデス式をここに書くかも
-		}
-	}
+        // 入力スクリプトの設定
+        var input = playerObj.GetComponent<InputPlayer>();
+        if (input != null)
+        {
+            // 先にモデルを紐付ける
+            input.SetupDynamicReferences(normal, reason);
+        }
+    }
 }

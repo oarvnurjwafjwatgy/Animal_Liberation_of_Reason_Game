@@ -30,19 +30,29 @@ public class InputPlayer : MonoBehaviour
 
     [SerializeField] private GameObject Collision;
 
+
+
+
+
+
+
+
     // Start is called before the first frame update
     void Start()
     {
-        // 子オブジェクトをそれぞれ受け取り、格納する
-        cameraObject = transform.GetChild(0).gameObject;
-        normalObject = transform.GetChild(1).gameObject;
-        reasonObject = transform.GetChild(2).gameObject;
-        ghostObject = transform.GetChild(3).gameObject;
-        cachedRotate = normalObject.transform.rotation;
+       // cameraObject と ghostObject は土台プレハブに元からあるはずなので取得
+    // ただし、既に SetupDynamicReferences で設定されている場合は何もしない
+    if (cameraObject == null) cameraObject = transform.GetChild(0).gameObject;
+        if (ghostObject == null) ghostObject = transform.GetChild(3).gameObject;
 
-        GameObject My = this.gameObject;
-        character_Status = My.GetComponent<Character_Status>();
-        animator = GetComponent<Animator>();
+        // normalObject, reasonObject は PlayerManager から渡されるので
+        // ここで transform.GetChild で上書きしてはいけない！！（コメントアウト推奨）
+        // normalObject = transform.GetChild(1).gameObject; 
+
+        character_Status = GetComponent<Character_Status>();
+
+        // Animatorも渡されているはずなので、nullの場合のみ取得
+        if (animator == null) animator = GetComponent<Animator>();
 
         deathFlag = false;
     }
@@ -138,7 +148,7 @@ public class InputPlayer : MonoBehaviour
             // Lスティックが入力されている時は、向きを正面にしその向きを保存する
             if (moveForward != new Vector3(0f, 0f, 0f))
             {
-                Quaternion tmp = Quaternion.LookRotation(moveForward) * Quaternion.AngleAxis(-90, Vector3.up);
+                Quaternion tmp = Quaternion.LookRotation(moveForward);
 
                 normalObject.transform.rotation = tmp;
                 reasonObject.transform.rotation = tmp;
@@ -254,8 +264,8 @@ public class InputPlayer : MonoBehaviour
 
     private void OnCameraReset(InputAction.CallbackContext context)
     {
-        cameraObject.transform.position = normalObject.transform.position + new Vector3(0f, 1f, 0f) + normalObject.transform.right * -3f;
-        cameraObject.transform.rotation = normalObject.transform.rotation * Quaternion.AngleAxis(90, Vector3.up);
+        cameraObject.transform.position = normalObject.transform.position + new Vector3(0f, 1f, 0f) + normalObject.transform.forward * -3f;
+        cameraObject.transform.rotation = normalObject.transform.rotation;
 
         Debug.Log("カメラリセット");
     }
@@ -338,7 +348,18 @@ public class InputPlayer : MonoBehaviour
 
     }
 
+    public void SetupDynamicReferences(GameObject normal, GameObject reason)
+    {
+        this.normalObject = normal;
+        this.reasonObject = reason;
 
+        // 生成された動物プレハブについているAnimatorを親にセット
+        this.animator = normal.GetComponent<Animator>();
 
+        // 向きの保存
+        this.cachedRotate = normal.transform.rotation;
+
+        Debug.Log($"Player {gameObject.name}: モデルの紐付け完了");
+    }
 }
 
