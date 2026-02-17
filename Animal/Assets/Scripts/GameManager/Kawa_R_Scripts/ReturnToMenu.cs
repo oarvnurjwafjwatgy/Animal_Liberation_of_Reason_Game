@@ -1,26 +1,36 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
-using UnityEngine.UI; // ’·‰Ÿ‚µƒQ[ƒW‚ğ•\¦‚µ‚½‚¢ê‡‚Í•K—v
+using UnityEngine.UI;
 
 public class ReturnToMenu : MonoBehaviour
 {
-	[Header("İ’è")]
-	public string menuSceneName = "PlayerCountSelect";	 // l”‘I‘ğƒV[ƒ“‚Ì–¼‘O
-	public float holdDuration = 1.0f;					 // ‰½•b‰Ÿ‚µ‘±‚¯‚é‚©
+	[Header("è¨­å®š")]
+	public string menuSceneName = "PlayerCountSelect";   // äººæ•°é¸æŠã‚·ãƒ¼ãƒ³ã®åå‰
+	public float holdDuration = 1.0f;                    // ä½•ç§’æŠ¼ã—ç¶šã‘ã‚‹ã‹
 
-	private float timer = 0f;                            // ‰Ÿ‚µŠÔ‚ğŒv‚éƒ^ƒCƒ}[
+	[Header("UIè¨­å®šï¼ˆãƒã‚¹ã‚¯æ–¹å¼ï¼‰")]
+	[SerializeField] private GameObject uiRoot;          // Arrow_Root ã‚’å…¥ã‚Œã‚‹
+	[SerializeField] private Image fillImage;            // å­è¦ç´ ã®ã€Œç™½ã„ç”»åƒï¼ˆFill_Imageï¼‰ã€ã‚’å…¥ã‚Œã‚‹
 
-	//XV
+	private float timer = 0f;                            // æŠ¼ã—æ™‚é–“ã‚’è¨ˆã‚‹ã‚¿ã‚¤ãƒãƒ¼
+
+	void Start()
+	{
+		// åˆæœŸçŠ¶æ…‹ã§ã¯UIã‚’éè¡¨ç¤ºã«ã™ã‚‹
+		if (uiRoot != null) uiRoot.SetActive(false);
+	}
+
+	//æ›´æ–°
 	void Update()
 	{
-		//’·‰Ÿ‚µƒtƒ‰ƒO
+		//é•·æŠ¼ã—ãƒ•ãƒ©ã‚°
 		bool isHolding = false;
 
-		// ‘SƒRƒ“ƒgƒ[ƒ‰[‚ğƒ`ƒFƒbƒN
+		// å…¨ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ©ãƒ¼ã‚’ãƒã‚§ãƒƒã‚¯
 		foreach (var pad in Gamepad.all)
 		{
-			// Bƒ{ƒ^ƒ“iEastj‚ª‰Ÿ‚µ‘±‚¯‚ç‚ê‚Ä‚¢‚é‚©
+			// Bãƒœã‚¿ãƒ³ï¼ˆEastï¼‰ãŒæŠ¼ã—ç¶šã‘ã‚‰ã‚Œã¦ã„ã‚‹ã‹
 			if (pad.buttonEast.isPressed)
 			{
 				isHolding = true;
@@ -28,42 +38,62 @@ public class ReturnToMenu : MonoBehaviour
 			}
 		}
 
-		// ƒL[ƒ{[ƒh‚Ì EscƒL[ ‚à’·‰Ÿ‚µ‘ÎÛ‚É‚·‚é
+		// ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰ã® Escã‚­ãƒ¼ ã‚‚é•·æŠ¼ã—å¯¾è±¡ã«ã™ã‚‹
 		if (Keyboard.current.escapeKey.isPressed) isHolding = true;
 
+		//é•·æŠ¼ã—ã‚’ã—ã¦ã‚‹éš›ã®å‡¦ç†
 		if (isHolding)
 		{
-			timer += Time.deltaTime; // ‰Ÿ‚µ‚Ä‚¢‚éŠÔƒ^ƒCƒ}[‚ğ‰ÁZ
+			timer += Time.deltaTime; // æŠ¼ã—ã¦ã„ã‚‹é–“ã‚¿ã‚¤ãƒãƒ¼ã‚’åŠ ç®—
 
-			// w’è‚µ‚½ŠÔ‚ğ’´‚¦‚½‚ç–ß‚é
-			if (timer >= holdDuration)
-			{
-				Return();
-			}
+			if (uiRoot != null) uiRoot.SetActive(true);
 		}
 		else
 		{
-			timer = 0f; // —£‚µ‚½‚çƒŠƒZƒbƒg
-		}
-	}
+			// æŠ¼ã—ã¦ã„ãªã„ã¨ãã¯ã‚¿ã‚¤ãƒãƒ¼ã‚’æ¸›ç®—ï¼ˆ2å€é€Ÿã§æ¸›ã‚‹ï¼‰
+			timer -= Time.deltaTime * 2.0f;
 
-	//l”‘I‘ğ‰æ–Ê‚É–ß‚é
-	void Return()
-	{
-		// Ÿ‚ÌƒV[ƒ“‚Å‚ÌŒëì“®‚ğ–h‚®‚½‚ßAƒf[ƒ^‚ğƒŠƒZƒbƒg
-		for (int i = 0; i < Animal_Select.playerChoices.Length; i++)
+			// 0ä»¥ä¸‹ã«ãªã£ãŸã‚‰UIã‚’éš ã™
+			if (timer <= 0f)
+			{
+				timer = 0f;
+				if (uiRoot != null) uiRoot.SetActive(false);
+			}
+		}
+		// å€¤ã®ã‚¯ãƒ©ãƒ³ãƒ—ï¼ˆ0ã€œholdDurationã®é–“ã«åã‚ã‚‹ï¼‰
+		timer = Mathf.Clamp(timer, 0f, holdDuration);
+
+		// ä¸­èº«ã®Fillç”»åƒã® FillAmount ã‚’æ›´æ–°
+		if (fillImage != null)
 		{
-			Animal_Select.playerChoices[i] = Character_Status.CharacterType.NONE;
-			Animal_Select.playerPositions[i] = 0;
+			fillImage.fillAmount = timer / holdDuration;
 		}
 
-		// ‘JˆÚƒtƒ‰ƒO‚È‚Ç‚Ì‰Šú‰»
-		if (Animal_Select.readyImage != null) Animal_Select.readyImage.SetActive(false);
+		// æŒ‡å®šã—ãŸæ™‚é–“ã‚’è¶…ãˆãŸã‚‰æˆ»ã‚‹
+		if (timer >= holdDuration)
+		{
+			Return();
+		}
 
-		Debug.Log("<color=red>’·‰Ÿ‚µŒŸ’mFl”‘I‘ğ‚É–ß‚è‚Ü‚·</color>");
 
-		// ƒ^ƒCƒ}[‚ğƒŠƒZƒbƒg‚µ‚Ä‚©‚çƒV[ƒ“ˆÚ“®
-		timer = 0f;
-		SceneManager.LoadScene(menuSceneName);
+		//äººæ•°é¸æŠç”»é¢ã«æˆ»ã‚‹
+		void Return()
+		{
+			// æ¬¡ã®ã‚·ãƒ¼ãƒ³ã§ã®èª¤ä½œå‹•ã‚’é˜²ããŸã‚ã€ãƒ‡ãƒ¼ã‚¿ã‚’ãƒªã‚»ãƒƒãƒˆ
+			for (int i = 0; i < Animal_Select.playerChoices.Length; i++)
+			{
+				Animal_Select.playerChoices[i] = Character_Status.CharacterType.NONE;
+				Animal_Select.playerPositions[i] = 0;
+			}
+
+			// é·ç§»ãƒ•ãƒ©ã‚°ãªã©ã®åˆæœŸåŒ–
+			if (Animal_Select.readyImage != null) Animal_Select.readyImage.SetActive(false);
+
+			Debug.Log("<color=red>é•·æŠ¼ã—æ¤œçŸ¥ï¼šäººæ•°é¸æŠã«æˆ»ã‚Šã¾ã™</color>");
+
+			// ã‚¿ã‚¤ãƒãƒ¼ã‚’ãƒªã‚»ãƒƒãƒˆã—ã¦ã‹ã‚‰ã‚·ãƒ¼ãƒ³ç§»å‹•
+			timer = 0f;
+			SceneManager.LoadScene(menuSceneName);
+		}
 	}
 }
