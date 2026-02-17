@@ -16,10 +16,6 @@ public class MapReducing : MonoBehaviour
     public GameObject southWall;    // 南の壁（-z）
     public GameObject eastWall;     // 東の壁（+x）
     public GameObject westWall;     // 西の壁（+x）
-    public GameObject nePillar;     // 北東の柱
-    public GameObject nwPillar;     // 北西の柱
-    public GameObject sePillar;     // 南東の柱
-    public GameObject swPillar;     // 南西の柱
     int test = 0;                   // テスト用変数
 
     // Start is called before the first frame update
@@ -41,12 +37,6 @@ public class MapReducing : MonoBehaviour
         eastWall.transform.position = new Vector3(mapRadius, 0f, 0f);
         westWall.transform.position = new Vector3(-mapRadius, 0f, 0f);
 
-        // 壁の位置の初期化
-        nePillar.transform.position = new Vector3(mapRadius, 0f, mapRadius);
-        nwPillar.transform.position = new Vector3(-mapRadius, 0f, mapRadius);
-        sePillar.transform.position = new Vector3(mapRadius, 0f, -mapRadius);
-        swPillar.transform.position = new Vector3(-mapRadius, 0f, -mapRadius);
-
     }
 
     // Update is called once per frame
@@ -61,7 +51,6 @@ public class MapReducing : MonoBehaviour
         this.MoveWall();
     }
 
-    // 時間経過による縮小フラグの切替
     private void SwitchingFlag()
     {
         // 4分以上経過している場合は処理しない（1フェーズ1分のため）
@@ -81,7 +70,6 @@ public class MapReducing : MonoBehaviour
         }
     }
 
-    // 壁を動かす
     private void MoveWall()
     {
         // 縮小フラグがfalseの場合は処理しない
@@ -102,11 +90,5 @@ public class MapReducing : MonoBehaviour
         southWall.transform.localScale = new Vector3(southWall.transform.localScale.x, southWall.transform.localScale.y, southWall.transform.localScale.z + new_velocity[1] * 2f);
         eastWall.transform.localScale = new Vector3(eastWall.transform.localScale.x + new_velocity[2] * 2f, eastWall.transform.localScale.y, eastWall.transform.localScale.z);
         westWall.transform.localScale = new Vector3(westWall.transform.localScale.x + new_velocity[3] * 2f, westWall.transform.localScale.y, westWall.transform.localScale.z);
-
-        // 柱の移動
-        nePillar.transform.position = new Vector3(nePillar.transform.position.x - new_velocity[2] * 2f, 0f, nePillar.transform.position.z - new_velocity[0] * 2f);
-        nwPillar.transform.position = new Vector3(nwPillar.transform.position.x + new_velocity[3] * 2f, 0f, nwPillar.transform.position.z - new_velocity[0] * 2f);
-        sePillar.transform.position = new Vector3(sePillar.transform.position.x - new_velocity[2] * 2f, 0f, sePillar.transform.position.z + new_velocity[1] * 2f);
-        swPillar.transform.position = new Vector3(swPillar.transform.position.x + new_velocity[3] * 2f, 0f, swPillar.transform.position.z + new_velocity[1] * 2f);
     }
 }
