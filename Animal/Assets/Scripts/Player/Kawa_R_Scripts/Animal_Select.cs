@@ -189,13 +189,16 @@ public class Animal_Select : MonoBehaviour
 	void SetChoice(int pID)
 	{
 		playerChoices[pID] = animalType;    //選んだ動物を配列に保存
+		select_saver.Instance.PlayerChoices[pID - 1] = animalType;
 		Debug.Log($"<color=cyan>{pID}P 決定:</color> {animalType}");
 	}
 
 	//キャンセル処理
 	void CancelChoice(int pID)
 	{
-		playerChoices[pID] = Character_Status.CharacterType.NONE;   //選択状態をリセット
+		playerChoices[pID] = Character_Status.CharacterType.NONE;
+		select_saver.Instance.PlayerChoices[pID - 1] = Character_Status.CharacterType.NONE;
+		//選択状態をリセット
 		allPlayersReady = false;                                    //全員決定済みフラグをリセット
 		if (readyImage != null) readyImage.SetActive(false);        //準備完了イラスト非表示
 		Debug.Log($"<color=red>{pID}P キャンセル</color>");
