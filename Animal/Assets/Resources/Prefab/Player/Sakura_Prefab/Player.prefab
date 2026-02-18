@@ -129,7 +129,6 @@ GameObject:
   - component: {fileID: 743178778044348651}
   - component: {fileID: 1291844428188755427}
   - component: {fileID: 4608043506247753298}
-  - component: {fileID: 8542213933275497567}
   - component: {fileID: 8604957528455422006}
   - component: {fileID: 6962822520268341190}
   m_Layer: 7
@@ -370,19 +369,6 @@ MonoBehaviour:
   hp_object: {fileID: 0}
   reason_object: {fileID: 0}
   CharaAnim: 0
---- !u!114 &8542213933275497567
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1839733414962546177}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 20104ea5c6450c5499c35e2cfb58fa4e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  canvas: {fileID: 0}
 --- !u!114 &8604957528455422006
 MonoBehaviour:
   m_ObjectHideFlags: 0

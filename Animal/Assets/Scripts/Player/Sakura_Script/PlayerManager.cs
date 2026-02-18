@@ -3,11 +3,16 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public partial class PlayerManager : MonoBehaviour
 {
 	//生成したプレイヤーを管理するリスト
 	private List<Character_Status> spawnedPlayers = new List<Character_Status>();
+
+	[Header("UI設定")]
+	[SerializeField] private UIManager uiManager;// UIマネージャーの参照
+	[SerializeField] private List<Transform> uiPositions = new List<Transform>();// 1P~4PのUI位置
 
 	[HideInInspector] // インスペクターには出さなくて良い場合はこれをつける
     public int playerCount;
@@ -30,8 +35,8 @@ public partial class PlayerManager : MonoBehaviour
 
         spawnedPlayers.Clear(); // 既存のプレイヤーリストをクリア
 
-		// プレイヤーの生成ループ
-		for (int i = 1; i <= playersToSpawn; i++)
+        // プレイヤーの生成ループ
+        for (int i = 1; i <= playersToSpawn; i++)
         {
             // 1. 選択された動物のタイプを取得 (1Pなら index 1)
             Character_Status.CharacterType selectedType = Animal_Select.playerChoices[i];
@@ -59,15 +64,24 @@ public partial class PlayerManager : MonoBehaviour
             // 4. 各コンポーネントに生成したモデルを登録する
             SetupPlayer(newPlayer.gameObject, i, normalModel, reasonModel);
 
-			// 生成したプレイヤーのステータスをリストに追加
-			var status = newPlayer.GetComponent<Character_Status>();
-			if (status != null) spawnedPlayers.Add(status);
-
-			// 5. 初期位置へ移動
-			if (PlayerTransforms[padIndex] != null)
+            if (uiManager != null && uiPositions.Count >= i)
             {
-                newPlayer.transform.position = PlayerTransforms[padIndex].position;
-                newPlayer.transform.rotation = PlayerTransforms[padIndex].rotation;
+                // 生成したプレイヤーのステータスをリストに追加
+                var status = newPlayer.GetComponent<Character_Status>();
+                Slider hp = uiManager.CreateUI(UIManager.UI_ID.GAUGE_HP, uiPositions[padIndex], i);
+                Slider rs = uiManager.CreateUI(UIManager.UI_ID.GAUGE_REASON, uiPositions[padIndex], i);
+                if (status != null)
+                {
+                    spawnedPlayers.Add(status);
+                    status.SetUIComponents(hp, rs);
+                }
+
+                // 5. 初期位置へ移動
+                if (PlayerTransforms[padIndex] != null)
+                {
+                    newPlayer.transform.position = PlayerTransforms[padIndex].position;
+                    newPlayer.transform.rotation = PlayerTransforms[padIndex].rotation;
+                }
             }
         }
     }

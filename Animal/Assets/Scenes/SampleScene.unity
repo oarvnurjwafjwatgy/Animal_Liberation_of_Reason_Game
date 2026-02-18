@@ -292,6 +292,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df2f9291e7afb5345a2fd829414e445d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  uiManager: {fileID: 8580653611170594270}
+  uiPositions:
+  - {fileID: 2147039152}
+  - {fileID: 248995821}
+  - {fileID: 0}
+  - {fileID: 0}
   playerCount: 0
   PlayerBasePrefab: {fileID: 1839733414962546177, guid: 2429e692a1f993b4ab7a850ae4a7cfc0, type: 3}
   AnimalPrefabs:
