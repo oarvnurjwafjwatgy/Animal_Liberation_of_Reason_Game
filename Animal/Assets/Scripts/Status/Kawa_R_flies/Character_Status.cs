@@ -43,8 +43,6 @@ public class Character_Status : MonoBehaviour
 
 	private float timer = 0f;              //タイマー系の変数
 
-	//public GameObject hp_object;
-	//public GameObject reason_object;
 
 	public int CurrentHP { get; protected set; }    // キャラクター現在HP(外部読み取り可、内部変更可)
 	public int CurrentReason { get; protected set; }    // キャラクター現在理性HP(外部読み取り可、内部変更可)
@@ -87,14 +85,6 @@ public class Character_Status : MonoBehaviour
 		//まずインスペクターのチェックボックスで判定 (以前の仕様を維持)
 		SelectAnimal();
 
-		// 次に予約表をチェック。選ばれていれば上書きする
-		//CharacterType selected = Animal_Select.playerChoices[playerID];
-		//if (selected != CharacterType.NONE)
-		//{
-		//	CharaAnim = selected;
-		//	Debug.Log($"{playerID}P のキャラを予約表から反映: {CharaAnim}");
-		//}
-
 		CharaState = State.IDLE;        // 初期状態を待機状態に設定
 		CharaMode = Mode.ANIMAL;        // 初期モードをエニモーに設定
 		CurrentHP = MaxHP;              // 現在HPに最大HPを代入
@@ -130,9 +120,6 @@ public class Character_Status : MonoBehaviour
 	//更新
 	void Update()
 	{
-		//GetCurrentHP();
-		//GetResonPoint();
-
 		// HPゲージの現在値を更新
 		if (hp_gauge != null && reason_gauge != null)
 		{
@@ -211,30 +198,6 @@ public class Character_Status : MonoBehaviour
 				break;
 		}
 	}
-
-	//public void InitGauges()
-	//{
-	//	// HPゲージスライダーコンポーネント取得
-	//	if (hp_object != null)
-	//	{
-	//		hp_gauge = hp_object.GetComponent<Slider>();
-
-	//		// HPゲージのオブジェクトに最大値と現在値を設定
-	//		hp_gauge.maxValue = MaxHP;
-	//		hp_gauge.value = CurrentHP;
-	//	}
-
-	//	// 理性ゲージスライダーコンポーネント取得
-	//	if (reason_object != null)
-	//	{
-	//		reason_gauge = reason_object.GetComponent<Slider>();
-
-	//		// 理性ゲージのオブジェクトに最大値と現在値を設定
-	//		reason_gauge.maxValue = MaxReason;
-	//		reason_gauge.value = CurrentReason;
-	//	}
-	//}
-
 
 	//死亡処理関数&ダメージ処理関数
 	public virtual void TakeDamage(int damage)
@@ -336,6 +299,10 @@ public class Character_Status : MonoBehaviour
 		if (CharaMode == Mode.SPSIAL_ANIMAL)
 		{
 			CurrentHP = 0;  // 現在HPを0に設定
+		}
+		else  if (CharaMode == Mode.ANIMAL)
+		{
+			CurrentReason = 0;  // 現在理性ポイントを0に設定
 		}
 
 		hp_gauge.value = 0;
