@@ -1,11 +1,15 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 public partial class PlayerManager : MonoBehaviour
 {
-    [HideInInspector] // インスペクターには出さなくて良い場合はこれをつける
+	//生成したプレイヤーを管理するリスト
+	private List<Character_Status> spawnedPlayers = new List<Character_Status>();
+
+	[HideInInspector] // インスペクターには出さなくて良い場合はこれをつける
     public int playerCount;
 
     [Header("プレイヤーの土台プレハブ")]
@@ -24,7 +28,10 @@ public partial class PlayerManager : MonoBehaviour
         playerCount = playersToSpawn;
         var gamepads = Gamepad.all;
 
-        for (int i = 1; i <= playersToSpawn; i++)
+        spawnedPlayers.Clear(); // 既存のプレイヤーリストをクリア
+
+		// プレイヤーの生成ループ
+		for (int i = 1; i <= playersToSpawn; i++)
         {
             // 1. 選択された動物のタイプを取得 (1Pなら index 1)
             Character_Status.CharacterType selectedType = Animal_Select.playerChoices[i];
@@ -52,8 +59,12 @@ public partial class PlayerManager : MonoBehaviour
             // 4. 各コンポーネントに生成したモデルを登録する
             SetupPlayer(newPlayer.gameObject, i, normalModel, reasonModel);
 
-            // 5. 初期位置へ移動
-            if (PlayerTransforms[padIndex] != null)
+			// 生成したプレイヤーのステータスをリストに追加
+			var status = newPlayer.GetComponent<Character_Status>();
+			if (status != null) spawnedPlayers.Add(status);
+
+			// 5. 初期位置へ移動
+			if (PlayerTransforms[padIndex] != null)
             {
                 newPlayer.transform.position = PlayerTransforms[padIndex].position;
                 newPlayer.transform.rotation = PlayerTransforms[padIndex].rotation;
@@ -88,4 +99,28 @@ public partial class PlayerManager : MonoBehaviour
             input.SetupDynamicReferences(normal, reason);
         }
     }
+
+    //更新
+    void Update()
+    {
+    int aliveCount = 0;     // 生存しているプレイヤーの数をカウント
+
+		// spawnedPlayersリストをループして、生存しているプレイヤーをカウント
+		foreach (var player in spawnedPlayers)
+        {
+			// playerがnullでなく、かつ死亡していない場合はaliveCountを増やす
+			if (player != null && !player.IsDead)
+                aliveCount++;
+        }
+
+        playerCount = aliveCount; // 生存しているプレイヤーの数をplayerCountに反映
+
+		// 残り1人になったらリザルトへ（複数人で始めた場合）
+		// GameDataManager.SelectedPlayerCount が 1 より大きいときのみ判定
+		if (GameDataManager.SelectedPlayerCount > 1 && playerCount == 1)
+		{
+			Debug.Log("決着！リザルトシーンへ移動します。");
+			//SceneManager.LoadScene("ResultScene");
+		}
+	}
 }
