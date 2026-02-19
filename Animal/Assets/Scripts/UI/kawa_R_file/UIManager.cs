@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
@@ -7,7 +8,7 @@ public class UIManager : MonoBehaviour
 	public List<GameObject> ui_list = new List<GameObject>();
 	public Transform canvasParent;
 
-	public void CreateUI(UI_ID ui_id, Transform pos, int pID) // pIDを追加
+	public Slider CreateUI(UI_ID ui_id, Transform pos, int pID) // pIDを追加
 	{
 		GameObject prefab = null;
 		if (ui_id == UI_ID.GAUGE_HP) prefab = Resources.Load("Prefab/UI/HP_ber") as GameObject;
@@ -34,6 +35,8 @@ public class UIManager : MonoBehaviour
 				}
 			}
 			ui_list.Add(uiObj);
+			return uiObj.GetComponent<Slider>(); // Sliderコンポーネントを返す
 		}
+		return null;
 	}
 }
