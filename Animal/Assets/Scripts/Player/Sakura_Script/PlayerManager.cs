@@ -116,6 +116,7 @@ public partial class PlayerManager : MonoBehaviour
             // 先にモデルを紐付ける
             input.SetupDynamicReferences(normal, reason);
         }
+
     }
 
     //更新
