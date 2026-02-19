@@ -30,34 +30,6 @@ public class InputPlayer : MonoBehaviour
 
     [SerializeField] private GameObject Collision;
 
-    [Header("全種の動物のオーバーライドアニメーター")]
-    [SerializeField] AnimatorOverrideController[] Animal_OverController;
-
-    [Header("全種の動物の待機モーションクリップ")]
-    [SerializeField] AnimationClip[] Animal_Normal_Idle_Clip;
-
-    [Header("全種の通常動物の移動モーションクリップ")]
-    [SerializeField] AnimationClip[] Animal_Normal_Move_Clip;
-
-    [Header("全種の通常動物の死ぬモーションクリップ")]
-    [SerializeField] AnimationClip[] Animal_Normal_Death_Clip;
-
-    [Header("全種の通常動物のスキルモーションクリップ")]
-    [SerializeField] AnimationClip[] Animal_Normal_Skill_Clip;
-
-    [Header("全種の通常動物の攻撃モーションクリップ")]
-    [SerializeField] AnimationClip[] Animal_Normal_Attack_Clip;
-
-    [Header("全種の通常動物の右回避モーションクリップ")]
-    [SerializeField] AnimationClip[] Animal_Normal_RightStep_Clip;
-
-    [Header("全種の通常動物の左回避モーションクリップ")]
-    [SerializeField] AnimationClip[] Animal_Normal_LeftStep_Clip;
-
-    [Header("全種の通常動物の後ろ回避モーションクリップ")]
-    [SerializeField] AnimationClip[] Animal_Normal_BackStep_Clip;
-
-
 
     // Start is called before the first frame update
     void Start()
@@ -257,6 +229,7 @@ public class InputPlayer : MonoBehaviour
     private void OnAttack(InputAction.CallbackContext context)
     {
         Debug.Log("攻撃");
+        animator.SetTrigger("Attack");
         if (deathFlag) return; // 死亡中は攻撃できない
 
         switch (character_Status.GetMode())
@@ -375,13 +348,22 @@ public class InputPlayer : MonoBehaviour
         this.normalObject = normal;
         this.reasonObject = reason;
 
-        // 生成された動物プレハブについているAnimatorを親にセット
-        this.animator = normal.GetComponent<Animator>();
+        // 1. まずは「Animator」コンポーネントそのものを取得する
+        this.animator = normal.GetComponentInChildren<Animator>();
 
-        // 向きの保存
+        if (this.animator != null)
+        {
+            // 2. もしプレハブのAnimatorにあらかじめOverrideControllerが設定されていれば、
+            // それが自動的に runtimeAnimatorController として扱われます。
+            // なので、ここで特別な代入をしなくても、animator.SetTrigger("Attack") は動きます。
+            Debug.Log($"{normal.name} の Animator を紐付けました。");
+        }
+        else
+        {
+            Debug.LogWarning($"{normal.name} に Animator が見つかりません。");
+        }
+
         this.cachedRotate = normal.transform.rotation;
-
-        Debug.Log($"Player {gameObject.name}: モデルの紐付け完了");
     }
 }
 
