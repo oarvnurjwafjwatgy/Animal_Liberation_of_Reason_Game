@@ -139,18 +139,6 @@ public class InputPlayer : MonoBehaviour
             Vector3 cameraForward = Vector3.Scale(camera.transform.forward, new Vector3(1, 0, 1)).normalized;
             Vector3 moveForward = cameraForward * leftStickInput.y + camera.transform.right * leftStickInput.x;
 
-           if(leftStickInput.magnitude > 0.1f)
-            {
-                animator.SetInteger("State", 1);
-            }
-            else
-            {
-                animator.SetInteger("State", 0);
-            }
-
-
-
-
             // Lスティックが入力されている時は、向きを正面にしその向きを保存する
             if (moveForward != new Vector3(0f, 0f, 0f))
             {
