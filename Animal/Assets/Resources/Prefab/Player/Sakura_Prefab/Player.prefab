@@ -224,8 +224,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1.36, z: 1}
+  m_Center: {x: 0, y: 0.63, z: 0}
 --- !u!114 &8127774792541031092
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -315,52 +315,6 @@ MonoBehaviour:
     m_Bits: 0
   moveSpeed: 5
   Collision: {fileID: 3948951764499293846, guid: 17be2a59e58dc044ca67771528c72d8e, type: 3}
-  Animal_OverController:
-  - {fileID: 22100000, guid: 4c7744c494caef444bfbcf74b74b9ee6, type: 2}
-  - {fileID: 22100000, guid: 4b3735559d967514ab03013c33f43338, type: 2}
-  - {fileID: 22100000, guid: d70aa98a65c85214894a495470962818, type: 2}
-  - {fileID: 22100000, guid: 9c42b7eaecddac7438c9ad7694b0a365, type: 2}
-  Animal_Normal_Idle_Clip:
-  - {fileID: 7400000, guid: 1f10cee35ad4a884ab2eaee4e94a1f0a, type: 2}
-  - {fileID: 7400000, guid: 1031eb54c51f6da41be2f60629fad98f, type: 2}
-  - {fileID: 7400000, guid: dcd134002cf87bd4bab38452cd8ef4ad, type: 2}
-  - {fileID: 7400000, guid: ebb7910da5c83964a85e2e1719cfcd7e, type: 2}
-  Animal_Normal_Move_Clip:
-  - {fileID: 7400000, guid: 131a61d06c4ba2149941865b72e82db7, type: 2}
-  - {fileID: 7400000, guid: 9f2ff5275b588fb41abbca825c81c3ca, type: 2}
-  - {fileID: 7400000, guid: 131a61d06c4ba2149941865b72e82db7, type: 2}
-  - {fileID: 7400000, guid: 737f6edaf19a3e041b2e3ac3dc9704d4, type: 2}
-  Animal_Normal_Death_Clip:
-  - {fileID: 7400000, guid: 39bccb63ba8be88479a3c0d5d61a33a2, type: 2}
-  - {fileID: 7400000, guid: 0febdc197784a30469ddcbc9da6e39e2, type: 2}
-  - {fileID: 7400000, guid: 39bccb63ba8be88479a3c0d5d61a33a2, type: 2}
-  - {fileID: 7400000, guid: 5e7f2ec63917e7945aee127404c23b80, type: 2}
-  Animal_Normal_Skill_Clip:
-  - {fileID: 7400000, guid: 4208d8f172be08244b56bdb530563a0d, type: 2}
-  - {fileID: 7400000, guid: e8437e07644ee2140bff364f1e84ab69, type: 2}
-  - {fileID: 7400000, guid: 4208d8f172be08244b56bdb530563a0d, type: 2}
-  - {fileID: 7400000, guid: 8a854cb5b439cde458ca43ac6019c213, type: 2}
-  - {fileID: 7400000, guid: 5644ff79a29e73a4e96a3cb5c1486ac0, type: 2}
-  Animal_Normal_Attack_Clip:
-  - {fileID: 7400000, guid: 784136900a1fe634bba91046be351da3, type: 2}
-  - {fileID: 7400000, guid: c5236eeb5280032419ae1898db45328e, type: 2}
-  - {fileID: 7400000, guid: 52c829a7af6f74442a524a2f9b47bcb0, type: 2}
-  - {fileID: 7400000, guid: 9370a9b0153669942892f7dac58bf578, type: 2}
-  Animal_Normal_RightStep_Clip:
-  - {fileID: 7400000, guid: d596118f36ef1584f9c3e364ffc60a65, type: 2}
-  - {fileID: 7400000, guid: 6a3958b0a83f50a45a03781314ca1fe9, type: 2}
-  - {fileID: 7400000, guid: aefe51ffd1ff53945b60457421965610, type: 2}
-  - {fileID: 7400000, guid: b74e30d0602434245b52dd46348d1019, type: 2}
-  Animal_Normal_LeftStep_Clip:
-  - {fileID: 7400000, guid: 1c8243fe29914dd4390e5336a3db4654, type: 2}
-  - {fileID: 7400000, guid: 3362215102143d841bbfaae4eb248295, type: 2}
-  - {fileID: 7400000, guid: ec8137d3b4aca654486e072dc9def2cb, type: 2}
-  - {fileID: 7400000, guid: c27965b1d2cc07f448afcd03c071b88e, type: 2}
-  Animal_Normal_BackStep_Clip:
-  - {fileID: 7400000, guid: 3235eed05ad85c140bc9a655449780be, type: 2}
-  - {fileID: 7400000, guid: 6d544d08e3609764fa56a437d367b3dd, type: 2}
-  - {fileID: 7400000, guid: e8fae3f562110514db55d854071fd8cc, type: 2}
-  - {fileID: 7400000, guid: 9139a92d0e020ec4cbdc95f1d8bdd41b, type: 2}
 --- !u!95 &1291844428188755427
 Animator:
   serializedVersion: 5
