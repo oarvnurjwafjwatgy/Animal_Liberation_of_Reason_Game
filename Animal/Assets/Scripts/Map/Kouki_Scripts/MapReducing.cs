@@ -1,22 +1,26 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class MapReducing : MonoBehaviour
 {
-    [SerializeField]private float mapRadius = 50f;  // ƒ}ƒbƒv(³•ûŒ`)‚Ì”¼ŒaƒTƒCƒY
-    [SerializeField]private int phaseNum = 4;       // ƒtƒF[ƒY‚Ì”
+    [SerializeField]private float mapRadius = 50f;  // ãƒãƒƒãƒ—(æ­£æ–¹å½¢)ã®åŠå¾„ã‚µã‚¤ã‚º
+    [SerializeField]private int phaseNum = 4;       // ãƒ•ã‚§ãƒ¼ã‚ºã®æ•°
 
-    private float[] velocity = new float[4];        // Še•Ç‚Ì‘¬“x
-    private float reducingTimer;    // k¬ƒ^ƒCƒ}[
-    private bool reducingFlag;      // k¬ƒtƒ‰ƒO
-    private Vector3 targetPos;      // ûkÅI’n“_‚ÌÀ•W
-    public GameObject targetObject; // ûkÅI’n“_ƒIƒuƒWƒFƒNƒg
-    public GameObject northWall;    // –k‚Ì•Çi+zj
-    public GameObject southWall;    // “ì‚Ì•Çi-zj
-    public GameObject eastWall;     // “Œ‚Ì•Çi+xj
-    public GameObject westWall;     // ¼‚Ì•Çi+xj
-    int test = 0;                   // ƒeƒXƒg—p•Ï”
+    private float[] velocity = new float[4];        // å„å£ã®é€Ÿåº¦
+    private float reducingTimer;    // ç¸®å°ã‚¿ã‚¤ãƒãƒ¼
+    private bool reducingFlag;      // ç¸®å°ãƒ•ãƒ©ã‚°
+    private Vector3 targetPos;      // åç¸®æœ€çµ‚åœ°ç‚¹ã®åº§æ¨™
+    public GameObject targetObject; // åç¸®æœ€çµ‚åœ°ç‚¹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
+    public GameObject northWall;    // åŒ—ã®å£ï¼ˆ+zï¼‰
+    public GameObject southWall;    // å—ã®å£ï¼ˆ-zï¼‰
+    public GameObject eastWall;     // æ±ã®å£ï¼ˆ+xï¼‰
+    public GameObject westWall;     // è¥¿ã®å£ï¼ˆ+xï¼‰
+    public GameObject nePillar;     // åŒ—æ±ã®å£
+    public GameObject nwPillar;     // åŒ—è¥¿ã®å£
+    public GameObject sePillar;     // å—æ±ã®å£
+    public GameObject swPillar;     // å—è¥¿ã®å£
+    int test = 0;                   // ãƒ†ã‚¹ãƒˆç”¨å¤‰æ•°
 
     // Start is called before the first frame update
     void Start()
@@ -25,24 +29,30 @@ public class MapReducing : MonoBehaviour
         reducingFlag = false;
         targetPos = targetObject.transform.position;
 
-        // Še•Ç‚Ì‘¬“x‚Ìİ’èi2f:‘¬“x‚ÆƒXƒP[ƒ‹‚Å”¼•ªA30f:”ÍˆÍˆÚ“®ŠÔ‚Ì30•bj
+        // å„å£ã®é€Ÿåº¦ã®è¨­å®šï¼ˆ2f:é€Ÿåº¦ã¨ã‚¹ã‚±ãƒ¼ãƒ«ã§åŠåˆ†ã€30f:ç¯„å›²ç§»å‹•æ™‚é–“ã®30ç§’ï¼‰
         velocity[0] = (((mapRadius - targetPos.z) / (float)phaseNum) / 2f) / 30f;
         velocity[1] = (((mapRadius + targetPos.z) / (float)phaseNum) / 2f) / 30f;
         velocity[2] = (((mapRadius - targetPos.x) / (float)phaseNum) / 2f) / 30f;
         velocity[3] = (((mapRadius + targetPos.x) / (float)phaseNum) / 2f) / 30f;
 
-        // •Ç‚ÌˆÊ’u‚Ì‰Šú‰»
+        // å£ã®ä½ç½®ã®åˆæœŸåŒ–
         northWall.transform.position = new Vector3(0f, 0f, mapRadius);
         southWall.transform.position = new Vector3(0f, 0f, -mapRadius);
         eastWall.transform.position = new Vector3(mapRadius, 0f, 0f);
         westWall.transform.position = new Vector3(-mapRadius, 0f, 0f);
+
+        // æŸ±ã®ä½ç½®ã®åˆæœŸåŒ–
+        nePillar.transform.position = new Vector3(mapRadius, 0f, mapRadius);
+        nwPillar.transform.position = new Vector3(-mapRadius, 0f, mapRadius);
+        sePillar.transform.position = new Vector3(mapRadius, 0f, -mapRadius);
+        swPillar.transform.position = new Vector3(-mapRadius, 0f, -mapRadius);
 
     }
 
     // Update is called once per frame
     void Update()
     {
-        // ŠÔŒv‘ª
+        // æ™‚é–“è¨ˆæ¸¬
         reducingTimer += Time.deltaTime;
         if ((int)reducingTimer != test) Debug.Log("time:" + test);
         test = (int)reducingTimer;
@@ -53,42 +63,48 @@ public class MapReducing : MonoBehaviour
 
     private void SwitchingFlag()
     {
-        // 4•ªˆÈãŒo‰ß‚µ‚Ä‚¢‚éê‡‚Íˆ—‚µ‚È‚¢i1ƒtƒF[ƒY1•ª‚Ì‚½‚ßj
+        // 4åˆ†ä»¥ä¸ŠçµŒéã—ã¦ã„ã‚‹å ´åˆã¯å‡¦ç†ã—ãªã„ï¼ˆ1ãƒ•ã‚§ãƒ¼ã‚º1åˆ†ã®ãŸã‚ï¼‰
         if ((int)reducingTimer > phaseNum * 60) return;
 
-        // 60•bŒo‰ß‚µ‚½‚çk¬‚ğƒXƒgƒbƒv
+        // 60ç§’çµŒéã—ãŸã‚‰ç¸®å°ã‚’ã‚¹ãƒˆãƒƒãƒ—
         if (reducingFlag && (int)reducingTimer % 60 == 0)
         {
             reducingFlag = false;
-            Debug.Log("k¬‚ğ’â~");
+            Debug.Log("ç¸®å°ã‚’åœæ­¢");
         }
-        // 30•bŒo‰ß‚µ‚½‚çk¬‚ğƒXƒ^[ƒg
+        // 30ç§’çµŒéã—ãŸã‚‰ç¸®å°ã‚’ã‚¹ã‚¿ãƒ¼ãƒˆ
         if (!reducingFlag && (int)reducingTimer % 60 != 0 && (int)reducingTimer % 30 == 0)
         {
             reducingFlag = true;
-            Debug.Log("k¬‚ğŠJn");
+            Debug.Log("ç¸®å°ã‚’é–‹å§‹");
         }
     }
 
     private void MoveWall()
     {
-        // k¬ƒtƒ‰ƒO‚ªfalse‚Ìê‡‚Íˆ—‚µ‚È‚¢
+        // ç¸®å°ãƒ•ãƒ©ã‚°ãŒfalseã®å ´åˆã¯å‡¦ç†ã—ãªã„
         if (!reducingFlag) return;
 
-        // deltaTime‚É‚æ‚é‘¬“x‚ÌZo
+        // deltaTimeã«ã‚ˆã‚‹é€Ÿåº¦ã®ç®—å‡º
         float[] new_velocity = new float[4];
         for (int i = 0; i < 4; i++)
             new_velocity[i] = velocity[i] * Time.deltaTime;
 
-        // ˆÚ“®
+        // ç§»å‹•
         northWall.transform.position = new Vector3(0f, 0f, northWall.transform.position.z - new_velocity[0]);
         southWall.transform.position = new Vector3(0f, 0f, southWall.transform.position.z + new_velocity[1]);
         eastWall.transform.position = new Vector3(eastWall.transform.position.x - new_velocity[2], 0f, 0f);
         westWall.transform.position = new Vector3(westWall.transform.position.x + new_velocity[3], 0f, 0f);
-        // Šg‘åi•â³‚Ì‚½‚ßA‘¬“x‚É2‚ğ‚©‚¯‚éj
+        // æ‹¡å¤§ï¼ˆè£œæ­£ã®ãŸã‚ã€é€Ÿåº¦ã«2ã‚’ã‹ã‘ã‚‹ï¼‰
         northWall.transform.localScale = new Vector3(northWall.transform.localScale.x, northWall.transform.localScale.y, northWall.transform.localScale.z + new_velocity[0] * 2f);
         southWall.transform.localScale = new Vector3(southWall.transform.localScale.x, southWall.transform.localScale.y, southWall.transform.localScale.z + new_velocity[1] * 2f);
         eastWall.transform.localScale = new Vector3(eastWall.transform.localScale.x + new_velocity[2] * 2f, eastWall.transform.localScale.y, eastWall.transform.localScale.z);
         westWall.transform.localScale = new Vector3(westWall.transform.localScale.x + new_velocity[3] * 2f, westWall.transform.localScale.y, westWall.transform.localScale.z);
+        // æŸ±ã®ç§»å‹•
+        nePillar.transform.position = new Vector3(nePillar.transform.position.x - new_velocity[2] * 2f, 0f, nePillar.transform.position.z - new_velocity[0] * 2f);
+        nwPillar.transform.position = new Vector3(nwPillar.transform.position.x + new_velocity[3] * 2f, 0f, nwPillar.transform.position.z - new_velocity[0] * 2f);
+        sePillar.transform.position = new Vector3(sePillar.transform.position.x - new_velocity[2] * 2f, 0f, sePillar.transform.position.z + new_velocity[1] * 2f);
+        swPillar.transform.position = new Vector3(swPillar.transform.position.x + new_velocity[3] * 2f, 0f, swPillar.transform.position.z + new_velocity[1] * 2f);
+
     }
 }

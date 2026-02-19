@@ -1,0 +1,37 @@
+using UnityEngine;
+using UnityEngine.Video;
+using UnityEngine.UI;
+
+public class TitleVideoHandler : MonoBehaviour
+{
+	public VideoPlayer videoPlayer;
+	public RawImage videoDisplay; // 動画を表示しているRawImage
+    public GameObject titleUI;      // ロゴや「PUSH START」などのUI
+
+	void Start()
+	{
+		// UIを最初は消しておく（動画に集中させる場合）
+		if (titleUI != null) titleUI.SetActive(false);
+
+		// 動画が終了した時のイベントを登録
+		videoPlayer.loopPointReached += OnVideoEnd;
+	}
+
+	void OnVideoEnd(VideoPlayer vp)
+	{
+		// 動画が終わった時の処理
+		Debug.Log("動画再生完了");
+
+		// 1. 動画の表示を消す、またはアルファを下げる
+		videoDisplay.enabled = false;
+
+		// 2. タイトルのロゴや「PUSH START」を表示する
+		if (titleUI != null)
+		{
+			titleUI.SetActive(true);
+			TitleMenu menu = titleUI.GetComponent<TitleMenu>();
+			if (menu != null) menu.EnableInput();
+		}
+
+	}
+}
