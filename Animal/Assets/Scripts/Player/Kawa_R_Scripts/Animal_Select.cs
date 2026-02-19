@@ -32,12 +32,52 @@ public class Animal_Select : MonoBehaviour
 	[Header("ボタンのインデックス (0~3)")]
 	public int buttonIndex;
 
+
+	// Animal_Select.cs のメンバー変数部分に追加
+	public static GameObject[] normalModels_1P;    // インデックス0:ライオン, 1:ダチョウ...
+	public static GameObject[] silhouetteModels_1P;
+
+	public static GameObject[] normalModels_2P;
+	public static GameObject[] silhouetteModels_2P;
+
+	public static GameObject[] normalModels_3P;
+	public static GameObject[] silhouetteModels_3P;
+
+	public static GameObject[] normalModels_4P;
+	public static GameObject[] silhouetteModels_4P;
+
+	// 動的にモデルを割り当てるための配列（Inspectorで設定）
+	[Header("【Index 0のボタンのみ設定】モデル登録用")]
+	public GameObject[] setupNormals_1P;
+	public GameObject[] setupSilhouettes_1P;
+	public GameObject[] setupNormals_2P;
+	public GameObject[] setupSilhouettes_2P;
+	public GameObject[] setupNormals_3P;
+	public GameObject[] setupSilhouettes_3P;
+	public GameObject[] setupNormals_4P;
+	public GameObject[] setupSilhouettes_4P;
+
+
 	private int dynamicRequiredPlayers;         // 動的参加人数
 	private bool allPlayersReady = false;       // 全員決定済みフラグ
 	private bool isTransitioning = false;       // シーン遷移中フラグ
 
 	void Awake()
 	{
+		// --- シーン開始時の初期化処理 ---
+		//最初のボタンのみモデルを割り当てる（重複して割り当てないように）
+		if (buttonIndex == 0)
+		{
+			normalModels_1P = setupNormals_1P;
+			silhouetteModels_1P = setupSilhouettes_1P;
+			normalModels_2P = setupNormals_2P;
+			silhouetteModels_2P = setupSilhouettes_2P;
+			normalModels_3P = setupNormals_3P;
+			silhouetteModels_3P = setupSilhouettes_3P;
+			normalModels_4P = setupNormals_4P;
+			silhouetteModels_4P = setupSilhouettes_4P;
+		}
+
 		// 全ボタン共通で1回だけ探せばOK
 		if (readyImage == null)
 		{
@@ -107,6 +147,8 @@ public class Animal_Select : MonoBehaviour
 						playerPositions[pID] = (playerPositions[pID] + 3) % 4;
 						Debug.Log($"<color=yellow>{pID}P Move Left: Index {playerPositions[pID]}</color>");
 					}
+
+					UpdateDisplayModel(pID, playerPositions[pID], false); // カーソル移動のたびにモデル更新
 				}
 
 				// キーボード2P移動(デバック用)
@@ -185,11 +227,53 @@ public class Animal_Select : MonoBehaviour
 		if (allPlayersReady && (startPad || Input.GetKeyDown(KeyCode.Space))) StartBattle();
 	}
 
+	//カーソルが特定のボタンにいるとき、
+	//通常モデルとシルエットモデルを切り替える処理
+	private void UpdateDisplayModel(int pID,int animalIndex,bool isDecided)
+	{
+		GameObject[] normals = null;		//決定を押すと通常モデル
+		GameObject[] silhouettes = null;    //決定前はシルエットモデル
+		if (pID == 1)
+		{
+			normals = normalModels_1P;
+			silhouettes = silhouetteModels_1P;
+		}
+		else if (pID == 2)
+		{
+			normals = normalModels_2P;
+			silhouettes = silhouetteModels_2P;
+		}
+		else if (pID == 3)
+		{
+			normals = normalModels_3P;
+			silhouettes = silhouetteModels_3P;
+		}
+		else if (pID == 4)
+		{
+			normals = normalModels_4P;
+			silhouettes = silhouetteModels_4P;
+		}
+
+		// 配列が空、または animalIndex が範囲外なら何もしない
+		if (normals == null || silhouettes == null || animalIndex < 0 || animalIndex >= normals.Length)
+		{
+			return;
+		}
+
+		// 全てのモデルを一旦オフにして、該当インデックスだけオンにする
+		for (int i = 0; i < normals.Length; i++)
+		{
+			if (normals[i] != null) normals[i].SetActive(isDecided && i == animalIndex);
+			if (silhouettes[i] != null) silhouettes[i].SetActive(!isDecided && i == animalIndex);
+		}
+	}
+
 	//決定処理
 	void SetChoice(int pID)
 	{
-		playerChoices[pID] = animalType;    //選んだ動物を配列に保存
+		playerChoices[pID] = animalType;								 //選んだ動物を配列に保存
 		select_saver.Instance.PlayerChoices[pID - 1] = animalType;
+		UpdateDisplayModel(pID, playerPositions[pID], true);			 // 決定したら通常モデルに切り替え
 		Debug.Log($"<color=cyan>{pID}P 決定:</color> {animalType}");
 	}
 
@@ -198,6 +282,8 @@ public class Animal_Select : MonoBehaviour
 	{
 		playerChoices[pID] = Character_Status.CharacterType.NONE;
 		select_saver.Instance.PlayerChoices[pID - 1] = Character_Status.CharacterType.NONE;
+		UpdateDisplayModel(pID, playerPositions[pID], false);       // キャンセルしたらシルエットモデルに切り替え
+		
 		//選択状態をリセット
 		allPlayersReady = false;                                    //全員決定済みフラグをリセット
 		if (readyImage != null) readyImage.SetActive(false);        //準備完了イラスト非表示

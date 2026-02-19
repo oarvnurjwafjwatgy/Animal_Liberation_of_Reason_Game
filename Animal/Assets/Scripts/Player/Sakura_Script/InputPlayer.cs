@@ -30,10 +30,32 @@ public class InputPlayer : MonoBehaviour
 
     [SerializeField] private GameObject Collision;
 
+    [Header("全種の動物のオーバーライドアニメーター")]
+    [SerializeField] AnimatorOverrideController[] Animal_OverController;
 
+    [Header("全種の動物の待機モーションクリップ")]
+    [SerializeField] AnimationClip[] Animal_Normal_Idle_Clip;
 
+    [Header("全種の通常動物の移動モーションクリップ")]
+    [SerializeField] AnimationClip[] Animal_Normal_Move_Clip;
 
+    [Header("全種の通常動物の死ぬモーションクリップ")]
+    [SerializeField] AnimationClip[] Animal_Normal_Death_Clip;
 
+    [Header("全種の通常動物のスキルモーションクリップ")]
+    [SerializeField] AnimationClip[] Animal_Normal_Skill_Clip;
+
+    [Header("全種の通常動物の攻撃モーションクリップ")]
+    [SerializeField] AnimationClip[] Animal_Normal_Attack_Clip;
+
+    [Header("全種の通常動物の右回避モーションクリップ")]
+    [SerializeField] AnimationClip[] Animal_Normal_RightStep_Clip;
+
+    [Header("全種の通常動物の左回避モーションクリップ")]
+    [SerializeField] AnimationClip[] Animal_Normal_LeftStep_Clip;
+
+    [Header("全種の通常動物の後ろ回避モーションクリップ")]
+    [SerializeField] AnimationClip[] Animal_Normal_BackStep_Clip;
 
 
 

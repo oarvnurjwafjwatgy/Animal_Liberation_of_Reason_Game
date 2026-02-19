@@ -1944,7 +1944,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7896815444865540616}
-  - component: {fileID: 4419888547334692318}
+  - component: {fileID: 1744471919626621192}
   m_Layer: 0
   m_Name: Red_lion
   m_TagString: Untagged
@@ -1961,7 +1961,7 @@ Transform:
   m_GameObject: {fileID: 8742486245336711506}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -1970,7 +1970,7 @@ Transform:
   - {fileID: 9162241831880302837}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!95 &4419888547334692318
+--- !u!95 &1744471919626621192
 Animator:
   serializedVersion: 5
   m_ObjectHideFlags: 0
