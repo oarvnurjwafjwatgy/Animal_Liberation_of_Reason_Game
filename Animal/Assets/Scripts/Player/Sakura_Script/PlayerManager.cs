@@ -7,15 +7,17 @@ using UnityEngine.UI;
 
 public partial class PlayerManager : MonoBehaviour
 {
-	//生成したプレイヤーを管理するリスト
-	private List<Character_Status> spawnedPlayers = new List<Character_Status>();
+    //生成したプレイヤーを管理するリスト
+    private List<Character_Status> spawnedPlayers = new List<Character_Status>();
 
-	[Header("UI設定")]
-	[SerializeField] private UIManager uiManager;// UIマネージャーの参照
-	[SerializeField] private List<Transform> uiPositions = new List<Transform>();// 1P~4PのUI位置
+    [Header("UI設定")]
+    [SerializeField] private UIManager uiManager;// UIマネージャーの参照
+    [SerializeField] private List<Transform> uiPositions = new List<Transform>();// 1P~4PのUI位置
 
-	[HideInInspector] // インスペクターには出さなくて良い場合はこれをつける
+    [HideInInspector] // インスペクターには出さなくて良い場合はこれをつける
     public int playerCount;
+    public bool isGameEnd;  // ゲーム終了フラグ
+    public int lastPlayer;  // 最後に残ったプレイヤー
 
     [Header("プレイヤーの土台プレハブ")]
     [SerializeField] private GameObject PlayerBasePrefab;
@@ -31,6 +33,8 @@ public partial class PlayerManager : MonoBehaviour
     {
         int playersToSpawn = GameDataManager.SelectedPlayerCount;
         playerCount = playersToSpawn;
+        isGameEnd = false;
+        lastPlayer = 0;
         var gamepads = Gamepad.all;
 
         spawnedPlayers.Clear(); // 既存のプレイヤーリストをクリア
@@ -112,30 +116,38 @@ public partial class PlayerManager : MonoBehaviour
             // 先にモデルを紐付ける
             input.SetupDynamicReferences(normal, reason);
         }
-
     }
 
     //更新
     void Update()
     {
-    int aliveCount = 0;     // 生存しているプレイヤーの数をカウント
+        int aliveCount = 0;     // 生存しているプレイヤーの数をカウント
+        int last_player = 0;    // 最後まで残ったプレイヤーの番号を保持する
 
-		// spawnedPlayersリストをループして、生存しているプレイヤーをカウント
-		foreach (var player in spawnedPlayers)
+        // spawnedPlayersリストをループして、生存しているプレイヤーをカウント
+        foreach (var player in spawnedPlayers)
         {
-			// playerがnullでなく、かつ死亡していない場合はaliveCountを増やす
-			if (player != null && !player.IsDead)
+            // playerがnullでなく、かつ死亡していない場合はaliveCountを増やす
+            if (player != null && !player.IsDead)
+            {
                 aliveCount++;
+
+                // 生きているプレイヤーを保持する
+                last_player = player.playerID;
+            }
+
         }
 
         playerCount = aliveCount; // 生存しているプレイヤーの数をplayerCountに反映
 
-		// 残り1人になったらリザルトへ（複数人で始めた場合）
-		// GameDataManager.SelectedPlayerCount が 1 より大きいときのみ判定
-		if (GameDataManager.SelectedPlayerCount > 1 && playerCount == 1)
-		{
-			Debug.Log("決着！リザルトシーンへ移動します。");
-			//SceneManager.LoadScene("ResultScene");
-		}
-	}
+        // 残り1人になったらリザルトへ（複数人で始めた場合）
+        // GameDataManager.SelectedPlayerCount が 1 より大きいときのみ判定
+        if (GameDataManager.SelectedPlayerCount > 1 && playerCount == 1 && !isGameEnd)
+        {
+            Debug.Log("決着！リザルトシーンへ移動します。");
+
+            isGameEnd = true;
+            lastPlayer = last_player;
+        }
+    }
 }
