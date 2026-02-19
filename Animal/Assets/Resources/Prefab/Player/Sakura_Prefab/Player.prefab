@@ -315,6 +315,19 @@ MonoBehaviour:
     m_Bits: 0
   moveSpeed: 5
   Collision: {fileID: 3948951764499293846, guid: 17be2a59e58dc044ca67771528c72d8e, type: 3}
+  Animal_OverController:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  Animal_Normal_Idle_Clip: []
+  Animal_Normal_Move_Clip: []
+  Animal_Normal_Death_Clip: []
+  Animal_Normal_Skill_Clip: []
+  Animal_Normal_Attack_Clip: []
+  Animal_Normal_RightStep_Clip: []
+  Animal_Normal_LeftStep_Clip: []
+  Animal_Normal_BackStep_Clip: []
 --- !u!95 &1291844428188755427
 Animator:
   serializedVersion: 5
@@ -325,7 +338,7 @@ Animator:
   m_GameObject: {fileID: 1839733414962546177}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 384e4398872836147b55fd0c91d867e6, type: 2}
+  m_Controller: {fileID: 9100000, guid: 02ce1b3ce788b774a8b8a04a017f711f, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -366,8 +379,6 @@ MonoBehaviour:
   ReasonDefensePower: 60
   ReasonMoveSpeed: 1
   playerID: 1
-  hp_object: {fileID: 0}
-  reason_object: {fileID: 0}
   CharaAnim: 0
 --- !u!114 &8604957528455422006
 MonoBehaviour:
