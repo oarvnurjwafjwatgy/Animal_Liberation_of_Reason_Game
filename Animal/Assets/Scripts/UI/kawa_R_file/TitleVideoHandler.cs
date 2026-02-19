@@ -26,6 +26,12 @@ public class TitleVideoHandler : MonoBehaviour
 		videoDisplay.enabled = false;
 
 		// 2. タイトルのロゴや「PUSH START」を表示する
-		if (titleUI != null) titleUI.SetActive(true);
+		if (titleUI != null)
+		{
+			titleUI.SetActive(true);
+			TitleMenu menu = titleUI.GetComponent<TitleMenu>();
+			if (menu != null) menu.EnableInput();
+		}
+
 	}
 }
