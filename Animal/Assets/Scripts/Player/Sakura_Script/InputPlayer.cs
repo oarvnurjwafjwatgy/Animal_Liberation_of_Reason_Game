@@ -14,10 +14,12 @@ public class InputPlayer : MonoBehaviour
     public LayerMask enemyLayer;       // インスペクターで「Player」レイヤーを選択
 
     public float moveSpeed = 5.0f; // キャラクターの移動速度
-    private GameObject cameraObject;
-    private GameObject normalObject;
-    private GameObject reasonObject;
-    private GameObject ghostObject;
+
+    [Header("オブジェクト鑑賞")]
+    public GameObject cameraObject;
+    public GameObject normalObject;
+    public GameObject reasonObject;
+    public GameObject ghostObject;
     private Quaternion cachedRotate;
     private GameObject collisionObject;
 
@@ -59,7 +61,7 @@ public class InputPlayer : MonoBehaviour
         // cameraObject と ghostObject は土台プレハブに元からあるはずなので取得
         // ただし、既に SetupDynamicReferences で設定されている場合は何もしない
         if (cameraObject == null) cameraObject = transform.GetChild(0).gameObject;
-        if (ghostObject == null) ghostObject = transform.GetChild(3).gameObject;
+        if (ghostObject == null) ghostObject = transform.GetChild(1).gameObject;
 
         // normalObject, reasonObject は PlayerManager から渡されるので
         // ここで transform.GetChild で上書きしてはいけない！！（コメントアウト推奨）
@@ -180,12 +182,14 @@ public class InputPlayer : MonoBehaviour
             Vector3 cameraForward = Vector3.Scale(camera.transform.forward, new Vector3(1, 0, 1)).normalized;
             Vector3 moveForward = cameraForward * leftStickInput.y + camera.transform.right * leftStickInput.x;
 
-            if (leftStickInput.magnitude > 0.1f)
+            if (leftStickInput.magnitude > 0.05f)
             {
+                MoveFlag = true;
                 animator.SetInteger("State", 1);
             }
             else
             {
+                MoveFlag = true;
                 animator.SetInteger("State", 0);
             }
 
@@ -284,6 +288,7 @@ public class InputPlayer : MonoBehaviour
         MoveFlag = false;
 
         Debug.Log("攻撃");
+        animator.SetInteger("State", 0);
         animator.SetTrigger("Attack");
         if (deathFlag) return; // 死亡中は攻撃できない
 
@@ -307,6 +312,7 @@ public class InputPlayer : MonoBehaviour
 
     private void OnModeChange(InputAction.CallbackContext context)
     {
+        animator.SetInteger("State", 0);
         character_Status.GetModeChange();
         Enhancement();
 
@@ -323,6 +329,7 @@ public class InputPlayer : MonoBehaviour
 
     private void OnSkill(InputAction.CallbackContext context)
     {
+        animator.SetInteger("State", 0);
         MoveFlag = false;
         animator.SetTrigger("Skill");
 
@@ -367,6 +374,9 @@ public class InputPlayer : MonoBehaviour
     {
         // 死亡フラグをtrueにする
         deathFlag = true;
+
+        animator.SetInteger("State", 2);
+
 
         // 観戦者用に各アクティブ状態を変更する
         cameraObject.SetActive(false);
