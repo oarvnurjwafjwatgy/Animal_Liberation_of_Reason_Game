@@ -68,6 +68,8 @@ public class InputPlayer : MonoBehaviour
         controller.PlayerInput.actions["Attack"].started += OnAttack;
         controller.PlayerInput.actions["ModeChange"].started += OnModeChange;
         controller.PlayerInput.actions["CameraReset"].started += OnCameraReset;
+        controller.PlayerInput.actions["Skill"].started += OnSkill;
+        controller.PlayerInput.actions["Evation"].started += OnEvation;
     }
 
     private void OnDisable()
@@ -75,6 +77,8 @@ public class InputPlayer : MonoBehaviour
         controller.PlayerInput.actions["Attack"].started -= OnAttack;
         controller.PlayerInput.actions["ModeChange"].started -= OnModeChange;
         controller.PlayerInput.actions["CameraReset"].started -= OnCameraReset;
+        controller.PlayerInput.actions["Skill"].started -= OnSkill;
+        controller.PlayerInput.actions["Evation"].started -= OnEvation;
     }
 
     private void Update()
@@ -276,6 +280,17 @@ public class InputPlayer : MonoBehaviour
 
         Debug.Log("カメラリセット");
     }
+
+    private void OnSkill(InputAction.CallbackContext context)
+    {
+        Debug.Log("スキル発動");
+    }
+
+    private void OnEvation(InputAction.CallbackContext context)
+    {
+        Debug.Log("回避");
+    }
+
 
     private void OnDescent()
     {
