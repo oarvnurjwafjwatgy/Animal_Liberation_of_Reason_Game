@@ -180,12 +180,14 @@ public class InputPlayer : MonoBehaviour
             Vector3 cameraForward = Vector3.Scale(camera.transform.forward, new Vector3(1, 0, 1)).normalized;
             Vector3 moveForward = cameraForward * leftStickInput.y + camera.transform.right * leftStickInput.x;
 
-            if (leftStickInput.magnitude > 0.1f)
+            if (leftStickInput.magnitude > 0.05f)
             {
+                MoveFlag = true;
                 animator.SetInteger("State", 1);
             }
             else
             {
+                MoveFlag = true;
                 animator.SetInteger("State", 0);
             }
 
@@ -284,6 +286,7 @@ public class InputPlayer : MonoBehaviour
         MoveFlag = false;
 
         Debug.Log("攻撃");
+        animator.SetInteger("State", 0);
         animator.SetTrigger("Attack");
         if (deathFlag) return; // 死亡中は攻撃できない
 
@@ -307,6 +310,7 @@ public class InputPlayer : MonoBehaviour
 
     private void OnModeChange(InputAction.CallbackContext context)
     {
+        animator.SetInteger("State", 0);
         character_Status.GetModeChange();
         Enhancement();
 
@@ -323,6 +327,7 @@ public class InputPlayer : MonoBehaviour
 
     private void OnSkill(InputAction.CallbackContext context)
     {
+        animator.SetInteger("State", 0);
         MoveFlag = false;
         animator.SetTrigger("Skill");
 
@@ -367,6 +372,9 @@ public class InputPlayer : MonoBehaviour
     {
         // 死亡フラグをtrueにする
         deathFlag = true;
+
+        animator.SetInteger("State", 2);
+
 
         // 観戦者用に各アクティブ状態を変更する
         cameraObject.SetActive(false);
