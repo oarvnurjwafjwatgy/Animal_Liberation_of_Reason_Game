@@ -3,6 +3,9 @@ using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(Controller))]
+
+
+
 public class InputPlayer : MonoBehaviour
 {
     [Header("攻撃の設定")]
@@ -29,6 +32,17 @@ public class InputPlayer : MonoBehaviour
     private Controller controller; // 作成した Controller クラス
 
     [SerializeField] private GameObject Collision;
+
+
+   public enum Direction
+    {
+        Front,
+        Right,
+        Left,
+        Back,
+    }
+
+    Direction direction = Direction.Front;
 
 
     // Start is called before the first frame update
@@ -100,6 +114,24 @@ public class InputPlayer : MonoBehaviour
             {
                 // 1. Controller クラスからスティックの入力値を取得
                 Vector2 leftStickInput = controller.GetLeftStick();
+
+                if (leftStickInput.x > 0.1)
+                {
+                    direction = Direction.Right;
+                }
+                else if (leftStickInput.x < -0.1)
+                {
+                    direction = Direction.Left;
+                }
+                else if (leftStickInput.y < -0.1)
+                {
+                    direction = Direction.Back;
+                }
+                else
+                {
+                    direction = Direction.Front;
+                }
+
 
                 // 2. 入力値 (Vector2) を 3D の移動方向 (Vector3) に変換
                 Vector3 moveDirection = new Vector3(leftStickInput.x, 0, leftStickInput.y);
@@ -284,11 +316,22 @@ public class InputPlayer : MonoBehaviour
 
     private void OnSkill(InputAction.CallbackContext context)
     {
+        animator.SetTrigger("Skill");
+
         Debug.Log("スキル発動");
     }
 
     private void OnEvation(InputAction.CallbackContext context)
     {
+        switch(direction)
+        {
+            case Direction.Right: animator.SetTrigger("RightStep"); break;
+            case Direction.Left: animator.SetTrigger("LeftStep"); break;
+            case Direction.Back: animator.SetTrigger("BackStep"); break;
+        }
+
+
+
         Debug.Log("回避");
     }
 
