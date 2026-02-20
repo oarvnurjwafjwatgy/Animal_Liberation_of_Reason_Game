@@ -3,6 +3,9 @@ using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(Controller))]
+
+
+
 public class InputPlayer : MonoBehaviour
 {
     [Header("攻撃の設定")]
@@ -31,12 +34,23 @@ public class InputPlayer : MonoBehaviour
     [SerializeField] private GameObject Collision;
 
 
+   public enum Direction
+    {
+        Front,
+        Right,
+        Left,
+        Back,
+    }
+
+    Direction direction = Direction.Front;
+
+
     // Start is called before the first frame update
     void Start()
     {
-       // cameraObject と ghostObject は土台プレハブに元からあるはずなので取得
-    // ただし、既に SetupDynamicReferences で設定されている場合は何もしない
-    if (cameraObject == null) cameraObject = transform.GetChild(0).gameObject;
+        // cameraObject と ghostObject は土台プレハブに元からあるはずなので取得
+        // ただし、既に SetupDynamicReferences で設定されている場合は何もしない
+        if (cameraObject == null) cameraObject = transform.GetChild(0).gameObject;
         if (ghostObject == null) ghostObject = transform.GetChild(3).gameObject;
 
         // normalObject, reasonObject は PlayerManager から渡されるので
@@ -101,6 +115,24 @@ public class InputPlayer : MonoBehaviour
                 // 1. Controller クラスからスティックの入力値を取得
                 Vector2 leftStickInput = controller.GetLeftStick();
 
+                if (leftStickInput.x > 0.1)
+                {
+                    direction = Direction.Right;
+                }
+                else if (leftStickInput.x < -0.1)
+                {
+                    direction = Direction.Left;
+                }
+                else if (leftStickInput.y < -0.1)
+                {
+                    direction = Direction.Back;
+                }
+                else
+                {
+                    direction = Direction.Front;
+                }
+
+
                 // 2. 入力値 (Vector2) を 3D の移動方向 (Vector3) に変換
                 Vector3 moveDirection = new Vector3(leftStickInput.x, 0, leftStickInput.y);
 
@@ -143,7 +175,7 @@ public class InputPlayer : MonoBehaviour
             Vector3 cameraForward = Vector3.Scale(camera.transform.forward, new Vector3(1, 0, 1)).normalized;
             Vector3 moveForward = cameraForward * leftStickInput.y + camera.transform.right * leftStickInput.x;
 
-           if(leftStickInput.magnitude > 0.1f)
+            if (leftStickInput.magnitude > 0.1f)
             {
                 animator.SetInteger("State", 1);
             }
@@ -269,6 +301,7 @@ public class InputPlayer : MonoBehaviour
     private void OnModeChange(InputAction.CallbackContext context)
     {
         character_Status.GetModeChange();
+        Enhancement();
 
         Debug.Log("チェンジ");
     }
@@ -283,11 +316,22 @@ public class InputPlayer : MonoBehaviour
 
     private void OnSkill(InputAction.CallbackContext context)
     {
+        animator.SetTrigger("Skill");
+
         Debug.Log("スキル発動");
     }
 
     private void OnEvation(InputAction.CallbackContext context)
     {
+        switch(direction)
+        {
+            case Direction.Right: animator.SetTrigger("RightStep"); break;
+            case Direction.Left: animator.SetTrigger("LeftStep"); break;
+            case Direction.Back: animator.SetTrigger("BackStep"); break;
+        }
+
+
+
         Debug.Log("回避");
     }
 
@@ -339,7 +383,7 @@ public class InputPlayer : MonoBehaviour
     public void AttackCollider()
     {
 
-        Vector3 spawnPosition = normalObject.transform.position  + new Vector3(0f,0.5f,0f) +normalObject.transform.right * 3f;
+        Vector3 spawnPosition = normalObject.transform.position + new Vector3(0f, 0.5f, 0f) + normalObject.transform.right * 3f;
 
         collisionObject = Instantiate(Collision, spawnPosition, Quaternion.identity, this.gameObject.transform);
     }
@@ -360,13 +404,13 @@ public class InputPlayer : MonoBehaviour
 
         switch (collsionobj.tag)
         {
-            case "Player1": Debug.Log("1Pダメージ");  damage.TakeDamage(50); ColliderDelete() ; break;
+            case "Player1": Debug.Log("1Pダメージ"); damage.TakeDamage(50); ColliderDelete(); break;
             case "Player2": Debug.Log("2Pダメージ"); damage.TakeDamage(50); ColliderDelete(); break;
-            
-            
+
+
         }
 
-       
+
 
     }
 
@@ -391,6 +435,36 @@ public class InputPlayer : MonoBehaviour
         }
 
         this.cachedRotate = normal.transform.rotation;
+    }
+
+
+
+    public void Enhancement()
+    {
+        Character_Status.Mode currentMode = character_Status.GetMode();
+
+        Debug.Log(currentMode);
+
+        if (currentMode == Character_Status.Mode.SPSIAL_ANIMAL)
+        {
+            // --- 通常 → 強化（理性モード）への切り替え ---
+            normalObject.SetActive(false);
+            reasonObject.SetActive(true);
+
+            // Animator を強化モデルのものに差し替える
+            animator = reasonObject.GetComponentInChildren<Animator>();
+            Debug.Log("強化モデルに切り替わりました");
+        }
+        else
+        {
+            // --- 強化 → 通常への切り替え ---
+            reasonObject.SetActive(false);
+            normalObject.SetActive(true);
+
+            // Animator を通常モデルのものに差し替える
+            animator = normalObject.GetComponentInChildren<Animator>();
+            Debug.Log("通常モデルに戻りました");
+        }
     }
 }
 
