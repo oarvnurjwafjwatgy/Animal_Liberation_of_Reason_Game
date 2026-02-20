@@ -53,8 +53,8 @@ public class InputPlayer : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        EffectManager = GameObject.Find("EffectManager");
-        Effect_Manager = EffectManager.GetComponent<EffectManager>();
+        //EffectManager = GameObject.Find("EffectManager");
+        //Effect_Manager = EffectManager.GetComponent<EffectManager>();
 
         // cameraObject と ghostObject は土台プレハブに元からあるはずなので取得
         // ただし、既に SetupDynamicReferences で設定されている場合は何もしない
