@@ -1500,6 +1500,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2249385045848432444}
   - component: {fileID: 90435522544613225}
+  - component: {fileID: 7140735784432943134}
   m_Layer: 0
   m_Name: ratel
   m_TagString: Untagged
@@ -1558,6 +1559,18 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &7140735784432943134
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5127707995168493817}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c89d25783928184993f06a70fcc5ef7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5132423124180289449
 GameObject:
   m_ObjectHideFlags: 0

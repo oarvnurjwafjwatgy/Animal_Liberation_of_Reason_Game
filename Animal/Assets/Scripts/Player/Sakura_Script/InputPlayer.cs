@@ -33,8 +33,13 @@ public class InputPlayer : MonoBehaviour
 
     [SerializeField] private GameObject Collision;
 
+    private GameObject EffectManager;
+    EffectManager Effect_Manager = null;
 
-   public enum Direction
+    bool MoveFlag = true; // 動かせるか
+
+
+    public enum Direction
     {
         Front,
         Right,
@@ -48,6 +53,9 @@ public class InputPlayer : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        EffectManager = GameObject.Find("EffectManager");
+        Effect_Manager = EffectManager.GetComponent<EffectManager>();
+
         // cameraObject と ghostObject は土台プレハブに元からあるはずなので取得
         // ただし、既に SetupDynamicReferences で設定されている場合は何もしない
         if (cameraObject == null) cameraObject = transform.GetChild(0).gameObject;
@@ -106,11 +114,9 @@ public class InputPlayer : MonoBehaviour
     // 物理演算は FixedUpdate で行います
     private void FixedUpdate()
     {
-        // Controller クラスが正しく取得できているか確認
-        if (controller != null && rb != null)
-        {
+       
             // Controller クラスが正しく取得できているか確認
-            if (controller != null && rb != null)
+            if ((controller != null && rb != null) && MoveFlag == true)
             {
                 // 1. Controller クラスからスティックの入力値を取得
                 Vector2 leftStickInput = controller.GetLeftStick();
@@ -152,14 +158,13 @@ public class InputPlayer : MonoBehaviour
                 else
                     this.UpdateGhostCamera();
             }
-        }
     }
 
     // アニメーションの影響上、プレイヤーの向き更新は LateUpdate で行う
     private void LateUpdate()
     {
         // Controller クラスが正しく取得できているか確認
-        if (controller != null && rb != null)
+        if ((controller != null && rb != null) && MoveFlag == true)
         {
             // Controller クラスからスティックの入力値を取得
             Vector2 leftStickInput = controller.GetLeftStick();
@@ -276,6 +281,8 @@ public class InputPlayer : MonoBehaviour
 
     private void OnAttack(InputAction.CallbackContext context)
     {
+        MoveFlag = false;
+
         Debug.Log("攻撃");
         animator.SetTrigger("Attack");
         if (deathFlag) return; // 死亡中は攻撃できない
@@ -316,6 +323,7 @@ public class InputPlayer : MonoBehaviour
 
     private void OnSkill(InputAction.CallbackContext context)
     {
+        MoveFlag = false;
         animator.SetTrigger("Skill");
 
         Debug.Log("スキル発動");
@@ -323,7 +331,7 @@ public class InputPlayer : MonoBehaviour
 
     private void OnEvation(InputAction.CallbackContext context)
     {
-        switch(direction)
+        switch (direction)
         {
             case Direction.Right: animator.SetTrigger("RightStep"); break;
             case Direction.Left: animator.SetTrigger("LeftStep"); break;
@@ -374,9 +382,6 @@ public class InputPlayer : MonoBehaviour
         change_layer.SetLayer();
     }
 
-    private void PerformAttack()
-    {
-    }
 
 
     // アニメーションで攻撃の当たり判定を出す
@@ -465,6 +470,13 @@ public class InputPlayer : MonoBehaviour
             animator = normalObject.GetComponentInChildren<Animator>();
             Debug.Log("通常モデルに戻りました");
         }
+    }
+
+
+  
+    public void MoveFlagFalse()
+    {
+        MoveFlag = true;
     }
 }
 
