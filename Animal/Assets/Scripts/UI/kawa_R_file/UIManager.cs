@@ -8,7 +8,13 @@ public class UIManager : MonoBehaviour
 	public List<GameObject> ui_list = new List<GameObject>();
 	public Transform canvasParent;
 
-	public Slider CreateUI(UI_ID ui_id, Transform pos, int pID) // pIDを追加
+    // キャラごとのRenderTexture(0～3)
+    [SerializeField] private RenderTexture[] loseCharaRT;
+
+    // 順位表示用RawImage(0:2位, 1:3位, 2:4位)
+    [SerializeField] private RawImage[] rankImage;
+
+    public Slider CreateUI(UI_ID ui_id, Transform pos, int pID) // pIDを追加
 	{
 		GameObject prefab = null;
 		if (ui_id == UI_ID.GAUGE_HP) prefab = Resources.Load("Prefab/UI/HP_ber") as GameObject;
@@ -39,4 +45,19 @@ public class UIManager : MonoBehaviour
 		}
 		return null;
 	}
+
+    public void ShowResult(int[] ranking_index, Character_Status.CharacterType[] player_chara_id)
+    {
+        // ranking[0] は1位なのでスキップ
+        for (int i = 1; i < ranking_index.Length; i++)
+        {
+            int player_index = ranking_index[i];					// 何番プレイヤーか
+            int chara_id = (int)player_chara_id[player_index] - 1;	// その人のキャラID
+
+			// テクスチャを適用する
+            rankImage[i - 1].texture = loseCharaRT[chara_id];
+            rankImage[i - 1].gameObject.SetActive(true);
+        }
+    }
+
 }

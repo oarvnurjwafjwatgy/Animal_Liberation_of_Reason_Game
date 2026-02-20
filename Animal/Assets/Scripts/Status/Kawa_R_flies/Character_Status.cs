@@ -49,6 +49,8 @@ public class Character_Status : MonoBehaviour
 
 	InputPlayer input;
 
+	private PlayerManager playerManager;		// プレイヤーマネージャーオブジェクト
+
 	/**********状態*******************/
 	enum State
 	{
@@ -96,7 +98,9 @@ public class Character_Status : MonoBehaviour
 
 		animator = GetComponent<Animator>();
 		input = GetComponent<InputPlayer>();
-	}
+        playerManager = GameObject.Find("PlayerManager").GetComponent<PlayerManager>();
+
+    }
 
 	// Hpゲージと理性ゲージのUIコンポーネントを外部からセットする関数
 	public void SetUIComponents(Slider hpSlider, Slider rsSlider)
@@ -309,7 +313,10 @@ public class Character_Status : MonoBehaviour
 		reason_gauge.value = 0;
 		Debug.Log("キャラクターが死亡しました。");
 
-		CharaState = State.DEAD; // 状態を死亡状態に変更
+		if (CharaState != State.DEAD)
+			playerManager.SetDiePlayerList(playerID);
+
+        CharaState = State.DEAD; // 状態を死亡状態に変更
 	}
 
 	//エニモー状態時、理性ゲージを回復

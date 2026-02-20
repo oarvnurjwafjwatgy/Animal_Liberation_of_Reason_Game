@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -18,6 +19,7 @@ public partial class PlayerManager : MonoBehaviour
     public int playerCount;
     public bool isGameEnd;  // ゲーム終了フラグ
     public int lastPlayer;  // 最後に残ったプレイヤー
+    private List<int> diedPlayer = new List<int>(); // 死んだプレイヤーを順番に格納
 
     [Header("プレイヤーの土台プレハブ")]
     [SerializeField] private GameObject PlayerBasePrefab;
@@ -148,6 +150,17 @@ public partial class PlayerManager : MonoBehaviour
 
             isGameEnd = true;
             lastPlayer = last_player;
+
+            diedPlayer.Add(last_player);
+            int[] ranking = diedPlayer.ToArray();
+            Array.Reverse(ranking);
+            uiManager.ShowResult(ranking, Animal_Select.playerChoices);
         }
     }
+
+    public void SetDiePlayerList(int player_id)
+    {
+        diedPlayer.Add(player_id);
+    }
+
 }
