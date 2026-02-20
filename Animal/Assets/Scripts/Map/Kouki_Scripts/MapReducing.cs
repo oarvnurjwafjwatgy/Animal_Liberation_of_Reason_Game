@@ -11,15 +11,16 @@ public class MapReducing : MonoBehaviour
     private float reducingTimer;    // 縮小タイマー
     private bool reducingFlag;      // 縮小フラグ
     private Vector3 targetPos;      // 収縮最終地点の座標
-    public GameObject targetObject; // 収縮最終地点オブジェクト
-    public GameObject northWall;    // 北の壁（+z）
-    public GameObject southWall;    // 南の壁（-z）
-    public GameObject eastWall;     // 東の壁（+x）
-    public GameObject westWall;     // 西の壁（+x）
-    public GameObject nePillar;     // 北東の壁
-    public GameObject nwPillar;     // 北西の壁
-    public GameObject sePillar;     // 南東の壁
-    public GameObject swPillar;     // 南西の壁
+    [SerializeField] private float finalRadiusRange;  // 収縮最終地点の設定の範囲の半径
+    [SerializeField] private GameObject targetObject; // 収縮最終地点オブジェクト
+    [SerializeField] private GameObject northWall;    // 北の壁（+z）
+    [SerializeField] private GameObject southWall;    // 南の壁（-z）
+    [SerializeField] private GameObject eastWall;     // 東の壁（+x）
+    [SerializeField] private GameObject westWall;     // 西の壁（+x）
+    [SerializeField] private GameObject nePillar;     // 北東の壁
+    [SerializeField] private GameObject nwPillar;     // 北西の壁
+    [SerializeField] private GameObject sePillar;     // 南東の壁
+    [SerializeField] private GameObject swPillar;     // 南西の壁
     int test = 0;                   // テスト用変数
 
     // Start is called before the first frame update
@@ -27,6 +28,8 @@ public class MapReducing : MonoBehaviour
     {
         reducingTimer = 0;
         reducingFlag = false;
+        // 既定半径内で最終収縮地点をランダムに決める
+        targetObject.transform.position = new Vector3 (Random.Range(-finalRadiusRange, finalRadiusRange), 0f, Random.Range(-finalRadiusRange, finalRadiusRange));
         targetPos = targetObject.transform.position;
 
         // 各壁の速度の設定（2f:速度とスケールで半分、30f:範囲移動時間の30秒）
