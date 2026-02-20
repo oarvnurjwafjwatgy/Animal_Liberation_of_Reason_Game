@@ -1030,6 +1030,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5818211608916596911}
   - component: {fileID: 6807347720115787312}
+  - component: {fileID: -1417259871155676240}
   m_Layer: 0
   m_Name: ReasonSai
   m_TagString: Untagged
@@ -1076,6 +1077,18 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &-1417259871155676240
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4293791697085809844}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c89d25783928184993f06a70fcc5ef7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4328024401206550416
 GameObject:
   m_ObjectHideFlags: 0
