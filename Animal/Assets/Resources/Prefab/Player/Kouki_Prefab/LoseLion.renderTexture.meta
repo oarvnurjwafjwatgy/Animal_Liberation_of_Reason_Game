@@ -1,15 +1,8 @@
 fileFormatVersion: 2
-<<<<<<<< HEAD:Animal/Assets/Resources/Prefab/Player/Kouki_Prefab/LoseLion.renderTexture.meta
 guid: 282bfbf95cac4bf4a877b79b402a69b2
 NativeFormatImporter:
   externalObjects: {}
   mainObjectFileID: 8400000
-========
-guid: bdaa0eeee64640a41b28ce469cfad6ae
-NativeFormatImporter:
-  externalObjects: {}
-  mainObjectFileID: 11400000
->>>>>>>> marge2:Animal/Assets/New Universal Render Pipeline Asset.asset.meta
   userData: 
   assetBundleName: 
   assetBundleVariant: 

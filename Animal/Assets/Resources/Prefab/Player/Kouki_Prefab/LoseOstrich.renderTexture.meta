@@ -1,15 +1,8 @@
 fileFormatVersion: 2
-<<<<<<<< HEAD:Animal/Assets/Resources/Prefab/Player/Kouki_Prefab/LoseOstrich.renderTexture.meta
 guid: 7797f846a91fcb242946566913dd8681
 NativeFormatImporter:
   externalObjects: {}
   mainObjectFileID: 8400000
-========
-guid: e865aca629870f046afc7fc6c792fdbb
-NativeFormatImporter:
-  externalObjects: {}
-  mainObjectFileID: 11400000
->>>>>>>> marge2:Animal/Assets/New Universal Render Pipeline Asset_Renderer.asset.meta
   userData: 
   assetBundleName: 
   assetBundleVariant: 

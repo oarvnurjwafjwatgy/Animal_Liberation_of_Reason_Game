@@ -1,15 +1,8 @@
 fileFormatVersion: 2
-<<<<<<<< HEAD:Animal/Assets/Resources/Prefab/Player/Kouki_Prefab/LoseRatel.renderTexture.meta
 guid: 6a0bb87211dbe174688ab46af1bbdd46
 NativeFormatImporter:
   externalObjects: {}
   mainObjectFileID: 8400000
-========
-guid: 8105016687592461f977c054a80ce2f2
-NativeFormatImporter:
-  externalObjects: {}
-  mainObjectFileID: 0
->>>>>>>> marge2:Animal/Assets/Readme.asset.meta
   userData: 
   assetBundleName: 
   assetBundleVariant: 
