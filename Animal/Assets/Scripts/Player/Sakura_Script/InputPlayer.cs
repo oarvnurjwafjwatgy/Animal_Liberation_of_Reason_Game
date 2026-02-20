@@ -14,10 +14,12 @@ public class InputPlayer : MonoBehaviour
     public LayerMask enemyLayer;       // インスペクターで「Player」レイヤーを選択
 
     public float moveSpeed = 5.0f; // キャラクターの移動速度
-    private GameObject cameraObject;
-    private GameObject normalObject;
-    private GameObject reasonObject;
-    private GameObject ghostObject;
+
+    [Header("オブジェクト鑑賞")]
+    public GameObject cameraObject;
+    public GameObject normalObject;
+    public GameObject reasonObject;
+    public GameObject ghostObject;
     private Quaternion cachedRotate;
     private GameObject collisionObject;
 
@@ -59,7 +61,7 @@ public class InputPlayer : MonoBehaviour
         // cameraObject と ghostObject は土台プレハブに元からあるはずなので取得
         // ただし、既に SetupDynamicReferences で設定されている場合は何もしない
         if (cameraObject == null) cameraObject = transform.GetChild(0).gameObject;
-        if (ghostObject == null) ghostObject = transform.GetChild(3).gameObject;
+        if (ghostObject == null) ghostObject = transform.GetChild(1).gameObject;
 
         // normalObject, reasonObject は PlayerManager から渡されるので
         // ここで transform.GetChild で上書きしてはいけない！！（コメントアウト推奨）
