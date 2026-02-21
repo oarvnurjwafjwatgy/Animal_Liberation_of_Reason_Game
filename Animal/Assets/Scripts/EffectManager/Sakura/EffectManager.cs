@@ -17,6 +17,7 @@ public class EffectManager : MonoBehaviour
     [Header("ラーテルエフェクト")]
     public GameObject[] Ratel_effectPrefabs;
 
+  
     /// <summary>
     /// 動物の名前とIDを指定してエフェクトを生成
     /// </summary>

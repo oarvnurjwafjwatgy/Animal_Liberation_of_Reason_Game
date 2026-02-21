@@ -1667,7 +1667,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d3d8d7f0ffd41a440984fad99ff42daf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  effectPrefabs: []
+  common_effectPrefabs:
+  - {fileID: 8581753011934555581, guid: f9f16481b79089b43823d2cddd9ca981, type: 3}
+  Lion_effectPrefabs:
+  - {fileID: 612873504426744502, guid: dde9f9eceb1a149f3b0defda5e90d1d3, type: 3}
+  Ostrich_effectPrefabs:
+  - {fileID: 4516285636062423811, guid: 682f6689d114f4f12a487939fa52138a, type: 3}
+  Rhinoceros_effectPrefabs:
+  - {fileID: 1808044460195417379, guid: 180c37e3ccb4caa478bc4d6d0d7d7aca, type: 3}
+  Ratel_effectPrefabs:
+  - {fileID: 5326585671856192794, guid: 30ea84445d8474121bbbdc21ad0d1f2f, type: 3}
 --- !u!1 &1036109166
 GameObject:
   m_ObjectHideFlags: 0
