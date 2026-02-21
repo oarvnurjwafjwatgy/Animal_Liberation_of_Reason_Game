@@ -78,6 +78,7 @@ public partial class PlayerManager : MonoBehaviour
                 Slider rs = uiManager.CreateUI(UIManager.UI_ID.GAUGE_REASON, uiPositions[padIndex], i);
                 if (status != null)
                 {
+                    status.playerID = i; // ƒvƒŒƒCƒ„[ID‚ğİ’è
                     spawnedPlayers.Add(status);
                     status.SetUIComponents(hp, rs);
                 }
