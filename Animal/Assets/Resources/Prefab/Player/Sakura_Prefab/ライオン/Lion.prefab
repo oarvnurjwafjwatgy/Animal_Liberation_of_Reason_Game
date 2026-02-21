@@ -1947,7 +1947,7 @@ GameObject:
   - component: {fileID: 1744471919626621192}
   - component: {fileID: 8348230477071116244}
   m_Layer: 0
-  m_Name: Red_lion
+  m_Name: Lion
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

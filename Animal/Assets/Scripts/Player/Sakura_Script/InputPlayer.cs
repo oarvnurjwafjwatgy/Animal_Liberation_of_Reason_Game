@@ -53,8 +53,8 @@ public class InputPlayer : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //EffectManager = GameObject.Find("EffectManager");
-        //Effect_Manager = EffectManager.GetComponent<EffectManager>();
+        EffectManager = GameObject.Find("EffectManager");
+        Effect_Manager = EffectManager.GetComponent<EffectManager>();
 
         // cameraObject と ghostObject は土台プレハブに元からあるはずなので取得
         // ただし、既に SetupDynamicReferences で設定されている場合は何もしない
@@ -284,6 +284,9 @@ public class InputPlayer : MonoBehaviour
         MoveFlag = false;
 
         Debug.Log("攻撃");
+
+        Effect_Manager.PlayEffect(normalObject.name, 0, AttackCollider());
+
         animator.SetTrigger("Attack");
         if (deathFlag) return; // 死亡中は攻撃できない
 
@@ -293,20 +296,19 @@ public class InputPlayer : MonoBehaviour
                 // 動物モードの攻撃処理
                 Debug.Log("動物モードの攻撃");
                 animator.SetTrigger("Attack");
-                AttackCollider();
                 break;
 
             case Character_Status.Mode.SPSIAL_ANIMAL:
                 // スペシャルアニマルモードの攻撃処理
                 Debug.Log("スペシャルアニマルモードの攻撃");
                 animator.SetTrigger("Reason_Attack");
-                AttackCollider();
                 break;
         }
     }
 
     private void OnModeChange(InputAction.CallbackContext context)
     {
+        Effect_Manager.PlayEffect("Common", 0, this.gameObject.transform.position);
         character_Status.GetModeChange();
         Enhancement();
 
@@ -385,12 +387,14 @@ public class InputPlayer : MonoBehaviour
 
 
     // アニメーションで攻撃の当たり判定を出す
-    public void AttackCollider()
+    public Vector3 AttackCollider()
     {
 
         Vector3 spawnPosition = normalObject.transform.position + new Vector3(0f, 0.5f, 0f) + normalObject.transform.right * 3f;
 
         collisionObject = Instantiate(Collision, spawnPosition, Quaternion.identity, this.gameObject.transform);
+
+        return collisionObject.transform.position;
     }
 
     public void ColliderDelete()
