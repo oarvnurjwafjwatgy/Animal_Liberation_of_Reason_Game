@@ -3,19 +3,19 @@ using UnityEngine;
 public class EffectManager : MonoBehaviour
 {
     [Header("共通エフェクト")]
-    public GameObject[] common_effectPrefabs;
+    public GameObject[] Common_EffectPrefabs;
 
     [Header("ライオンエフェクト")]
-    public GameObject[] Lion_effectPrefabs;
+    public GameObject[] Lion_EffectPrefabs;
 
     [Header("ダチョウエフェクト")]
-    public GameObject[] Ostrich_effectPrefabs;
+    public GameObject[] Ostrich_EffectPrefabs;
 
     [Header("サイエフェクト")]
-    public GameObject[] Rhinoceros_effectPrefabs;
+    public GameObject[] Rhinoceros_EffectPrefabs;
 
     [Header("ラーテルエフェクト")]
-    public GameObject[] Ratel_effectPrefabs;
+    public GameObject[] Ratel_EffectPrefabs;
 
   
     /// <summary>
@@ -33,19 +33,19 @@ public class EffectManager : MonoBehaviour
         switch (animalName)
         {
             case "Common":
-                targetArray = common_effectPrefabs;
+                targetArray = Common_EffectPrefabs;
                 break;
-            case "Lion":
-                targetArray = Lion_effectPrefabs;
+            case "Lion(Clone)":
+                targetArray = Lion_EffectPrefabs;
                 break;
-            case "Ostrich":
-                targetArray = Ostrich_effectPrefabs;
+            case "Ostrich(Clone)":
+                targetArray = Ostrich_EffectPrefabs;
                 break;
-            case "Rhino":
-                targetArray = Rhinoceros_effectPrefabs;
+            case "Rhino(Clone)":
+                targetArray = Rhinoceros_EffectPrefabs;
                 break;
-            case "Ratel":
-                targetArray = Ratel_effectPrefabs;
+            case "Ratel(Clone)":
+                targetArray = Ratel_EffectPrefabs;
                 break;
             default:
                 Debug.LogError($"EffectManager: {animalName} という名前のリストは見つかりません。");
