@@ -1649,9 +1649,9 @@ Transform:
   m_GameObject: {fileID: 1003202337}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 47.86222, y: 47.961895, z: -10.896023}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0, y: 0, z: 0}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1669,10 +1669,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   common_effectPrefabs:
   - {fileID: 8581753011934555581, guid: f9f16481b79089b43823d2cddd9ca981, type: 3}
-  Lion_effectPrefabs: []
-  Ostrich_effectPrefabs: []
-  Rhinoceros_effectPrefabs: []
-  Ratel_effectPrefabs: []
+  Lion_effectPrefabs:
+  - {fileID: 612873504426744502, guid: dde9f9eceb1a149f3b0defda5e90d1d3, type: 3}
+  Ostrich_effectPrefabs:
+  - {fileID: 4516285636062423811, guid: 682f6689d114f4f12a487939fa52138a, type: 3}
+  Rhinoceros_effectPrefabs:
+  - {fileID: 1808044460195417379, guid: 180c37e3ccb4caa478bc4d6d0d7d7aca, type: 3}
+  Ratel_effectPrefabs:
+  - {fileID: 0}
 --- !u!1 &1036109166
 GameObject:
   m_ObjectHideFlags: 0
