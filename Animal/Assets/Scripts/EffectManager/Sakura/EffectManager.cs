@@ -24,7 +24,7 @@ public class EffectManager : MonoBehaviour
     /// <param name="animalName">動物の名前（"Common", "Lion", "Ostrich", "Rhino", "Ratel"）</param>
     /// <param name="id">その動物内でのエフェクト番号</param>
     /// <param name="position">出す場所</param>
-    public void PlayEffect(string animalName, int id, Vector3 position)
+    public void PlayEffect(string animalName, int id, Vector3 position, Quaternion rotation)
     {
         // 1. 使うべき配列を一時的に格納する変数
         GameObject[] targetArray = null;
@@ -41,7 +41,7 @@ public class EffectManager : MonoBehaviour
             case "Ostrich(Clone)":
                 targetArray = Ostrich_EffectPrefabs;
                 break;
-            case "Rhino(Clone)":
+            case "Rhinoceros(Clone)":
                 targetArray = Rhinoceros_EffectPrefabs;
                 break;
             case "Ratel(Clone)":
@@ -57,7 +57,7 @@ public class EffectManager : MonoBehaviour
         {
             if (targetArray[id] != null)
             {
-                GameObject instance = Instantiate(targetArray[id], position, Quaternion.identity);
+                GameObject instance = Instantiate(targetArray[id], position, rotation);
                 Destroy(instance, 2.0f);
             }
             else

@@ -8,6 +8,9 @@ using UnityEngine.InputSystem;
 
 public class InputPlayer : MonoBehaviour
 {
+    [Header("エフェクトの位置調整")]
+    [SerializeField] private Vector3 effectOffset = new Vector3(0f, 0.2f, 1.0f);
+
     [Header("攻撃の設定")]
     public float attackRange = 2.0f;   // 攻撃が届く距離
     public float attackOffset = 1.0f;  // 攻撃判定を出す位置（自分の中心からどれくらい前か）
@@ -114,50 +117,50 @@ public class InputPlayer : MonoBehaviour
     // 物理演算は FixedUpdate で行います
     private void FixedUpdate()
     {
-       
-            // Controller クラスが正しく取得できているか確認
-            if ((controller != null && rb != null) && MoveFlag == true)
+
+        // Controller クラスが正しく取得できているか確認
+        if ((controller != null && rb != null) && MoveFlag == true)
+        {
+            // 1. Controller クラスからスティックの入力値を取得
+            Vector2 leftStickInput = controller.GetLeftStick();
+
+            if (leftStickInput.x > 0.1)
             {
-                // 1. Controller クラスからスティックの入力値を取得
-                Vector2 leftStickInput = controller.GetLeftStick();
-
-                if (leftStickInput.x > 0.1)
-                {
-                    direction = Direction.Right;
-                }
-                else if (leftStickInput.x < -0.1)
-                {
-                    direction = Direction.Left;
-                }
-                else if (leftStickInput.y < -0.1)
-                {
-                    direction = Direction.Back;
-                }
-                else
-                {
-                    direction = Direction.Front;
-                }
-
-
-                // 2. 入力値 (Vector2) を 3D の移動方向 (Vector3) に変換
-                Vector3 moveDirection = new Vector3(leftStickInput.x, 0, leftStickInput.y);
-
-                GameObject camera = cameraObject;
-                if (deathFlag)
-                    camera = ghostObject;
-
-                // 3. Rigidbody の速度 (velocity) を変更して移動させる
-                Vector3 cameraForward = Vector3.Scale(camera.transform.forward, new Vector3(1, 0, 1)).normalized;
-                Vector3 moveForward = cameraForward * leftStickInput.y + camera.transform.right * leftStickInput.x;
-                rb.velocity = moveForward * moveSpeed + new Vector3(0, rb.velocity.y, 0);
-
-
-                // カメラの位置の更新
-                if (!deathFlag)
-                    this.UpdateCamera();
-                else
-                    this.UpdateGhostCamera();
+                direction = Direction.Right;
             }
+            else if (leftStickInput.x < -0.1)
+            {
+                direction = Direction.Left;
+            }
+            else if (leftStickInput.y < -0.1)
+            {
+                direction = Direction.Back;
+            }
+            else
+            {
+                direction = Direction.Front;
+            }
+
+
+            // 2. 入力値 (Vector2) を 3D の移動方向 (Vector3) に変換
+            Vector3 moveDirection = new Vector3(leftStickInput.x, 0, leftStickInput.y);
+
+            GameObject camera = cameraObject;
+            if (deathFlag)
+                camera = ghostObject;
+
+            // 3. Rigidbody の速度 (velocity) を変更して移動させる
+            Vector3 cameraForward = Vector3.Scale(camera.transform.forward, new Vector3(1, 0, 1)).normalized;
+            Vector3 moveForward = cameraForward * leftStickInput.y + camera.transform.right * leftStickInput.x;
+            rb.velocity = moveForward * moveSpeed + new Vector3(0, rb.velocity.y, 0);
+
+
+            // カメラの位置の更新
+            if (!deathFlag)
+                this.UpdateCamera();
+            else
+                this.UpdateGhostCamera();
+        }
     }
 
     // アニメーションの影響上、プレイヤーの向き更新は LateUpdate で行う
@@ -283,32 +286,27 @@ public class InputPlayer : MonoBehaviour
     {
         MoveFlag = false;
 
-        Debug.Log("攻撃");
+        // 現在のモデル（通常か強化か）を取得
+        GameObject activeModel = (character_Status.GetMode() == Character_Status.Mode.SPSIAL_ANIMAL) ? reasonObject : normalObject;
 
-        Effect_Manager.PlayEffect(normalObject.name, 0, AttackCollider());
+        // 【新機能】動物ごとの最適座標を計算して取得
+        Vector3 effectPosition = GetEffectSpawnPosition(activeModel);
 
+        // エフェクト再生
+        Effect_Manager.PlayEffect(normalObject.name, 0, effectPosition, activeModel.transform.rotation);
+
+        // 当たり判定生成
+        AttackCollider();
+
+        // アニメーション処理（既存のまま）
         animator.SetTrigger("Attack");
-        if (deathFlag) return; // 死亡中は攻撃できない
+        if (deathFlag) return;
 
-        switch (character_Status.GetMode())
-        {
-            case Character_Status.Mode.ANIMAL:
-                // 動物モードの攻撃処理
-                Debug.Log("動物モードの攻撃");
-                animator.SetTrigger("Attack");
-                break;
-
-            case Character_Status.Mode.SPSIAL_ANIMAL:
-                // スペシャルアニマルモードの攻撃処理
-                Debug.Log("スペシャルアニマルモードの攻撃");
-                animator.SetTrigger("Reason_Attack");
-                break;
-        }
     }
 
     private void OnModeChange(InputAction.CallbackContext context)
     {
-        Effect_Manager.PlayEffect("Common", 0, this.gameObject.transform.position);
+        Effect_Manager.PlayEffect("Common", 0, this.gameObject.transform.position, this.gameObject.transform.rotation);
         character_Status.GetModeChange();
         Enhancement();
 
@@ -389,10 +387,17 @@ public class InputPlayer : MonoBehaviour
     // アニメーションで攻撃の当たり判定を出す
     public Vector3 AttackCollider()
     {
+        // 1. 現在アクティブなモデル（通常時か強化時か）を取得する
+        GameObject activeModel = (character_Status.GetMode() == Character_Status.Mode.SPSIAL_ANIMAL) ? reasonObject : normalObject;
 
-        Vector3 spawnPosition = normalObject.transform.position + new Vector3(0f, 0.5f, 0f) + normalObject.transform.right * 3f;
+        // 2. 出現位置の計算
+        // activeModel.transform.forward : モデルが向いている正面方向
+        // attackOffset : インスペクターで設定できる「前方にどれくらい離すか」の距離
+        Vector3 spawnPosition = activeModel.transform.position + new Vector3(0f, 0.5f, 0f) + activeModel.transform.forward * attackOffset;
 
-        collisionObject = Instantiate(Collision, spawnPosition, Quaternion.identity, this.gameObject.transform);
+        // 3. 当たり判定の生成
+        // Quaternion.identity ではなく activeModel.transform.rotation を渡すことで、向きを合わせます
+        collisionObject = Instantiate(Collision, spawnPosition, activeModel.transform.rotation, this.gameObject.transform);
 
         return collisionObject.transform.position;
     }
@@ -477,10 +482,58 @@ public class InputPlayer : MonoBehaviour
     }
 
 
-  
+
     public void MoveFlagFalse()
     {
         MoveFlag = true;
+    }
+
+    public void DeleteCollision()
+    {
+        Destroy(collisionObject);
+    }
+
+
+
+    /// <summary>
+    /// 現在の動物名に合わせて、エフェクトの発生位置を計算する
+    /// </summary>
+    private Vector3 GetEffectSpawnPosition(GameObject activeModel)
+    {
+        // 基本のオフセット（インスペクターで設定した値）
+        Vector3 baseOffset = effectOffset;
+
+        // 動物ごとに微調整が必要な場合、ここで baseOffset を上書き・加算する
+        // normalObject.name には "(Clone)" がついている場合があるため Contains で判定
+
+        string animalName = normalObject.name;
+
+        if (animalName.Contains("Lion(Clone)"))
+        {
+            // ライオン用の微調整（例：もう少し低く、もう少し前になど）
+            // baseOffset += new Vector3(0f, -0.1f, 0.5f);
+        }
+        else if (animalName.Contains("Ostrich(Clone)"))
+        {
+            // ダチョウ用の微調整
+             baseOffset += new Vector3(0f, 0.2f, 0f);
+        }
+        else if (animalName.Contains("Rhinoceros(Clone)"))
+        {
+            // サイ用の微調整（体が大きいのでもっと前になど）
+            // baseOffset += new Vector3(0f, 0f, 1.0f);
+        }
+        else if (animalName.Contains("Ratel(Clone)"))
+        {
+            // ラーテル用の微調整（小さいのでもっと低くなど）
+            // baseOffset += new Vector3(0f, -0.2f, 0f);
+        }
+
+        // 最終的な座標を計算して返す
+        return activeModel.transform.position
+               + activeModel.transform.forward * baseOffset.z
+               + activeModel.transform.up * baseOffset.y
+               + activeModel.transform.right * baseOffset.x;
     }
 }
 
