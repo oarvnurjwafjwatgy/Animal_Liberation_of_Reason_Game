@@ -327,7 +327,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ba81644db338f684ba41673eac7875f4, type: 2}
+  - {fileID: 2100000, guid: 5edd73259373f7642a4dab66af525b1d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1667,16 +1667,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d3d8d7f0ffd41a440984fad99ff42daf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  common_effectPrefabs:
-  - {fileID: 8581753011934555581, guid: f9f16481b79089b43823d2cddd9ca981, type: 3}
-  Lion_effectPrefabs:
-  - {fileID: 612873504426744502, guid: dde9f9eceb1a149f3b0defda5e90d1d3, type: 3}
-  Ostrich_effectPrefabs:
-  - {fileID: 4516285636062423811, guid: 682f6689d114f4f12a487939fa52138a, type: 3}
-  Rhinoceros_effectPrefabs:
-  - {fileID: 1808044460195417379, guid: 180c37e3ccb4caa478bc4d6d0d7d7aca, type: 3}
-  Ratel_effectPrefabs:
-  - {fileID: 0}
+  effectPrefabs: []
 --- !u!1 &1036109166
 GameObject:
   m_ObjectHideFlags: 0
