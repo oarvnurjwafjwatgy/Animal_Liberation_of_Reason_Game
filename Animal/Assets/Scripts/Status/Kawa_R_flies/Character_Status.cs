@@ -48,13 +48,14 @@ public class Character_Status : MonoBehaviour
 	private const float LION_REASON_ATK_MULT = 1.6f;
 	private const float RHINO_REASON_DEF_MULT = 1.5f;
 	private const float OSTRICH_REASON_SPD_MULT = 1.5f;
-	private const float DEFAULT_MULT = 1.3f;				// 基本的な上昇幅
+	private const float DEFAULT_MULT = 1.3f;                // 基本的な上昇幅
+
+	// --- 理性ゲージの減少・回復率定数 ---
+	private const float REASON_DECREASE_RATE = 0.02f;		// 最大理性ゲージから2%分
+	private const float REASON_HEAL_RATE = 0.01f;			// 通常時、最大理性の1%分回復
 
 	[Header("理性ゲージ解放時の減少設定")]
 	[SerializeField] protected int Decrease_in_reason_time = 1;     // 理性ゲージ減少ダメージ
-
-	[Header("通常時に時間経過によって理性ゲージ回復する量の設定")]
-	[SerializeField] protected int Heal_in_reason_point = 1;        // 理性ゲージ回復量
 
 	[Header("キャラクターごとの固有スキル設定一覧")]
 	[Header("毎時体力回復能力(ダチョウ)")]
@@ -129,19 +130,19 @@ public class Character_Status : MonoBehaviour
 														// 初期化
 	private void Start()
 	{
+		//どの動物かを確定させる
 		SelectAnimal();
-
 		if (playerID > 0)
 		{
 			CharaAnim = Animal_Select.playerChoices[playerID];
 		}
 
-		CharaState = State.IDLE;        // 初期状態を待機状態に設定
-		CharaMode = Mode.ANIMAL;        // 初期モードをエニモーに設定
+		SetBaseStatusByAnimal();        // 選択した動物に応じて基本ステータスを設定する関数呼び出し
 		CurrentHP = MaxHP;              // 現在HPに最大HPを代入
 		CurrentReason = MaxReason;      // 現在理性ポイントに最大理性ポイントを代入
 
-		SetBaseStatusByAnimal();        // 選択した動物に応じて基本ステータスを設定する関数呼び出し
+		CharaState = State.IDLE;        // 初期状態を待機状態に設定
+		CharaMode = Mode.ANIMAL;        // 初期モードをエニモーに設定
 		GetResonPoint();                // 理性ゲージ取得
 		GetAttackPower();                // 攻撃力取得
 		GetDefensePower();              // 防御力取得
@@ -169,6 +170,27 @@ public class Character_Status : MonoBehaviour
 			reason_gauge.maxValue = MaxReason;
 			reason_gauge.value = CurrentReason;
 		}
+	}
+
+	//ステータスを再度初期化する（外部から呼び出す用）
+	public void ReInitialize(int id)
+	{
+		this.playerID = id;
+
+		// 1. 選択状況を強制更新
+		if (playerID > 0)
+		{
+			CharaAnim = Animal_Select.playerChoices[playerID];
+		}
+
+		// 2. ステータスを再確定
+		SetBaseStatusByAnimal();
+
+		// 3. 現在値を満タンに
+		CurrentHP = MaxHP;
+		CurrentReason = MaxReason;
+
+		Debug.Log($"Player{id} を {CharaAnim} として再初期化しました。HP:{MaxHP}");
 	}
 
 	//更新
@@ -243,7 +265,7 @@ public class Character_Status : MonoBehaviour
 				break;
 			case CharacterType.OSTRICH:
 				MaxHP = OSTRICH_HP; MaxReason = 120; AttackPower = OSTRICH_ATK;
-				DefensePower = OSTRICH_ATK; MoveSpeed = OSTRICH_SPD;
+				DefensePower = OSTRICH_DEF; MoveSpeed = OSTRICH_SPD;
 				break;
 			case CharacterType.RHINOCELOS:
 				MaxHP = RHINO_HP; MaxReason = 150; AttackPower = RHINO_ATK;
@@ -348,7 +370,10 @@ public class Character_Status : MonoBehaviour
 		{
 			int actualDamage = Mathf.Max(damage - CurrentDefensePower, 1);
 			CurrentHP -= actualDamage; // HP減少処理
-			//CurrentHP -= damage;
+
+			// 今いくら防いだか
+			Debug.Log($"<color=yellow>【被弾】 元ダメ:{damage} -> 防御後:" +
+			$"{actualDamage} (現在の防御力:{CurrentDefensePower})</color>");
 		}
 		else if (CharaMode == Mode.SPSIAL_ANIMAL)
 		{
@@ -356,6 +381,10 @@ public class Character_Status : MonoBehaviour
 			int actualDamage = Mathf.Max(damage - CurrentDefensePower, 1);
 			CurrentReason -= actualDamage; // 理性ゲージ減少処理
 			CurrentHP -= (int)((float)damage * 0.1f); // HP減少処理
+
+			// 今いくら防いだか
+			Debug.Log($"<color=yellow>【被弾】 元ダメ:{damage} -> 防御後:" +
+			$"{actualDamage} (現在の防御力:{CurrentDefensePower})</color>");
 		}
 
 		if (hp_gauge != null) hp_gauge.value = CurrentHP; // HPゲージの現在値を更新
@@ -469,7 +498,14 @@ public class Character_Status : MonoBehaviour
 	{
 		if (MaxReason != CurrentReason)
 		{
-			CurrentReason += Heal_in_reason_point;
+			// 最大理性の1%を計算。最低でも1は回復させる
+			int healAmount = Mathf.Max((int)(MaxReason * REASON_HEAL_RATE), 1);
+
+			CurrentReason += healAmount;
+
+			// 最大値を超えないように制限
+			if (CurrentReason > MaxReason) CurrentReason = MaxReason;
+
 			Debug.Log("現在の理性ポイント:" + CurrentReason);
 		}
 	}
@@ -480,8 +516,10 @@ public class Character_Status : MonoBehaviour
 		//もし理性が0より大きいなら理性ゲージを減少させる
 		if (CurrentReason > 0)
 		{
-			CurrentReason -= Decrease_in_reason_time;                // 理性ゲージ減少処理
-			Debug.Log("現在の理性ポイント減少中:");
+			//最大理性ポイントに減少率をかけて減少量を計算し、最低でも1は減少するようにする
+			int decreaseAmount = Mathf.Max((int)(MaxReason * REASON_DECREASE_RATE), 1);
+			CurrentReason -= decreaseAmount;                // 理性ゲージ減少処理
+			Debug.Log($"{CharaAnim}の理性減少中: 残り{CurrentReason} (毎秒{decreaseAmount}減)");
 		}
 		//もし理性が0以下なら理性ゲージを0にして死亡処理を行う
 		else
