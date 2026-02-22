@@ -119,11 +119,12 @@ public class InputPlayer : MonoBehaviour
         {
             animator.SetInteger("State", 2);
             LiveFlag = false;
-            Effect_Manager.PlayEffect("Common", 4, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1f, 1f, 1f));
+
+           
 
             //Invoke("SetDeath", 3.0f);
 
-            // SetDeath();
+             SetDeath();
         }
     }
 
@@ -134,7 +135,7 @@ public class InputPlayer : MonoBehaviour
     {
 
         // Controller クラスが正しく取得できているか確認
-        if ((controller != null && rb != null) && MoveFlag == true)
+        if ((controller != null && rb != null) && MoveFlag == true && LiveFlag == true)
         {
             // 1. Controller クラスからスティックの入力値を取得
             Vector2 leftStickInput = controller.GetLeftStick();
@@ -182,7 +183,7 @@ public class InputPlayer : MonoBehaviour
     private void LateUpdate()
     {
         // Controller クラスが正しく取得できているか確認
-        if ((controller != null && rb != null) && MoveFlag == true)
+        if ((controller != null && rb != null) && MoveFlag == true && LiveFlag == true)
         {
             // Controller クラスからスティックの入力値を取得
             Vector2 leftStickInput = controller.GetLeftStick();
@@ -327,7 +328,7 @@ public class InputPlayer : MonoBehaviour
         if (LiveFlag == true)
         {
 
-            Effect_Manager.PlayEffect("Common", 0, this.gameObject.transform.position, this.gameObject.transform.rotation,new Vector3(2f, 2f, 2f));
+            Effect_Manager.PlayEffect("Common", 0, this.transform.position, this.transform.rotation, new Vector3(2.0f, 2.0f, 2.0f), this.transform);
             character_Status.GetModeChange();
             Enhancement();
 
@@ -411,21 +412,26 @@ public class InputPlayer : MonoBehaviour
     {
        if(deathFlag == false)
         {
-            // 死亡フラグをtrueにする
+            //// 死亡フラグをtrueにする
+            //deathFlag = true;
+
+            //// 観戦者用に各アクティブ状態を変更する
+            //cameraObject.SetActive(false);
+            //normalObject.SetActive(false);
+            //reasonObject.SetActive(false);
+            //ghostObject.SetActive(true);
+
+            //// 重力を無効にする
+            //rb.useGravity = false;
+
+            //// 自身と子オブジェクトのレイヤーをGhostにする
+            //ChangeLayer change_layer = this.GetComponent<ChangeLayer>();
+            //change_layer.SetLayer();
+
+            Effect_Manager.PlayEffect("Common", 4, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1f, 1f, 1f));
+
             deathFlag = true;
-
-            // 観戦者用に各アクティブ状態を変更する
-            cameraObject.SetActive(false);
-            normalObject.SetActive(false);
-            reasonObject.SetActive(false);
-            ghostObject.SetActive(true);
-
-            // 重力を無効にする
-            rb.useGravity = false;
-
-            // 自身と子オブジェクトのレイヤーをGhostにする
-            ChangeLayer change_layer = this.GetComponent<ChangeLayer>();
-            change_layer.SetLayer();
+            MoveFlag = false;
         }
     }
 

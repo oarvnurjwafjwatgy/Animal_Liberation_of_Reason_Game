@@ -33,7 +33,9 @@ public class Nuts : MonoBehaviour
         {
 
 
-            Effect_Manager.PlayEffect("Common", 2, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(0.5f, 0.5f, 0.5f));
+            Vector3 offset = new Vector3(other.gameObject.transform.position.x-0.7f, other.gameObject.transform.position.y, other.gameObject.transform.position.z-1.0f);
+
+            Effect_Manager.PlayEffect("Common", 2, offset, this.gameObject.transform.rotation, new Vector3(0.5f, 0.5f, 0.5f), other.gameObject.transform);
             //// ここに効果 ////
 
            

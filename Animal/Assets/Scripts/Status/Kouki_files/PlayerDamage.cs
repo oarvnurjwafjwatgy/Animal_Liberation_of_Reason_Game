@@ -6,13 +6,21 @@ public class PlayerDamage : MonoBehaviour
     private int Defences;       // ó‚¯æ‚Á‚½ƒLƒƒƒ‰–hŒä—Í
     private int Damages;        // —^‚¦‚éƒ_ƒ[ƒW
 
+    EffectManager Effect_Manager = null;
+    GameObject EffectManagerObj = null;
+
+
     // Start is called before the first frame update
     void Start()
     {
         status = this.GetComponent<Character_Status>();
         Defences = status.GetDefensePower();
         Damages = 0;
-	}
+
+
+        EffectManagerObj = GameObject.Find("EffectManager");
+        Effect_Manager = EffectManagerObj.GetComponent<EffectManager>();
+    }
 
     // Update is called once per frame
     void Update()
@@ -32,10 +40,13 @@ public class PlayerDamage : MonoBehaviour
 			// 1. u©•ª‚Ìv—«‰ğ•ú‚ªæ‚Á‚½¡‚ÌUŒ‚—Í‚ğæ“¾
 			int myCurrentAtk = status.CurrentAttackPower;
 
-			// 2. ‘Šè‚Ì TakeDamage ‚Éu©•ª‚ÌUŒ‚—Ív‚ğ’¼Ú’@‚«‚ŞI
-			target.TakeDamage(myCurrentAtk);
+            // 2. ‘Šè‚Ì TakeDamage ‚Éu©•ª‚ÌUŒ‚—Ív‚ğ’¼Ú’@‚«‚ŞI
+            target.TakeDamage(myCurrentAtk);
 
-			Debug.Log($"<color=orange>yUŒ‚¬Œ÷z{gameObject.name}‚ª{other.name}‚É{myCurrentAtk}ƒ_ƒ‘—M</color>");
+            Vector3 offset = new Vector3(other.gameObject.transform.position.x - 0.2f, other.gameObject.transform.position.y + 0.6f, other.gameObject.transform.position.z);
+
+            Effect_Manager.PlayEffect("Common", 1, offset, this.gameObject.transform.rotation, new Vector3(3f, 3f, 3f));
+            Debug.Log($"<color=orange>yUŒ‚¬Œ÷z{gameObject.name}‚ª{other.name}‚É{myCurrentAtk}ƒ_ƒ‘—M</color>");
 		}
 	}
 
