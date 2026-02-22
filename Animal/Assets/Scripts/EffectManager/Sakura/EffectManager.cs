@@ -2,72 +2,43 @@ using UnityEngine;
 
 public class EffectManager : MonoBehaviour
 {
-    [Header("共通エフェクト")]
-    public GameObject[] common_effectPrefabs;
+    // インスペクターで複数のプレハブを登録できるようにします
+    [Header("エフェクトのリスト（FBXのプレハブを登録）")]
+    public GameObject[] effectPrefabs;
 
-    [Header("ライオンエフェクト")]
-    public GameObject[] Lion_effectPrefabs;
-
-    [Header("ダチョウエフェクト")]
-    public GameObject[] Ostrich_effectPrefabs;
-
-    [Header("サイエフェクト")]
-    public GameObject[] Rhinoceros_effectPrefabs;
-
-    [Header("ラーテルエフェクト")]
-    public GameObject[] Ratel_effectPrefabs;
-
-  
     /// <summary>
-    /// 動物の名前とIDを指定してエフェクトを生成
+    /// 指定したIDのエフェクトを指定した位置に生成します
     /// </summary>
-    /// <param name="animalName">動物の名前（"Common", "Lion", "Ostrich", "Rhino", "Ratel"）</param>
-    /// <param name="id">その動物内でのエフェクト番号</param>
-    /// <param name="position">出す場所</param>
-    public void PlayEffect(string animalName, int id, Vector3 position)
+    /// <param name="id">配列のインデックス番号</param>
+    /// <param name="position">発生させる場所</param>
+    public void PlayEffect(int id, Vector3 position)
     {
-        // 1. 使うべき配列を一時的に格納する変数
-        GameObject[] targetArray = null;
-
-        // 2. 名前によってどの配列を使うか振り分ける
-        switch (animalName)
+        // 1. 配列が空でないかチェック
+        if (effectPrefabs == null || effectPrefabs.Length == 0)
         {
-            case "Common":
-                targetArray = common_effectPrefabs;
-                break;
-            case "Lion":
-                targetArray = Lion_effectPrefabs;
-                break;
-            case "Ostrich":
-                targetArray = Ostrich_effectPrefabs;
-                break;
-            case "Rhino":
-                targetArray = Rhinoceros_effectPrefabs;
-                break;
-            case "Ratel":
-                targetArray = Ratel_effectPrefabs;
-                break;
-            default:
-                Debug.LogError($"EffectManager: {animalName} という名前のリストは見つかりません。");
-                return;
+            Debug.LogWarning("EffectManager: プレハブが一つも登録されていません！");
+            return;
         }
 
-        // 3. 選ばれた配列が空でないか、IDが範囲内かをチェックして生成
-        if (targetArray != null && id >= 0 && id < targetArray.Length)
+        // 2. 指定されたIDが配列の範囲内かチェック（エラー防止）
+        if (id >= 0 && id < effectPrefabs.Length)
         {
-            if (targetArray[id] != null)
+            if (effectPrefabs[id] != null)
             {
-                GameObject instance = Instantiate(targetArray[id], position, Quaternion.identity);
+                // IDに対応するエフェクトを生成
+                GameObject instance = Instantiate(effectPrefabs[id], position, Quaternion.identity);
+
+                // 2秒後に消去
                 Destroy(instance, 2.0f);
             }
             else
             {
-                Debug.LogWarning($"EffectManager: {animalName} の ID {id} が空っぽです！");
+                Debug.LogWarning($"EffectManager: ID {id} の要素が空です！");
             }
         }
         else
         {
-            Debug.LogError($"EffectManager: {animalName} の ID {id} は範囲外です。");
+            Debug.LogError($"EffectManager: ID {id} は範囲外です。0 から {effectPrefabs.Length - 1} の間で指定してください。");
         }
     }
 }
