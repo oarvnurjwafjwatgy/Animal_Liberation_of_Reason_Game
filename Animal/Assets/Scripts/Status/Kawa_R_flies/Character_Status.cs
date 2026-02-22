@@ -18,6 +18,38 @@ public class Character_Status : MonoBehaviour
 	[SerializeField] protected int DefensePower = 20;          // キャラクター防御力
 	[SerializeField] protected float MoveSpeed = 5.0f;         // キャラクター移動速度
 
+
+	// --- キャラクター別ベースステータス定数 ---
+	[Header("ライオン ステータス")]
+	private const int LION_HP = 450;
+	private const int LION_ATK = 30;
+	private const int LION_DEF = 15;
+	private const float LION_SPD = 6.0f;
+
+	[Header("ダチョウ ステータス")]
+	private const int OSTRICH_HP = 350;
+	private const int OSTRICH_ATK = 15;
+	private const int OSTRICH_DEF = 10;
+	private const float OSTRICH_SPD = 8.5f;
+
+	[Header("サイ ステータス")]
+	private const int RHINO_HP = 600;
+	private const int RHINO_ATK = 18;
+	private const int RHINO_DEF = 30;
+	private const float RHINO_SPD = 4.0f;
+
+	[Header("ラーテル ステータス")]
+	private const int RATEL_HP = 400;
+	private const int RATEL_ATK = 20;
+	private const int RATEL_DEF = 20;
+	private const float RATEL_SPD = 5.0f;
+
+	// --- 理性解放時の倍率定数 ---
+	private const float LION_REASON_ATK_MULT = 1.6f;
+	private const float RHINO_REASON_DEF_MULT = 1.5f;
+	private const float OSTRICH_REASON_SPD_MULT = 1.5f;
+	private const float DEFAULT_MULT = 1.3f;				// 基本的な上昇幅
+
 	[Header("理性ゲージ解放時の減少設定")]
 	[SerializeField] protected int Decrease_in_reason_time = 1;     // 理性ゲージ減少ダメージ
 
@@ -108,6 +140,8 @@ public class Character_Status : MonoBehaviour
 		CharaMode = Mode.ANIMAL;        // 初期モードをエニモーに設定
 		CurrentHP = MaxHP;              // 現在HPに最大HPを代入
 		CurrentReason = MaxReason;      // 現在理性ポイントに最大理性ポイントを代入
+
+		SetBaseStatusByAnimal();        // 選択した動物に応じて基本ステータスを設定する関数呼び出し
 		GetResonPoint();                // 理性ゲージ取得
 		GetAttackPower();                // 攻撃力取得
 		GetDefensePower();              // 防御力取得
@@ -164,6 +198,13 @@ public class Character_Status : MonoBehaviour
 		CheckAnimatorStateTag();
 	}
 
+	// UI更新用の共通関数
+	private void UpdateUI()
+	{
+		if (hp_gauge != null) hp_gauge.value = CurrentHP;
+		if (reason_gauge != null) reason_gauge.value = CurrentReason;
+	}
+
 	//選択キャラクターによってキャラクタータイプを設定する
 	private void SelectAnimal()
 	{
@@ -186,6 +227,32 @@ public class Character_Status : MonoBehaviour
 		else
 		{
 			CharaAnim = CharacterType.NONE;
+		}
+	}
+
+	// --- 動物ごとのベース値を決める関数 ---
+	private void SetBaseStatusByAnimal()
+	{
+		//選択した動物の基本ステータスを設定する
+		switch (CharaAnim)
+		{
+			//ライオンの基本ステータス
+			case CharacterType.LION:
+				MaxHP = LION_HP; MaxReason = 100; AttackPower = LION_ATK;
+				DefensePower = LION_DEF; MoveSpeed = LION_SPD;
+				break;
+			case CharacterType.OSTRICH:
+				MaxHP = OSTRICH_HP; MaxReason = 120; AttackPower = OSTRICH_ATK;
+				DefensePower = OSTRICH_ATK; MoveSpeed = OSTRICH_SPD;
+				break;
+			case CharacterType.RHINOCELOS:
+				MaxHP = RHINO_HP; MaxReason = 150; AttackPower = RHINO_ATK;
+				DefensePower = RHINO_DEF; MoveSpeed = RHINO_SPD;
+				break;
+			case CharacterType.RATEL:
+				MaxHP = RATEL_HP; MaxReason = 100; AttackPower = RATEL_ATK;
+				DefensePower = RATEL_DEF; MoveSpeed = RATEL_SPD;
+				break;
 		}
 	}
 
@@ -236,17 +303,32 @@ public class Character_Status : MonoBehaviour
 		// 理性解放時の倍率設定
 		switch (CharaAnim)
 		{
+			//ライオンの理性解放時の倍率設定は攻撃力1.6倍、その他1.3倍（攻撃特化）
+			case CharacterType.LION:
+				currentAtkMult = LION_REASON_ATK_MULT;
+				currentDefMult =DEFAULT_MULT;
+				currentSpdMult = DEFAULT_MULT;
+				break;
+
+			//ダチョウの理性解放時の倍率設定は移動速度1.5倍、その他1.3倍（速度特化）
 			case CharacterType.OSTRICH: // ダチョウ：速度特化
-				currentAtkMult = 1.2f; currentSpdMult = 1.5f; currentDefMult = 1.2f;
+				currentAtkMult = DEFAULT_MULT; 
+				currentSpdMult = OSTRICH_REASON_SPD_MULT;
+				currentDefMult = DEFAULT_MULT;
 				break;
+
+			//サイの理性解放時の倍率設定は防御力1.8倍、その他1.3倍（防御特化）
 			case CharacterType.RHINOCELOS: // サイ：防御特化
-				currentAtkMult = 1.3f; currentSpdMult = 1.1f; currentDefMult = 1.5f;
+				currentAtkMult = DEFAULT_MULT;
+				currentSpdMult = DEFAULT_MULT;
+				currentDefMult = RHINO_REASON_DEF_MULT;
 				break;
-			case CharacterType.LION: // ライオン：攻撃特化（2倍！）
-				currentAtkMult = 2.0f; currentSpdMult = 1.3f; currentDefMult = 1.1f;
-				break;
-			case CharacterType.RATEL: // ラーテル：バランス
-				currentAtkMult = 1.3f; currentSpdMult = 1.3f; currentDefMult = 1.3f;
+
+			//ラーテルの理性解放時の倍率設定は全ステータス1.3倍（バランス型）
+			case CharacterType.RATEL:
+				currentAtkMult = DEFAULT_MULT;
+				currentSpdMult = DEFAULT_MULT;
+				currentDefMult = DEFAULT_MULT;
 				break;
 			default:
 				currentAtkMult = 1.0f; currentSpdMult = 1.0f; currentDefMult = 1.0f;
@@ -271,13 +353,15 @@ public class Character_Status : MonoBehaviour
 		else if (CharaMode == Mode.SPSIAL_ANIMAL)
 		{
 			// ダメージ計算（防御力を考慮）
-			int actualDamage = Mathf.Max(damage - CurrentDefensePower, 0);
+			int actualDamage = Mathf.Max(damage - CurrentDefensePower, 1);
 			CurrentReason -= actualDamage; // 理性ゲージ減少処理
 			CurrentHP -= (int)((float)damage * 0.1f); // HP減少処理
 		}
 
 		if (hp_gauge != null) hp_gauge.value = CurrentHP; // HPゲージの現在値を更新
 		if (reason_gauge != null) reason_gauge.value = CurrentReason; // 理性ゲージの現在値を更新
+
+		UpdateUI(); // UIの更新関数呼び出し
 
 		// 死亡判定
 		if (CurrentHP <= 0 || CurrentReason <= 0)
