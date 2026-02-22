@@ -924,6 +924,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &438298587 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4218239115184766380, guid: fbc997e0a393247488b68726e6865260, type: 3}
+  m_PrefabInstance: {fileID: 939015493}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &464645129
 GameObject:
   m_ObjectHideFlags: 0
@@ -1023,10 +1028,11 @@ Transform:
   m_GameObject: {fileID: 464645129}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 100}
+  m_LocalPosition: {x: -0.29, y: 0.14, z: 100}
   m_LocalScale: {x: 200, y: 40, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 438298587}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &491223069
@@ -1450,6 +1456,63 @@ Transform:
   - {fileID: 365151044}
   m_Father: {fileID: 1193814881}
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
+--- !u!1001 &939015493
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 464645133}
+    m_Modifications:
+    - target: {fileID: 4218239115184766380, guid: fbc997e0a393247488b68726e6865260, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4218239115184766380, guid: fbc997e0a393247488b68726e6865260, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4218239115184766380, guid: fbc997e0a393247488b68726e6865260, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4218239115184766380, guid: fbc997e0a393247488b68726e6865260, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4218239115184766380, guid: fbc997e0a393247488b68726e6865260, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4218239115184766380, guid: fbc997e0a393247488b68726e6865260, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4218239115184766380, guid: fbc997e0a393247488b68726e6865260, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4218239115184766380, guid: fbc997e0a393247488b68726e6865260, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4218239115184766380, guid: fbc997e0a393247488b68726e6865260, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4218239115184766380, guid: fbc997e0a393247488b68726e6865260, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7508009787419697088, guid: fbc997e0a393247488b68726e6865260, type: 3}
+      propertyPath: m_Name
+      value: eff_pfb_planeFire_001
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: fbc997e0a393247488b68726e6865260, type: 3}
 --- !u!1 &953405623
 GameObject:
   m_ObjectHideFlags: 0
@@ -1669,14 +1732,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Common_EffectPrefabs:
   - {fileID: 8581753011934555581, guid: f9f16481b79089b43823d2cddd9ca981, type: 3}
+  - {fileID: 74416358914120508, guid: 6cd57250f39914c9095bc1db532ba000, type: 3}
+  - {fileID: 1185016719693745300, guid: 7982f5e4bc0024e459ce8a7885d5aaac, type: 3}
+  - {fileID: 7960375901420732853, guid: 946e3ca3a245045e485f7d30d0cdf7ca, type: 3}
+  - {fileID: 1965314282148930855, guid: 6ecdb4d59b40548a1aa6f14ecdaa8b4c, type: 3}
   Lion_EffectPrefabs:
   - {fileID: 612873504426744502, guid: dde9f9eceb1a149f3b0defda5e90d1d3, type: 3}
+  - {fileID: 5453872566350051695, guid: de293a82b5b8744afb358462cb26def5, type: 3}
+  - {fileID: 425167456520409862, guid: 57fd14d22feec462c81c38bc4e8fba59, type: 3}
   Ostrich_EffectPrefabs:
   - {fileID: 4516285636062423811, guid: 682f6689d114f4f12a487939fa52138a, type: 3}
+  - {fileID: 5899626682869083158, guid: 62d308c82964042df9bbc5b1ce081f58, type: 3}
   Rhinoceros_EffectPrefabs:
   - {fileID: 1808044460195417379, guid: 180c37e3ccb4caa478bc4d6d0d7d7aca, type: 3}
+  - {fileID: 1380603085587284795, guid: 9a6b5c31272f14b5cacbbeb3966d3652, type: 3}
   Ratel_EffectPrefabs:
   - {fileID: 5326585671856192794, guid: 30ea84445d8474121bbbdc21ad0d1f2f, type: 3}
+  - {fileID: 8778432634170435930, guid: e27df8de985014e5694a0069801aabba, type: 3}
+  - {fileID: 141635121403372186, guid: f0627b7a404d643b9a047a612811074a, type: 3}
 --- !u!1 &1036109166
 GameObject:
   m_ObjectHideFlags: 0
