@@ -21,7 +21,8 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: M_slash_01
-  m_Shader: {fileID: -6465566751694194690, guid: 6bfca9bc32b37ae4f99b673c83f8df1a, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 6bfca9bc32b37ae4f99b673c83f8df1a,
+    type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -107,8 +108,8 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _AScrollSpeed: -2.16
-    - _ASlashSize: 14.4
+    - _AScrollSpeed: -1.56
+    - _ASlashSize: 11.16
     - _AlphaClip: 0
     - _AlphaToMask: 0
     - _BScrollSpeed: -0.98
@@ -144,9 +145,8 @@ Material:
     - _ZWrite: 1
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _Color: {r: 92.58951, g: 92.58951, b: 92.58951, a: 1}
+    - _Color: {r: 165.03473, g: 165.03473, b: 165.03473, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SlashWidth: {r: 0, g: 0.1, b: 0, a: 0}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []
-  m_AllowLocking: 1
