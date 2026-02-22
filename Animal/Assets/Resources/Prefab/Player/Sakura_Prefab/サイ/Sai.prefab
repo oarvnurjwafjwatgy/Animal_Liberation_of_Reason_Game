@@ -1840,7 +1840,7 @@ GameObject:
   - component: {fileID: 4420618641098447100}
   - component: {fileID: -8884031057575736379}
   m_Layer: 0
-  m_Name: Rhinoceros
+  m_Name: Sai
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
