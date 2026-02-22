@@ -1,114 +1,130 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.UI;
 
 public class Character_Status : MonoBehaviour
 {
-	[Header("‘I‘ğƒLƒƒƒ‰ƒNƒ^[")]
-	[SerializeField] protected bool SelectLion = false;        // ƒ‰ƒCƒIƒ“‘I‘ğƒtƒ‰ƒO
-	[SerializeField] protected bool SelectOstrich = false;     // ƒ_ƒ`ƒ‡ƒE‘I‘ğƒtƒ‰ƒO
-	[SerializeField] protected bool SelectRhinocelos = false;  // ƒTƒC‘I‘ğƒtƒ‰ƒO
-	[SerializeField] protected bool SelectRatel = false;       // ƒ‰[ƒeƒ‹‘I‘ğƒtƒ‰ƒO
+	[Header("é¸æŠã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼")]
+	[SerializeField] protected bool SelectLion = false;        // ãƒ©ã‚¤ã‚ªãƒ³é¸æŠãƒ•ãƒ©ã‚°
+	[SerializeField] protected bool SelectOstrich = false;     // ãƒ€ãƒãƒ§ã‚¦é¸æŠãƒ•ãƒ©ã‚°
+	[SerializeField] protected bool SelectRhinocelos = false;  // ã‚µã‚¤é¸æŠãƒ•ãƒ©ã‚°
+	[SerializeField] protected bool SelectRatel = false;       // ãƒ©ãƒ¼ãƒ†ãƒ«é¸æŠãƒ•ãƒ©ã‚°
 
-	/******ƒXƒe[ƒ^ƒX•Ï”*************/
-	[Header("Šî–{ƒXƒe[ƒ^ƒX")]
-	[SerializeField] protected int MaxHP = 400;                         // ƒLƒƒƒ‰ƒNƒ^[Å‘åHP
-	[SerializeField] protected int MaxReason = 100;                     // ƒLƒƒƒ‰ƒNƒ^[—«Å‘åHP
-	[SerializeField] protected int ReasonPoint = 100;                   // —«ƒQ[ƒW
-	[SerializeField] protected int AttackPower = 10;                    // ƒLƒƒƒ‰ƒNƒ^[UŒ‚—Í
-	[SerializeField] protected int DefensePower = 20;                   // ƒLƒƒƒ‰ƒNƒ^[–hŒä—Í
-	[SerializeField] protected float MoveSpeed = 5.0f;                  // ƒLƒƒƒ‰ƒNƒ^[ˆÚ“®‘¬“x
+	/******ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹å¤‰æ•°*************/
+	[Header("åŸºæœ¬ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹")]
+	[SerializeField] protected int MaxHP = 400;                // ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼æœ€å¤§HP
+	[SerializeField] protected int MaxReason = 100;            // ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ç†æ€§æœ€å¤§HP
+	[SerializeField] protected int ReasonPoint = 100;          // ç†æ€§ã‚²ãƒ¼ã‚¸
+	[SerializeField] protected int AttackPower = 10;           // ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼æ”»æ’ƒåŠ›
+	[SerializeField] protected int DefensePower = 20;          // ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼é˜²å¾¡åŠ›
+	[SerializeField] protected float MoveSpeed = 5.0f;         // ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ç§»å‹•é€Ÿåº¦
 
-	[Header("—«ƒQ[ƒW‰ğ•ú‚ÌŒ¸­İ’è")]
-	[SerializeField] protected int Decrease_in_reason_time = 1;         // —«ƒQ[ƒWŒ¸­ƒ_ƒ[ƒW
+	[Header("ç†æ€§ã‚²ãƒ¼ã‚¸è§£æ”¾æ™‚ã®æ¸›å°‘è¨­å®š")]
+	[SerializeField] protected int Decrease_in_reason_time = 1;     // ç†æ€§ã‚²ãƒ¼ã‚¸æ¸›å°‘ãƒ€ãƒ¡ãƒ¼ã‚¸
 
-	[Header("’Êí‚ÉŠÔŒo‰ß‚É‚æ‚Á‚Ä—«ƒQ[ƒW‰ñ•œ‚·‚é—Ê‚Ìİ’è")]
-	[SerializeField] protected int Heal_in_reason_point = 1;             // —«ƒQ[ƒW‰ñ•œ—Ê
+	[Header("é€šå¸¸æ™‚ã«æ™‚é–“çµŒéã«ã‚ˆã£ã¦ç†æ€§ã‚²ãƒ¼ã‚¸å›å¾©ã™ã‚‹é‡ã®è¨­å®š")]
+	[SerializeField] protected int Heal_in_reason_point = 1;        // ç†æ€§ã‚²ãƒ¼ã‚¸å›å¾©é‡
 
-	[Header("ƒLƒƒƒ‰ƒNƒ^[‚²‚Æ‚ÌŒÅ—LƒXƒLƒ‹İ’èˆê——")]
-	[Header("–ˆ‘Ì—Í‰ñ•œ”\—Í(ƒ_ƒ`ƒ‡ƒE)")]
-	[SerializeField] protected int Heal_in_hp_point = 1;                 // ‘Ì—Í‰ñ•œ—Ê(ƒ_ƒ`ƒ‡ƒEŒÅ—L)
+	[Header("ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ã”ã¨ã®å›ºæœ‰ã‚¹ã‚­ãƒ«è¨­å®šä¸€è¦§")]
+	[Header("æ¯æ™‚ä½“åŠ›å›å¾©èƒ½åŠ›(ãƒ€ãƒãƒ§ã‚¦)")]
+	[SerializeField] protected int Heal_hp_rate = 2;               // ä½“åŠ›å›å¾©å‰²åˆé‡(ãƒ€ãƒãƒ§ã‚¦å›ºæœ‰)
 
-	[Header("—«‰ğ•úó‘ÔƒXƒe[ƒ^ƒX")]
-	[SerializeField] protected int ReasonHP = 200;                      // ƒLƒƒƒ‰ƒNƒ^[—«‰ğ•úÅ‘åHP
-	[SerializeField] protected int ReasonAttackPower = 50;              // ƒLƒƒƒ‰ƒNƒ^[—«‰ğ•úUŒ‚—Í
-	[SerializeField] protected int ReasonDefensePower = 60;             // ƒLƒƒƒ‰ƒNƒ^[—«‰ğ•úUŒ‚—Í
-	[SerializeField] protected float ReasonMoveSpeed = 1.0f;            // ƒLƒƒƒ‰ƒNƒ^[ˆÚ“®‘¬“x
+	[Header("ç†æ€§è§£æ”¾çŠ¶æ…‹ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹")]
+	[SerializeField] protected int ReasonHP = 200;                  // ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ç†æ€§è§£æ”¾æ™‚æœ€å¤§HP
+	[SerializeField] protected int ReasonAttackPower = 50;          // ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ç†æ€§è§£æ”¾æ™‚æ”»æ’ƒåŠ›
+	[SerializeField] protected int ReasonDefensePower = 60;         // ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ç†æ€§è§£æ”¾æ™‚é˜²å¾¡åŠ›
+	[SerializeField] protected float ReasonMoveSpeed = 1.0f;        // ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ç§»å‹•é€Ÿåº¦
 
-	[Header("ƒvƒŒƒCƒ„[¯•Ê”Ô†(1~4)")]
+	[Header("ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼è­˜åˆ¥ç•ªå·(1~4)")]
 	public int playerID;
 
-	private Slider hp_gauge;               //HPƒQ[ƒWUIƒXƒ‰ƒCƒ_[QÆ—p•Ï”
-	private Slider reason_gauge;           //HPƒQ[ƒWUIƒXƒ‰ƒCƒ_[QÆ—p•Ï”
-	private Animator animator;             //ƒAƒjƒ[ƒ^[QÆ—p•Ï”
 
-	private float timer = 0f;              //ƒ^ƒCƒ}[Œn‚Ì•Ï”
+	// å®Ÿéš›ã«è¨ˆç®—ã«ä½¿ç”¨ã™ã‚‹å€ç‡ï¼ˆ1.0f = ç­‰å€ï¼‰
+	private float currentAtkMult = 1.0f;
+	private float currentDefMult = 1.0f;
+	private float currentSpdMult = 1.0f;
+
+	// å¤–éƒ¨å‚ç…§ç”¨ã®ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ï¼ˆãƒ™ãƒ¼ã‚¹å€¤ Ã— å€ç‡ï¼‰
+	public int CurrentAttackPower => (int)(AttackPower * currentAtkMult);
+	public int CurrentDefensePower => (int)(DefensePower * currentDefMult);
+	public float CurrentMoveSpeed => MoveSpeed * currentSpdMult;
+
+	private Slider hp_gauge;               //HPã‚²ãƒ¼ã‚¸UIã‚¹ãƒ©ã‚¤ãƒ€ãƒ¼å‚ç…§ç”¨å¤‰æ•°
+	private Slider reason_gauge;           //HPã‚²ãƒ¼ã‚¸UIã‚¹ãƒ©ã‚¤ãƒ€ãƒ¼å‚ç…§ç”¨å¤‰æ•°
+	private Animator animator;             //ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚¿ãƒ¼å‚ç…§ç”¨å¤‰æ•°
+
+	private float timer = 0f;              //ã‚¿ã‚¤ãƒãƒ¼ç³»ã®å¤‰æ•°
+	private float ostrichTimer = 0f;       //ãƒ€ãƒãƒ§ã‚¦å›å¾©å°‚ç”¨ã‚¿ã‚¤ãƒãƒ¼ï¼ˆçˆ†é€ŸåŒ–é˜²æ­¢ç”¨ï¼‰
+	private float rhinoDashTimer = 0f;     //ã‚µã‚¤ã®çªé€²ç”¨ã‚¿ã‚¤ãƒãƒ¼
 
 
-	public int CurrentHP { get; protected set; }    // ƒLƒƒƒ‰ƒNƒ^[Œ»İHP(ŠO•”“Ç‚İæ‚è‰ÂA“à•”•ÏX‰Â)
-	public int CurrentReason { get; protected set; }    // ƒLƒƒƒ‰ƒNƒ^[Œ»İ—«HP(ŠO•”“Ç‚İæ‚è‰ÂA“à•”•ÏX‰Â)
+	public int CurrentHP { get; protected set; }    // ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ç¾åœ¨HP(å¤–éƒ¨èª­ã¿å–ã‚Šå¯ã€å†…éƒ¨å¤‰æ›´å¯)
+	public int CurrentReason { get; protected set; }    // ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ç¾åœ¨ç†æ€§HP(å¤–éƒ¨èª­ã¿å–ã‚Šå¯ã€å†…éƒ¨å¤‰æ›´å¯)
 
 	InputPlayer input;
 
-	private PlayerManager playerManager;		// ƒvƒŒƒCƒ„[ƒ}ƒl[ƒWƒƒ[ƒIƒuƒWƒFƒNƒg
+	private PlayerManager playerManager;        // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãƒãƒãƒ¼ã‚¸ãƒ£ãƒ¼ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
 
-	/**********ó‘Ô*******************/
+	/**********çŠ¶æ…‹*******************/
 	enum State
 	{
-		IDLE,       // ‘Ò‹@ó‘Ô
-		MOVE,       // ˆÚ“®ó‘Ô
-		ATTAKING,   // UŒ‚ó‘Ô
-		DEAD        // €–Só‘Ô
+		IDLE,       // å¾…æ©ŸçŠ¶æ…‹
+		MOVE,       // ç§»å‹•çŠ¶æ…‹
+		ATTAKING,   // æ”»æ’ƒçŠ¶æ…‹
+		DEAD        // æ­»äº¡çŠ¶æ…‹
 	}
 
-	/**********ƒ‚[ƒh*******************/
+	/**********ãƒ¢ãƒ¼ãƒ‰*******************/
 	public enum Mode
 	{
-		ANIMAL,         // ƒGƒjƒ‚[
-		SPSIAL_ANIMAL   // ƒXƒyƒVƒƒƒ‹ƒGƒjƒ‚[
+		ANIMAL,         // ã‚¨ãƒ‹ãƒ¢ãƒ¼
+		SPSIAL_ANIMAL   // ã‚¹ãƒšã‚·ãƒ£ãƒ«ã‚¨ãƒ‹ãƒ¢ãƒ¼
 	}
 
-	/**********ƒLƒƒƒ‰ƒNƒ^[ƒ^ƒCƒv*******************/
+	/**********ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ã‚¿ã‚¤ãƒ—*******************/
 	public enum CharacterType
 	{
-		NONE,           // –³‚µ
-		LION,           // ƒ‰ƒCƒIƒ“
-		OSTRICH,        // ƒ_ƒ`ƒ‡ƒE
-		RHINOCELOS,     // ƒTƒC
-		RATEL,          // ƒ‰[ƒeƒ‹
+		NONE,           // ç„¡ã—
+		LION,           // ãƒ©ã‚¤ã‚ªãƒ³
+		OSTRICH,        // ãƒ€ãƒãƒ§ã‚¦
+		RHINOCELOS,     // ã‚µã‚¤
+		RATEL,          // ãƒ©ãƒ¼ãƒ†ãƒ«
 	}
 
-	State CharaState;									// ƒLƒƒƒ‰ƒNƒ^[ó‘Ô•Ï”
-	Mode CharaMode;										// ƒLƒƒƒ‰ƒNƒ^[ƒ‚[ƒh•Ï”
-	public CharacterType CharaAnim;						// ƒLƒƒƒ‰ƒNƒ^[ƒ^ƒCƒv•Ï”
-	public bool IsDead => CharaState == State.DEAD;     // €–Só‘Ô‚©‚Ç‚¤‚©‚ğŠO•”‚©‚ç”»’è‚Å‚«‚éƒvƒƒpƒeƒB
-														// ‰Šú‰»
+	State CharaState;                                   // ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼çŠ¶æ…‹å¤‰æ•°
+	Mode CharaMode;                                     // ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ãƒ¢ãƒ¼ãƒ‰å¤‰æ•°
+	public CharacterType CharaAnim;                     // ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ã‚¿ã‚¤ãƒ—å¤‰æ•°
+	public bool IsDead => CharaState == State.DEAD;     // æ­»äº¡çŠ¶æ…‹ã‹ã©ã†ã‹ã‚’å¤–éƒ¨ã‹ã‚‰åˆ¤å®šã§ãã‚‹ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£
+														// åˆæœŸåŒ–
 	private void Start()
 	{
-		//‚Ü‚¸ƒCƒ“ƒXƒyƒNƒ^[‚Ìƒ`ƒFƒbƒNƒ{ƒbƒNƒX‚Å”»’è (ˆÈ‘O‚Ìd—l‚ğˆÛ)
 		SelectAnimal();
 
-		CharaState = State.IDLE;        // ‰Šúó‘Ô‚ğ‘Ò‹@ó‘Ô‚Éİ’è
-		CharaMode = Mode.ANIMAL;        // ‰Šúƒ‚[ƒh‚ğƒGƒjƒ‚[‚Éİ’è
-		CurrentHP = MaxHP;              // Œ»İHP‚ÉÅ‘åHP‚ğ‘ã“ü
-		CurrentReason = MaxReason;      // Œ»İ—«ƒ|ƒCƒ“ƒg‚ÉÅ‘å—«ƒ|ƒCƒ“ƒg‚ğ‘ã“ü
-		GetResonPoint();                // —«ƒQ[ƒWæ“¾
-		GetAttackPower();               // UŒ‚—Íæ“¾
-		GetDefensePower();              // –hŒä—Íæ“¾
-		GetMoveSpeed();                 // ˆÚ“®‘¬“xæ“¾
+		if (playerID > 0)
+		{
+			CharaAnim = Animal_Select.playerChoices[playerID];
+		}
+
+		CharaState = State.IDLE;        // åˆæœŸçŠ¶æ…‹ã‚’å¾…æ©ŸçŠ¶æ…‹ã«è¨­å®š
+		CharaMode = Mode.ANIMAL;        // åˆæœŸãƒ¢ãƒ¼ãƒ‰ã‚’ã‚¨ãƒ‹ãƒ¢ãƒ¼ã«è¨­å®š
+		CurrentHP = MaxHP;              // ç¾åœ¨HPã«æœ€å¤§HPã‚’ä»£å…¥
+		CurrentReason = MaxReason;      // ç¾åœ¨ç†æ€§ãƒã‚¤ãƒ³ãƒˆã«æœ€å¤§ç†æ€§ãƒã‚¤ãƒ³ãƒˆã‚’ä»£å…¥
+		GetResonPoint();                // ç†æ€§ã‚²ãƒ¼ã‚¸å–å¾—
+		GetAttackPower();                // æ”»æ’ƒåŠ›å–å¾—
+		GetDefensePower();              // é˜²å¾¡åŠ›å–å¾—
+		GetMoveSpeed();                  // ç§»å‹•é€Ÿåº¦å–å¾—
 
 		animator = GetComponent<Animator>();
 		input = GetComponent<InputPlayer>();
-        playerManager = GameObject.Find("PlayerManager").GetComponent<PlayerManager>();
+		playerManager = GameObject.Find("PlayerManager").GetComponent<PlayerManager>();
+	}
 
-    }
-
-	// HpƒQ[ƒW‚Æ—«ƒQ[ƒW‚ÌUIƒRƒ“ƒ|[ƒlƒ“ƒg‚ğŠO•”‚©‚çƒZƒbƒg‚·‚éŠÖ”
+	// Hpã‚²ãƒ¼ã‚¸ã¨ç†æ€§ã‚²ãƒ¼ã‚¸ã®UIã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã‚’å¤–éƒ¨ã‹ã‚‰ã‚»ãƒƒãƒˆã™ã‚‹é–¢æ•°
 	public void SetUIComponents(Slider hpSlider, Slider rsSlider)
 	{
 		this.hp_gauge = hpSlider;
 		this.reason_gauge = rsSlider;
 
-		// ‰Šú’l‚ğƒZƒbƒg
+		// åˆæœŸå€¤ã‚’ã‚»ãƒƒãƒˆ
 		if (hp_gauge != null)
 		{
 			hp_gauge.maxValue = MaxHP;
@@ -121,10 +137,12 @@ public class Character_Status : MonoBehaviour
 		}
 	}
 
-	//XV
+	//æ›´æ–°
 	void Update()
 	{
-		// HPƒQ[ƒW‚ÌŒ»İ’l‚ğXV
+		Debug.Log("ç¾åœ¨ã®å‹•ç‰©ã¯" + CharaAnim);
+
+		// HPã‚²ãƒ¼ã‚¸ã®ç¾åœ¨å€¤ã‚’æ›´æ–°
 		if (hp_gauge != null && reason_gauge != null)
 		{
 			hp_gauge.value = CurrentHP;
@@ -141,12 +159,12 @@ public class Character_Status : MonoBehaviour
 			GetModeChange();
 		}
 
-		UniqueSkill();					//ˆê’UŒÅ—LƒXƒLƒ‹ŠÖ”‚ğUpdate“à‚ÅŒÄ‚Ño‚µ
-		JudgeModeChange();              //–ˆ“xØ‘Ö‚ğ”»’è‚·‚é
+		Characteristic();                //æ¯åº¦ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ã®å›ºæœ‰ç‰¹æ€§ã‚’å‘¼ã³å‡ºã™
+		JudgeModeChange();              //æ¯åº¦åˆ‡æ›¿ã‚’åˆ¤å®šã™ã‚‹
 		CheckAnimatorStateTag();
 	}
 
-	//‘I‘ğƒLƒƒƒ‰ƒNƒ^[‚É‚æ‚Á‚ÄƒLƒƒƒ‰ƒNƒ^[ƒ^ƒCƒv‚ğİ’è‚·‚é
+	//é¸æŠã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ã«ã‚ˆã£ã¦ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ã‚¿ã‚¤ãƒ—ã‚’è¨­å®šã™ã‚‹
 	private void SelectAnimal()
 	{
 		if (SelectLion)
@@ -171,16 +189,16 @@ public class Character_Status : MonoBehaviour
 		}
 	}
 
-	//ƒ‚[ƒhØ‘Ö”­“®‚É‚æ‚Á‚Äƒ`ƒFƒ“ƒW‚·‚é”»’è
+	//ãƒ¢ãƒ¼ãƒ‰åˆ‡æ›¿ç™ºå‹•ã«ã‚ˆã£ã¦ãƒã‚§ãƒ³ã‚¸ã™ã‚‹åˆ¤å®š
 	private void JudgeModeChange()
 	{
 		switch (CharaMode)
 		{
 			case Mode.ANIMAL:
-				//‚à‚µ€–Só‘Ô‚Å‚È‚¯‚ê‚Î—«ƒQ[ƒW‰ñ•œˆ—‚ğs‚¤
+				//ã‚‚ã—æ­»äº¡çŠ¶æ…‹ã§ãªã‘ã‚Œã°ç†æ€§ã‚²ãƒ¼ã‚¸å›å¾©å‡¦ç†ã‚’è¡Œã†
 				if (CharaState != State.DEAD)
 				{
-					// ƒGƒjƒ‚[ƒ‚[ƒh‚Ìˆ—
+					// ã‚¨ãƒ‹ãƒ¢ãƒ¼ãƒ¢ãƒ¼ãƒ‰ã®å‡¦ç†
 					timer += Time.deltaTime;
 					if (timer >= 1f)
 					{
@@ -190,7 +208,7 @@ public class Character_Status : MonoBehaviour
 				}
 				break;
 
-			// ƒXƒyƒVƒƒƒ‹ƒGƒjƒ‚[ƒ‚[ƒh‚Ì—«ƒQ[ƒWŒ¸­ˆ—ŠÖ”ŒÄ‚Ño‚µ
+			// ã‚¹ãƒšã‚·ãƒ£ãƒ«ã‚¨ãƒ‹ãƒ¢ãƒ¼ãƒ¢ãƒ¼ãƒ‰ã®ç†æ€§ã‚²ãƒ¼ã‚¸æ¸›å°‘å‡¦ç†é–¢æ•°å‘¼ã³å‡ºã—
 			case Mode.SPSIAL_ANIMAL:
 
 				timer += Time.deltaTime;
@@ -203,64 +221,98 @@ public class Character_Status : MonoBehaviour
 		}
 	}
 
-	//€–Sˆ—ŠÖ”&ƒ_ƒ[ƒWˆ—ŠÖ”
+	// --- å€ç‡è¨­å®šç”¨ã®é–¢æ•° ---
+	private void SetMultiplierByAnimal(bool isReasoning)
+	{
+		// é€šå¸¸ãƒ¢ãƒ¼ãƒ‰ã«æˆ»ã‚‹æ™‚ã¯å…¨å“¡ 1.0f
+		if (!isReasoning)
+		{
+			currentAtkMult = 1.0f;
+			currentSpdMult = 1.0f;
+			currentDefMult = 1.0f;
+			return;
+		}
+
+		// ç†æ€§è§£æ”¾æ™‚ã®å€ç‡è¨­å®š
+		switch (CharaAnim)
+		{
+			case CharacterType.OSTRICH: // ãƒ€ãƒãƒ§ã‚¦ï¼šé€Ÿåº¦ç‰¹åŒ–
+				currentAtkMult = 1.2f; currentSpdMult = 1.5f; currentDefMult = 1.2f;
+				break;
+			case CharacterType.RHINOCELOS: // ã‚µã‚¤ï¼šé˜²å¾¡ç‰¹åŒ–
+				currentAtkMult = 1.3f; currentSpdMult = 1.1f; currentDefMult = 1.5f;
+				break;
+			case CharacterType.LION: // ãƒ©ã‚¤ã‚ªãƒ³ï¼šæ”»æ’ƒç‰¹åŒ–ï¼ˆ2å€ï¼ï¼‰
+				currentAtkMult = 2.0f; currentSpdMult = 1.3f; currentDefMult = 1.1f;
+				break;
+			case CharacterType.RATEL: // ãƒ©ãƒ¼ãƒ†ãƒ«ï¼šãƒãƒ©ãƒ³ã‚¹
+				currentAtkMult = 1.3f; currentSpdMult = 1.3f; currentDefMult = 1.3f;
+				break;
+			default:
+				currentAtkMult = 1.0f; currentSpdMult = 1.0f; currentDefMult = 1.0f;
+				break;
+		}
+	}
+
+	//æ­»äº¡å‡¦ç†é–¢æ•°&ãƒ€ãƒ¡ãƒ¼ã‚¸å‡¦ç†é–¢æ•°
 	public virtual void TakeDamage(int damage)
 	{
-		// ‚à‚µƒLƒƒƒ‰ƒNƒ^[‚ªŠù‚É€–Só‘Ô‚Å‚ ‚ê‚ÎAƒ_ƒ[ƒWˆ—‚ğs‚í‚È‚¢
+		// ã‚‚ã—ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ãŒæ—¢ã«æ­»äº¡çŠ¶æ…‹ã§ã‚ã‚Œã°ã€ãƒ€ãƒ¡ãƒ¼ã‚¸å‡¦ç†ã‚’è¡Œã‚ãªã„
 		if (CharaState == State.DEAD) return;
 
 
-		// ƒ‚[ƒh‚²‚Æ‚Ìƒ_ƒ[ƒWˆ—•ªŠò
+		// ãƒ¢ãƒ¼ãƒ‰ã”ã¨ã®ãƒ€ãƒ¡ãƒ¼ã‚¸å‡¦ç†åˆ†å²
 		if (CharaMode == Mode.ANIMAL)
 		{
-			//ReasonHeal();  // ƒGƒjƒ‚[ƒ‚[ƒh‚Ìƒ_ƒ[ƒWˆ—ŠÖ”ŒÄ‚Ño‚µ
-			CurrentHP -= damage; // HPŒ¸­ˆ—
+			int actualDamage = Mathf.Max(damage - CurrentDefensePower, 1);
+			CurrentHP -= actualDamage; // HPæ¸›å°‘å‡¦ç†
+			//CurrentHP -= damage;
 		}
 		else if (CharaMode == Mode.SPSIAL_ANIMAL)
 		{
-			// ƒ_ƒ[ƒWŒvZi–hŒä—Í‚ğl—¶j
-			int actualDamage = Mathf.Max(damage - DefensePower, 0);
-            CurrentReason -= actualDamage; // —«ƒQ[ƒWŒ¸­ˆ—
-			CurrentHP -= (int)((float)damage * 0.1f); // HPŒ¸­ˆ—
+			// ãƒ€ãƒ¡ãƒ¼ã‚¸è¨ˆç®—ï¼ˆé˜²å¾¡åŠ›ã‚’è€ƒæ…®ï¼‰
+			int actualDamage = Mathf.Max(damage - CurrentDefensePower, 0);
+			CurrentReason -= actualDamage; // ç†æ€§ã‚²ãƒ¼ã‚¸æ¸›å°‘å‡¦ç†
+			CurrentHP -= (int)((float)damage * 0.1f); // HPæ¸›å°‘å‡¦ç†
 		}
 
-		if(hp_gauge !=null)hp_gauge.value = CurrentHP; // HPƒQ[ƒW‚ÌŒ»İ’l‚ğXV
-		if(reason_gauge !=null)reason_gauge.value = CurrentReason; // —«ƒQ[ƒW‚ÌŒ»İ’l‚ğXV
+		if (hp_gauge != null) hp_gauge.value = CurrentHP; // HPã‚²ãƒ¼ã‚¸ã®ç¾åœ¨å€¤ã‚’æ›´æ–°
+		if (reason_gauge != null) reason_gauge.value = CurrentReason; // ç†æ€§ã‚²ãƒ¼ã‚¸ã®ç¾åœ¨å€¤ã‚’æ›´æ–°
 
-		// €–S”»’è
+		// æ­»äº¡åˆ¤å®š
 		if (CurrentHP <= 0 || CurrentReason <= 0)
 		{
 			CurrentHP = 0;
 			CurrentReason = 0;
-			Die();  // €–Sˆ—ŠÖ”ŒÄ‚Ño‚µ
+			Die();  // æ­»äº¡å‡¦ç†é–¢æ•°å‘¼ã³å‡ºã—
 		}
 	}
 
-	//Œ»İHPæ“¾ŠÖ”
+	//ç¾åœ¨HPå–å¾—é–¢æ•°
 	public int GetCurrentHP()
 	{
 		return CurrentHP;
 	}
 
-	//—«ƒQ[ƒWæ“¾ŠÖ”
+	//ç†æ€§ã‚²ãƒ¼ã‚¸å–å¾—é–¢æ•°
 	public int GetResonPoint()
 	{
 		return ReasonPoint;
 	}
 
-	//UŒ‚—Íæ“¾ŠÖ”
+	//æ”»æ’ƒåŠ›å–å¾—é–¢æ•°
 	public int GetAttackPower()
 	{
 		return AttackPower;
 	}
 
-	//–hŒä—Íæ“¾ŠÖ”
+	//é˜²å¾¡åŠ›å–å¾—é–¢æ•°
 	public int GetDefensePower()
 	{
 		return DefensePower;
 	}
 
-	//ˆÚ“®‘¬“xæ“¾ŠÖ”
+	//ç§»å‹•é€Ÿåº¦å–å¾—é–¢æ•°
 	public float GetMoveSpeed()
 	{
 		return MoveSpeed;
@@ -271,80 +323,83 @@ public class Character_Status : MonoBehaviour
 		return CharaMode;
 	}
 
-	//ƒ‚[ƒh‚ªØ‚è‘Ö‚¦‚ÉŒÄ‚Ño‚·ŠÖ”
+	//ãƒ¢ãƒ¼ãƒ‰ãŒåˆ‡ã‚Šæ›¿ãˆæ™‚ã«å‘¼ã³å‡ºã™é–¢æ•°
 	public void GetModeChange()
 	{
 		switch (CharaMode)
 		{
 			case Mode.ANIMAL:
 				CharaMode = Mode.SPSIAL_ANIMAL;
+				SetMultiplierByAnimal(true);        // å€ç‡è¨­å®šé–¢æ•°å‘¼ã³å‡ºã—
+
+				// --- ãƒ‡ãƒãƒƒã‚°ãƒ­ã‚°ï¼šä¸Šæ˜‡å‰å¾Œã®æ¯”è¼ƒã‚’è¡¨ç¤º ---
+				Debug.Log($"<color=red>ã€ç†æ€§è§£æ”¾ã€‘ {CharaAnim}</color>\n" +
+						  $"æ”»æ’ƒåŠ›: {AttackPower} â” {CurrentAttackPower} ({currentAtkMult}å€)\n" +
+						  $"é˜²å¾¡åŠ›: {DefensePower} â” {CurrentDefensePower} ({currentDefMult}å€)\n" +
+						  $"ç§»å‹•é€Ÿåº¦: {MoveSpeed} â” {CurrentMoveSpeed} ({currentSpdMult}å€)");
+
 				animator.SetBool("Reason", true);
-				Debug.Log("ƒ‚[ƒh‚ªƒXƒyƒVƒƒƒ‹ƒGƒjƒ‚[‚É•Ï‰»‚µ‚½B");
+				Debug.Log("ç†æ€§è§£æ”¾ï¼ï¼");
 				break;
 
 			case Mode.SPSIAL_ANIMAL:
-				DefaultGetStatus();
+				CharaMode = Mode.ANIMAL;
+				SetMultiplierByAnimal(false);       // å€ç‡ãƒªã‚»ãƒƒãƒˆé–¢æ•°å‘¼ã³å‡ºã—
+
+				Debug.Log($"<color=cyan>ã€é€šå¸¸ãƒ¢ãƒ¼ãƒ‰ã«æˆ»ã‚Šã¾ã—ãŸã€‘</color>\n" +
+					  $"ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ãŒãƒ™ãƒ¼ã‚¹å€¤ï¼ˆæ”»æ’ƒ:{CurrentAttackPower}, é€Ÿåº¦:{CurrentMoveSpeed}ï¼‰ã«å¾©æ—§");
+
 				animator.SetBool("Reason", false);
+				Debug.Log("é€šå¸¸");
 				break;
 		}
 	}
 
-	//Ø‚è‘Ö‚¦AnimalƒXƒe[ƒ^ƒXæ“¾ŠÖ”
-	public void DefaultGetStatus()
-	{
-		CharaMode = Mode.ANIMAL;
-		Debug.Log("ƒ‚[ƒh‚ªƒGƒjƒ‚[‚É•Ï‰»‚µ‚½B");
-	}
+	
 
-	//€–Sˆ—ŠÖ”
+	//æ­»äº¡å‡¦ç†é–¢æ•°
 	protected virtual void Die()
 	{
-		//‚à‚µ—«‰ğ•ú’†‚É€–S‚µ‚½‚È‚çŒ»İHP‚ğ0‚Éİ’è‚·‚é
+		//ã‚‚ã—ç†æ€§è§£æ”¾ä¸­ã«æ­»äº¡ã—ãŸãªã‚‰ç¾åœ¨HPã‚’0ã«è¨­å®šã™ã‚‹
 		if (CharaMode == Mode.SPSIAL_ANIMAL)
 		{
-			CurrentHP = 0;  // Œ»İHP‚ğ0‚Éİ’è
+			CurrentHP = 0;  // ç¾åœ¨HPã‚’0ã«è¨­å®š
 		}
-		else  if (CharaMode == Mode.ANIMAL)
+		else if (CharaMode == Mode.ANIMAL)
 		{
-			CurrentReason = 0;  // Œ»İ—«ƒ|ƒCƒ“ƒg‚ğ0‚Éİ’è
+			CurrentReason = 0;  // ç¾åœ¨ç†æ€§ãƒã‚¤ãƒ³ãƒˆã‚’0ã«è¨­å®š
 		}
 
-		hp_gauge.value = 0;
-		reason_gauge.value = 0;
-		Debug.Log("ƒLƒƒƒ‰ƒNƒ^[‚ª€–S‚µ‚Ü‚µ‚½B");
+		if (hp_gauge != null) hp_gauge.value = 0;
+		if (reason_gauge != null) reason_gauge.value = 0;
+		Debug.Log("ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ãŒæ­»äº¡ã—ã¾ã—ãŸã€‚");
 
 		if (CharaState != State.DEAD)
 			playerManager.SetDiePlayerList(playerID);
 
-        CharaState = State.DEAD; // ó‘Ô‚ğ€–Só‘Ô‚É•ÏX
+		CharaState = State.DEAD; // çŠ¶æ…‹ã‚’æ­»äº¡çŠ¶æ…‹ã«å¤‰æ›´
 	}
 
-	//ƒGƒjƒ‚[ó‘ÔA—«ƒQ[ƒW‚ğ‰ñ•œ
+	//ã‚¨ãƒ‹ãƒ¢ãƒ¼çŠ¶æ…‹æ™‚ã€ç†æ€§ã‚²ãƒ¼ã‚¸ã‚’å›å¾©
 	protected virtual void ReasonHeal()
 	{
-		int heal_num = 0;
-
 		if (MaxReason != CurrentReason)
 		{
-			heal_num = MaxReason;
 			CurrentReason += Heal_in_reason_point;
-			Debug.Log("Œ»İ‚Ì—«ƒ|ƒCƒ“ƒg:" + CurrentReason);
+			Debug.Log("ç¾åœ¨ã®ç†æ€§ãƒã‚¤ãƒ³ãƒˆ:" + CurrentReason);
 		}
 	}
 
-	//ƒXƒyƒVƒƒƒ‹ƒGƒjƒ‚[ƒ‚[ƒh—«ƒQ[ƒWŒ¸­ˆ—ŠÖ”
+	//ã‚¹ãƒšã‚·ãƒ£ãƒ«ã‚¨ãƒ‹ãƒ¢ãƒ¼ãƒ¢ãƒ¼ãƒ‰ç†æ€§ã‚²ãƒ¼ã‚¸æ¸›å°‘å‡¦ç†é–¢æ•°
 	protected virtual void ReasonDecrease()
 	{
-		int num = 0;
-
-		//‚à‚µ—«‚ª0‚æ‚è‘å‚«‚¢‚È‚ç—«ƒQ[ƒW‚ğŒ¸­‚³‚¹‚é
+		//ã‚‚ã—ç†æ€§ãŒ0ã‚ˆã‚Šå¤§ãã„ãªã‚‰ç†æ€§ã‚²ãƒ¼ã‚¸ã‚’æ¸›å°‘ã•ã›ã‚‹
 		if (CurrentReason > 0)
 		{
-			num = Decrease_in_reason_time;       // —«ƒQ[ƒWŒ¸­—ÊŒvZ
-			CurrentReason -= num;                // —«ƒQ[ƒWŒ¸­ˆ—
-			Debug.Log("Œ»İ‚Ì—«ƒ|ƒCƒ“ƒg:" + CurrentReason);
+			CurrentReason -= Decrease_in_reason_time;                // ç†æ€§ã‚²ãƒ¼ã‚¸æ¸›å°‘å‡¦ç†
+			Debug.Log("ç¾åœ¨ã®ç†æ€§ãƒã‚¤ãƒ³ãƒˆæ¸›å°‘ä¸­:");
 		}
-		//‚à‚µ—«‚ª0ˆÈ‰º‚È‚ç—«ƒQ[ƒW‚ğ0‚É‚µ‚Ä€–Sˆ—‚ğs‚¤
+		//ã‚‚ã—ç†æ€§ãŒ0ä»¥ä¸‹ãªã‚‰ç†æ€§ã‚²ãƒ¼ã‚¸ã‚’0ã«ã—ã¦æ­»äº¡å‡¦ç†ã‚’è¡Œã†
 		else
 		{
 			CurrentReason = 0;
@@ -355,43 +410,41 @@ public class Character_Status : MonoBehaviour
 
 
 
-	// Animator‚ÌŒ»İ‚ÌƒXƒe[ƒg‚ÌTag‚ğƒ`ƒFƒbƒN‚µA
-	// €–Só‘Ô‚Å‚ ‚ê‚ÎƒIƒuƒWƒFƒNƒg‚ğ”ñƒAƒNƒeƒBƒu‰»‚·‚éŠÖ”
+	// Animatorã®ç¾åœ¨ã®ã‚¹ãƒ†ãƒ¼ãƒˆã®Tagã‚’ãƒã‚§ãƒƒã‚¯ã—ã€
+	// æ­»äº¡çŠ¶æ…‹ã§ã‚ã‚Œã°ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’éã‚¢ã‚¯ãƒ†ã‚£ãƒ–åŒ–ã™ã‚‹é–¢æ•°
 	private void CheckAnimatorStateTag()
 	{
 		if (animator == null) return;
 
-		// Œ»İ‚ÌAnimatorStateInfo‚ğæ“¾ (’Êí‚Íƒx[ƒXƒŒƒCƒ„[: 0)
+		// ç¾åœ¨ã®AnimatorStateInfoã‚’å–å¾— (é€šå¸¸ã¯ãƒ™ãƒ¼ã‚¹ãƒ¬ã‚¤ãƒ¤ãƒ¼: 0)
 		AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
 
-		// ƒLƒƒƒ‰ƒNƒ^[‚ª€–Só‘Ô‚Ìê‡‚Ì‚İTag‚ğƒ`ƒFƒbƒN
+		// ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ãŒæ­»äº¡çŠ¶æ…‹ã®å ´åˆã®ã¿Tagã‚’ãƒã‚§ãƒƒã‚¯
 		if (CharaState == State.DEAD)
 		{
-			// ƒAƒjƒ[ƒVƒ‡ƒ“ƒXƒe[ƒg‚ÌTag‚ª "Dead" ‚Å‚ ‚é‚©‚ğƒ`ƒFƒbƒN
+			// ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚¹ãƒ†ãƒ¼ãƒˆã®TagãŒ "Dead" ã§ã‚ã‚‹ã‹ã‚’ãƒã‚§ãƒƒã‚¯
 			if (stateInfo.IsTag("Dead"))
 			{
-				// Šù‚É€–SƒƒO‚ªo‚Ä‚¢‚È‚¯‚ê‚ÎƒƒO‚ğo‚µAƒQ[ƒ€ƒIƒuƒWƒFƒNƒg‚ğ”ñƒAƒNƒeƒBƒu‰»
-				if (gameObject.activeSelf) // ˆ—‚ª•¡”‰ñÀs‚³‚ê‚é‚Ì‚ğ–h‚®‚½‚ß
+				// æ—¢ã«æ­»äº¡ãƒ­ã‚°ãŒå‡ºã¦ã„ãªã‘ã‚Œã°ãƒ­ã‚°ã‚’å‡ºã—ã€ã‚²ãƒ¼ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’éã‚¢ã‚¯ãƒ†ã‚£ãƒ–åŒ–
+				if (gameObject.activeSelf) // å‡¦ç†ãŒè¤‡æ•°å›å®Ÿè¡Œã•ã‚Œã‚‹ã®ã‚’é˜²ããŸã‚
 				{
-					Debug.Log($"{gameObject.name} ‚ÍƒAƒjƒ[ƒVƒ‡ƒ“" +
-					$"Tag 'Dead' ‚É“’B‚µ‚½‚½‚ßAƒIƒuƒWƒFƒNƒg‚ğ”ñƒAƒNƒeƒBƒu‰»‚µ‚Ü‚·B");
+					Debug.Log($"{gameObject.name} ã¯ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³" +
+					$"Tag 'Dead' ã«åˆ°é”ã—ãŸãŸã‚ã€ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’éã‚¢ã‚¯ãƒ†ã‚£ãƒ–åŒ–ã—ã¾ã™ã€‚");
 					input.SetDeath();
 				}
 			}
 		}
 	}
 
-	//íŒÄ‚Ño‚µŒÅ—LƒXƒLƒ‹ŠÖ”
-	protected virtual void UniqueSkill()
+	//ã‚­ãƒ£ãƒ©ã®ç‰¹æœ‰ã®ç‰¹æ€§é–¢æ•°
+	protected virtual void Characteristic()
 	{
-		// ƒLƒƒƒ‰ƒNƒ^[ŒÅ—L‚ÌƒXƒLƒ‹ˆ—‚ğ‚±‚±‚ÉÀ‘•
 		switch (CharaAnim)
 		{
-			//ƒ‰ƒCƒIƒ“‚ğ‘I‘ğ‚µ‚½ê‡ŒÅ—LƒXƒLƒ‹”­“®
 			case CharacterType.LION:
-				UniqueSkill_Lion();
 				break;
-			//ƒ_ƒ`ƒ‡ƒE‚ğ‘I‘ğ‚µ‚½ê‡ŒÅ—LƒXƒLƒ‹”­“®
+
+			//ãƒ€ãƒãƒ§ã‚¦ã®å›ºæœ‰ç‰¹æ€§(å¸¸æ™‚ä½“åŠ›å›å¾©)
 			case CharacterType.OSTRICH:
 				UniqueSkill_Ostrich();
 				break;
@@ -399,55 +452,78 @@ public class Character_Status : MonoBehaviour
 				UniqueSkill_Rhinocelos();
 				break;
 			case CharacterType.RATEL:
-				UniqueSkill_Ratel();
 				break;
 		}
 	}
 
-	//ƒ‰ƒCƒIƒ“‚ÌŒÅ—LƒXƒLƒ‹ˆ—ŠÖ”
-	void UniqueSkill_Lion()
+	//ãƒ©ã‚¤ã‚ªãƒ³ã®å›ºæœ‰ã‚¹ã‚­ãƒ«å‡¦ç†é–¢æ•°
+	void Skill_Lion()
 	{
-		Debug.Log("ƒ‰ƒCƒIƒ“‚ÌŒÅ—LƒXƒLƒ‹”­“®’†");
+		Debug.Log("ãƒ©ã‚¤ã‚ªãƒ³ã®å›ºæœ‰ã‚¹ã‚­ãƒ«ç™ºå‹•ä¸­");
 	}
 
-	//ƒ_ƒ`ƒ‡ƒE‚ÌŒÅ—LƒXƒLƒ‹ˆ—ŠÖ”
+	///ãƒ€ãƒãƒ§ã‚¦ã®å›ºæœ‰ç‰¹æ€§(å¸¸æ™‚ä½“åŠ›å›å¾©)
 	void UniqueSkill_Ostrich()
 	{
-		//0‚Å‚È‚¢‚È‚ç‘Ì—Í‰ñ•œˆ—
+		//ã‚‚ã—æ­»äº¡çŠ¶æ…‹ãªã‚‰å‡¦ç†ã‚’è¡Œã‚ãªã„
+		if (CharaState == State.DEAD) return;
+
+		//0ã§ãªã„ãªã‚‰ä½“åŠ›å›å¾©å‡¦ç†
 		if (CurrentHP != 0)
 		{
-			/*ƒ_ƒ`ƒ‡ƒE‚ÌŒÅ—LƒXƒLƒ‹‚Í‘Ì—Í‚ğ
-			ŠÔŒo‰ß‚É‚æ‚Á‚Ä‰ñ•œ‚·‚é*/
-			int ostrich_heal = Heal_in_hp_point;
-
-			timer += Time.deltaTime;
-
-			if (timer >= 1f)
+			//ç†æ€§é–‹æ”¾ã—ã¦ã‚‹ãªã‚‰ä½“åŠ›å›å¾©å‡¦ç†
+			if (CharaMode == Mode.SPSIAL_ANIMAL)
 			{
-				// HP‰ñ•œˆ—
-				if (MaxHP != CurrentHP)
+				/*ãƒ€ãƒãƒ§ã‚¦ã®å›ºæœ‰ã‚¹ã‚­ãƒ«ã¯ä½“åŠ›ã‚’
+				æ™‚é–“çµŒéã«ã‚ˆã£ã¦å›å¾©ã™ã‚‹*/
+				int ostrich_heal = MaxHP * Heal_hp_rate;
+
+				//å…±é€šã‚¿ã‚¤ãƒãƒ¼(timer)ã§ã¯ãªãå°‚ç”¨ã‚¿ã‚¤ãƒãƒ¼ã‚’ä½¿ç”¨ã—çˆ†é€ŸåŒ–ã‚’é˜²æ­¢
+				ostrichTimer += Time.deltaTime;
+
+				// ã‚¿ã‚¤ãƒãƒ¼ãŒ1ç§’ä»¥ä¸ŠçµŒéã—ãŸã‚‰ä½“åŠ›å›å¾©å‡¦ç†ã‚’è¡Œã†
+				if (ostrichTimer >= 1f)
 				{
-					CurrentHP += ostrich_heal;
+					// HPå›å¾©å‡¦ç†
+					if (MaxHP != CurrentHP)
+					{
+						CurrentHP += MaxHP * Heal_hp_rate / 100;
+						if (CurrentHP > MaxHP) CurrentHP = MaxHP; //æœ€å¤§å€¤ã‚’è¶…ãˆãªã„ã‚ˆã†ã«
+						Debug.Log("ãƒ€ãƒãƒ§ã‚¦ã®å›ºæœ‰ã‚¹ã‚­ãƒ«ã§å›å¾©ä¸­:" + CurrentHP);
+					}
+					ostrichTimer = 0f;
 				}
-				timer = 0f;
 			}
 		}
 		else
 		{
-			//0‚È‚ç€–Sˆ—ŠÖ”ŒÄ‚Ño‚µ
+			//0ãªã‚‰æ­»äº¡å‡¦ç†é–¢æ•°å‘¼ã³å‡ºã—
 			Die();
 		}
 	}
 
-	//ƒTƒC‚ÌŒÅ—LƒXƒLƒ‹ˆ—ŠÖ”
+	//ã‚µã‚¤ã®å›ºæœ‰ã‚¹ã‚­ãƒ«å‡¦ç†é–¢æ•°ï¼ˆç‰¹æ€§ã¨ã—ã¦ã®æ çµ„ã¿ï¼‰
 	void UniqueSkill_Rhinocelos()
 	{
-		Debug.Log("ƒTƒC‚ÌŒÅ—LƒXƒLƒ‹”­“®’†");
+		if (CharaState == State.DEAD) return;
+
+		//é•·æŠ¼ã—ã«ã‚ˆã‚‹ç†æ€§æ¶ˆè²»ã®ãƒ­ã‚¸ãƒƒã‚¯ï¼ˆinput.IsSkillPressedã¯InputPlayerã®å®Ÿè£…ã«åˆã‚ã›ã¦ãã ã•ã„ï¼‰
+		/*
+		if (input.IsSkillPressed) 
+		{
+			rhinoDashTimer += Time.deltaTime;
+			if(rhinoDashTimer >= 0.1f) 
+			{
+				CurrentReason -= 1; //ãƒãƒƒãƒã§æ¸›ã‚‰ã™
+				rhinoDashTimer = 0f;
+			}
+		}
+		*/
 	}
 
-	//ƒ‰[ƒeƒ‹‚ÌŒÅ—LƒXƒLƒ‹ˆ—ŠÖ”
+	//ãƒ©ãƒ¼ãƒ†ãƒ«ã®å›ºæœ‰ã‚¹ã‚­ãƒ«å‡¦ç†é–¢æ•°
 	void UniqueSkill_Ratel()
 	{
-		Debug.Log("ƒ‰[ƒeƒ‹‚ÌŒÅ—LƒXƒLƒ‹”­“®’†");
+		Debug.Log("ãƒ©ãƒ¼ãƒ†ãƒ«ã®å›ºæœ‰ã‚¹ã‚­ãƒ«ç™ºå‹•ä¸­");
 	}
 }
