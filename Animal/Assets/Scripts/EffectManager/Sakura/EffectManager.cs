@@ -2,19 +2,19 @@ using UnityEngine;
 
 public class EffectManager : MonoBehaviour
 {
-    [Header("共通エフェクト")]
+    [Header("共通エフェクト：解放０、被ダメージ１、バフ２、デバフ３、死亡４")]
     public GameObject[] Common_EffectPrefabs;
 
-    [Header("ライオンエフェクト")]
+    [Header("ライオンエフェクト:攻撃０、スキル１・２、")]
     public GameObject[] Lion_EffectPrefabs;
 
-    [Header("ダチョウエフェクト")]
+    [Header("ダチョウエフェクト:攻撃０、スキル１、")]
     public GameObject[] Ostrich_EffectPrefabs;
 
-    [Header("サイエフェクト")]
+    [Header("サイエフェクト:攻撃０、スキル１")]
     public GameObject[] Rhinoceros_EffectPrefabs;
 
-    [Header("ラーテルエフェクト")]
+    [Header("ラーテルエフェクト:攻撃０、スキル１・２、")]
     public GameObject[] Ratel_EffectPrefabs;
 
   
