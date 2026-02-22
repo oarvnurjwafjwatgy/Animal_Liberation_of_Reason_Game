@@ -6,11 +6,17 @@ public class Nuts : MonoBehaviour
 {
     private float deleteTimer;
 
+    EffectManager Effect_Manager = null;
+    GameObject EffectManagerObj = null;
+
     // Start is called before the first frame update
     void Start()
     {
         // タイマーの初期化
         deleteTimer = 0f;
+
+        EffectManagerObj = GameObject.Find("EffectManager");
+        Effect_Manager = EffectManagerObj.GetComponent<EffectManager>();
     }
 
     // Update is called once per frame
@@ -25,7 +31,12 @@ public class Nuts : MonoBehaviour
         // プレイヤーに当たったら、効果を発動
         if (other.gameObject.layer == LayerMask.NameToLayer("Player"))
         {
+
+
+            Effect_Manager.PlayEffect("Common", 2, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(0.5f, 0.5f, 0.5f));
             //// ここに効果 ////
+
+           
 
             // ItemManagerの生成した木の実の数を減らす
             GameObject.Find("ItemManager").GetComponent<ItemManager>().DecreaseNutsCount(1);

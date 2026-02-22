@@ -18,9 +18,9 @@ public class InputPlayer : MonoBehaviour
 
     public float moveSpeed = 5.0f; // キャラクターの移動速度
     private GameObject cameraObject;
-    private GameObject normalObject;
-    private GameObject reasonObject;
-    private GameObject ghostObject;
+    public GameObject normalObject;
+    public GameObject reasonObject;
+    public GameObject ghostObject;
     private Quaternion cachedRotate;
     private GameObject collisionObject;
 
@@ -40,6 +40,8 @@ public class InputPlayer : MonoBehaviour
     EffectManager Effect_Manager = null;
 
     bool MoveFlag = true; // 動かせるか
+
+    bool LiveFlag = true; //生きているか
 
 
     public enum Direction
@@ -62,7 +64,7 @@ public class InputPlayer : MonoBehaviour
         // cameraObject と ghostObject は土台プレハブに元からあるはずなので取得
         // ただし、既に SetupDynamicReferences で設定されている場合は何もしない
         if (cameraObject == null) cameraObject = transform.GetChild(0).gameObject;
-        if (ghostObject == null) ghostObject = transform.GetChild(3).gameObject;
+        if (ghostObject == null) ghostObject = transform.GetChild(1).gameObject;
 
         // normalObject, reasonObject は PlayerManager から渡されるので
         // ここで transform.GetChild で上書きしてはいけない！！（コメントアウト推奨）
@@ -110,6 +112,19 @@ public class InputPlayer : MonoBehaviour
     {
         // 観戦者の上昇下降の処理
         this.GhostUpDown();
+
+
+
+        if (character_Status.CurrentHP <= 0)
+        {
+            animator.SetInteger("State", 2);
+            LiveFlag = false;
+            Effect_Manager.PlayEffect("Common", 4, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1f, 1f, 1f));
+
+            //Invoke("SetDeath", 3.0f);
+
+            // SetDeath();
+        }
     }
 
 
@@ -284,33 +299,41 @@ public class InputPlayer : MonoBehaviour
 
     private void OnAttack(InputAction.CallbackContext context)
     {
-        MoveFlag = false;
+        if(LiveFlag ==  true)
+        { 
 
-        // 現在のモデル（通常か強化か）を取得
-        GameObject activeModel = (character_Status.GetMode() == Character_Status.Mode.SPSIAL_ANIMAL) ? reasonObject : normalObject;
+            MoveFlag = false;
 
-        // 【新機能】動物ごとの最適座標を計算して取得
-        Vector3 effectPosition = GetEffectSpawnPosition(activeModel);
+            // 現在のモデル（通常か強化か）を取得
+            GameObject activeModel = (character_Status.GetMode() == Character_Status.Mode.SPSIAL_ANIMAL) ? reasonObject : normalObject;
 
-        // エフェクト再生
-        Effect_Manager.PlayEffect(normalObject.name, 0, effectPosition, activeModel.transform.rotation);
+            // 【新機能】動物ごとの最適座標を計算して取得
+            Vector3 effectPosition = GetEffectSpawnPosition(activeModel);
 
-        // 当たり判定生成
-        AttackCollider();
+            // エフェクト再生
+            Effect_Manager.PlayEffect(normalObject.name, 0, effectPosition, activeModel.transform.rotation, new Vector3(1f, 1f, 1f));
 
-        // アニメーション処理（既存のまま）
-        animator.SetTrigger("Attack");
-        if (deathFlag) return;
+            // 当たり判定生成
+            AttackCollider();
 
+            // アニメーション処理（既存のまま）
+            animator.SetTrigger("Attack");
+            if (deathFlag) return;
+        }
     }
 
     private void OnModeChange(InputAction.CallbackContext context)
     {
-        Effect_Manager.PlayEffect("Common", 0, this.gameObject.transform.position, this.gameObject.transform.rotation);
-        character_Status.GetModeChange();
-        Enhancement();
+        if (LiveFlag == true)
+        {
 
-        Debug.Log("チェンジ");
+            Effect_Manager.PlayEffect("Common", 0, this.gameObject.transform.position, this.gameObject.transform.rotation,new Vector3(2f, 2f, 2f));
+            character_Status.GetModeChange();
+            Enhancement();
+
+            Debug.Log("チェンジ");
+        }
+
     }
 
     private void OnCameraReset(InputAction.CallbackContext context)
@@ -323,24 +346,45 @@ public class InputPlayer : MonoBehaviour
 
     private void OnSkill(InputAction.CallbackContext context)
     {
-        MoveFlag = false;
-        animator.SetTrigger("Skill");
+        if (LiveFlag == true)
+        {
+            MoveFlag = false;
 
-        Debug.Log("スキル発動");
+            // 現在のモデル（通常か強化か）を取得
+            GameObject activeModel = (character_Status.GetMode() == Character_Status.Mode.SPSIAL_ANIMAL) ? reasonObject : normalObject;
+
+            // 【新機能】動物ごとの最適座標を計算して取得
+            Vector3 effectPosition = GetEffectSpawnPosition(activeModel);
+
+            animator.SetTrigger("Skill");
+
+            // エフェクト再生
+            Effect_Manager.PlayEffect(normalObject.name, 1, effectPosition, activeModel.transform.rotation, new Vector3(1f, 1f, 1f));
+
+
+            Debug.Log("スキル発動");
+        }
+
+           
     }
 
     private void OnEvation(InputAction.CallbackContext context)
     {
-        switch (direction)
+        if(LiveFlag == true)
         {
-            case Direction.Right: animator.SetTrigger("RightStep"); break;
-            case Direction.Left: animator.SetTrigger("LeftStep"); break;
-            case Direction.Back: animator.SetTrigger("BackStep"); break;
+            switch (direction)
+            {
+                case Direction.Right: animator.SetTrigger("RightStep"); break;
+                case Direction.Left: animator.SetTrigger("LeftStep"); break;
+                case Direction.Back: animator.SetTrigger("BackStep"); break;
+            }
+
+
+
+            Debug.Log("回避");
         }
 
-
-
-        Debug.Log("回避");
+       
     }
 
 
@@ -365,21 +409,24 @@ public class InputPlayer : MonoBehaviour
 
     public void SetDeath()
     {
-        // 死亡フラグをtrueにする
-        deathFlag = true;
+       if(deathFlag == false)
+        {
+            // 死亡フラグをtrueにする
+            deathFlag = true;
 
-        // 観戦者用に各アクティブ状態を変更する
-        cameraObject.SetActive(false);
-        normalObject.SetActive(false);
-        reasonObject.SetActive(false);
-        ghostObject.SetActive(true);
+            // 観戦者用に各アクティブ状態を変更する
+            cameraObject.SetActive(false);
+            normalObject.SetActive(false);
+            reasonObject.SetActive(false);
+            ghostObject.SetActive(true);
 
-        // 重力を無効にする
-        rb.useGravity = false;
+            // 重力を無効にする
+            rb.useGravity = false;
 
-        // 自身と子オブジェクトのレイヤーをGhostにする
-        ChangeLayer change_layer = this.GetComponent<ChangeLayer>();
-        change_layer.SetLayer();
+            // 自身と子オブジェクトのレイヤーをGhostにする
+            ChangeLayer change_layer = this.GetComponent<ChangeLayer>();
+            change_layer.SetLayer();
+        }
     }
 
 
@@ -408,25 +455,6 @@ public class InputPlayer : MonoBehaviour
     }
 
 
-    //// 攻撃与えたら
-    //private void OnTriggerEnter(Collider other)
-    //{
-    //    GameObject collsionobj = other.gameObject;
-
-    //    Character_Status damage = collsionobj.GetComponentInParent<Character_Status>();
-
-
-    //    switch (collsionobj.tag)
-    //    {
-    //        case "Player1": Debug.Log("1Pダメージ"); damage.TakeDamage(50); ColliderDelete(); break;
-    //        case "Player2": Debug.Log("2Pダメージ"); damage.TakeDamage(50); ColliderDelete(); break;
-
-
-    //    }
-
-
-
-    //}
 
     public void SetupDynamicReferences(GameObject normal, GameObject reason)
     {

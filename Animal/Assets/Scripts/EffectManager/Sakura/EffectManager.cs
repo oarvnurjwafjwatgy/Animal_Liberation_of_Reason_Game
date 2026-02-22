@@ -24,40 +24,31 @@ public class EffectManager : MonoBehaviour
     /// <param name="animalName">動物の名前（"Common", "Lion", "Ostrich", "Rhino", "Ratel"）</param>
     /// <param name="id">その動物内でのエフェクト番号</param>
     /// <param name="position">出す場所</param>
-    public void PlayEffect(string animalName, int id, Vector3 position, Quaternion rotation)
+    public void PlayEffect(string animalName, int id, Vector3 position, Quaternion rotation,Vector3 scale)
     {
-        // 1. 使うべき配列を一時的に格納する変数
         GameObject[] targetArray = null;
 
-        // 2. 名前によってどの配列を使うか振り分ける
         switch (animalName)
         {
-            case "Common":
-                targetArray = Common_EffectPrefabs;
-                break;
-            case "Lion(Clone)":
-                targetArray = Lion_EffectPrefabs;
-                break;
-            case "Ostrich(Clone)":
-                targetArray = Ostrich_EffectPrefabs;
-                break;
-            case "Rhinoceros(Clone)":
-                targetArray = Rhinoceros_EffectPrefabs;
-                break;
-            case "Ratel(Clone)":
-                targetArray = Ratel_EffectPrefabs;
-                break;
+            case "Common": targetArray = Common_EffectPrefabs; break;
+            case "Lion(Clone)": targetArray = Lion_EffectPrefabs; break;
+            case "Ostrich(Clone)": targetArray = Ostrich_EffectPrefabs; break;
+            case "Rhinoceros(Clone)": targetArray = Rhinoceros_EffectPrefabs; break;
+            case "Ratel(Clone)": targetArray = Ratel_EffectPrefabs; break;
             default:
                 Debug.LogError($"EffectManager: {animalName} という名前のリストは見つかりません。");
                 return;
         }
 
-        // 3. 選ばれた配列が空でないか、IDが範囲内かをチェックして生成
         if (targetArray != null && id >= 0 && id < targetArray.Length)
         {
             if (targetArray[id] != null)
             {
                 GameObject instance = Instantiate(targetArray[id], position, rotation);
+
+                // --- 追加：大きさを変更する処理 ---
+                instance.transform.localScale = scale;
+
                 Destroy(instance, 2.0f);
             }
             else
