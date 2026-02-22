@@ -360,7 +360,8 @@ MonoBehaviour:
   MoveSpeed: 5
   Decrease_in_reason_time: 1
   Heal_in_reason_point: 1
-  Heal_in_hp_point: 1
+  Heal_hp_rate: 2
+  ostrichTimer: 0
   ReasonHP: 200
   ReasonAttackPower: 50
   ReasonDefensePower: 60

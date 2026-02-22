@@ -26,7 +26,8 @@ public class Character_Status : MonoBehaviour
 
 	[Header("キャラクターごとの固有スキル設定一覧")]
 	[Header("毎時体力回復能力(ダチョウ)")]
-	[SerializeField] protected int Heal_in_hp_point = 1;                 // 体力回復量(ダチョウ固有)
+	[SerializeField] protected int Heal_hp_rate = 2;                   // 体力回復割合量(ダチョウ固有)
+	[SerializeField] protected float ostrichTimer = 0f;					// ダチョウ専用タイマー
 
 	[Header("理性解放状態ステータス")]
 	[SerializeField] protected int ReasonHP = 200;                      // キャラクター理性解放時最大HP
@@ -84,8 +85,12 @@ public class Character_Status : MonoBehaviour
 														// 初期化
 	private void Start()
 	{
-		//まずインスペクターのチェックボックスで判定 (以前の仕様を維持)
 		SelectAnimal();
+
+		if (playerID > 0)
+		{
+			CharaAnim = Animal_Select.playerChoices[playerID];
+		}
 
 		CharaState = State.IDLE;        // 初期状態を待機状態に設定
 		CharaMode = Mode.ANIMAL;        // 初期モードをエニモーに設定
@@ -98,9 +103,8 @@ public class Character_Status : MonoBehaviour
 
 		animator = GetComponent<Animator>();
 		input = GetComponent<InputPlayer>();
-        playerManager = GameObject.Find("PlayerManager").GetComponent<PlayerManager>();
-
-    }
+		playerManager = GameObject.Find("PlayerManager").GetComponent<PlayerManager>();
+	}
 
 	// Hpゲージと理性ゲージのUIコンポーネントを外部からセットする関数
 	public void SetUIComponents(Slider hpSlider, Slider rsSlider)
@@ -124,6 +128,8 @@ public class Character_Status : MonoBehaviour
 	//更新
 	void Update()
 	{
+		Debug.Log("現在の動物は"+CharaAnim);
+
 		// HPゲージの現在値を更新
 		if (hp_gauge != null && reason_gauge != null)
 		{
@@ -141,7 +147,7 @@ public class Character_Status : MonoBehaviour
 			GetModeChange();
 		}
 
-		UniqueSkill();					//一旦固有スキル関数をUpdate内で呼び出し
+		Characteristic();               //毎度キャラクターの固有特性を呼び出す
 		JudgeModeChange();              //毎度切替を判定する
 		CheckAnimatorStateTag();
 	}
@@ -342,7 +348,7 @@ public class Character_Status : MonoBehaviour
 		{
 			num = Decrease_in_reason_time;       // 理性ゲージ減少量計算
 			CurrentReason -= num;                // 理性ゲージ減少処理
-			Debug.Log("現在の理性ポイント:" + CurrentReason);
+			Debug.Log("現在の理性ポイント減少中:");
 		}
 		//もし理性が0以下なら理性ゲージを0にして死亡処理を行う
 		else
@@ -381,6 +387,25 @@ public class Character_Status : MonoBehaviour
 		}
 	}
 
+	//キャラの特有の特性関数
+	protected virtual void Characteristic()
+	{
+	switch (CharaAnim)
+		{
+			case CharacterType.LION:
+				break;
+
+			//ダチョウの固有特性(常時体力回復)
+			case CharacterType.OSTRICH:
+				UniqueSkill_Ostrich();
+				break;
+			case CharacterType.RHINOCELOS:
+				break;
+			case CharacterType.RATEL:
+				break;
+		}
+	}
+
 	//常時呼び出し固有スキル関数
 	protected virtual void UniqueSkill()
 	{
@@ -389,11 +414,11 @@ public class Character_Status : MonoBehaviour
 		{
 			//ライオンを選択した場合固有スキル発動
 			case CharacterType.LION:
-				UniqueSkill_Lion();
+				Skill_Lion();
 				break;
 			//ダチョウを選択した場合固有スキル発動
 			case CharacterType.OSTRICH:
-				UniqueSkill_Ostrich();
+				Skill_Ostrich();
 				break;
 			case CharacterType.RHINOCELOS:
 				UniqueSkill_Rhinocelos();
@@ -405,31 +430,47 @@ public class Character_Status : MonoBehaviour
 	}
 
 	//ライオンの固有スキル処理関数
-	void UniqueSkill_Lion()
+	void Skill_Lion()
 	{
 		Debug.Log("ライオンの固有スキル発動中");
 	}
 
 	//ダチョウの固有スキル処理関数
+	void Skill_Ostrich()
+	{
+		
+	}
+
+	///ダチョウの固有特性(常時体力回復)
 	void UniqueSkill_Ostrich()
 	{
+		//もし死亡状態なら処理を行わない
+		if (CharaState == State.DEAD) return;
+
+		Debug.Log("ダチョウの固有スキル発動中");
+
 		//0でないなら体力回復処理
 		if (CurrentHP != 0)
 		{
-			/*ダチョウの固有スキルは体力を
-			時間経過によって回復する*/
-			int ostrich_heal = Heal_in_hp_point;
-
-			timer += Time.deltaTime;
-
-			if (timer >= 1f)
+			//理性開放してるなら体力回復処理
+			if (CharaMode == Mode.SPSIAL_ANIMAL)
 			{
-				// HP回復処理
-				if (MaxHP != CurrentHP)
+
+				ostrichTimer += Time.deltaTime;    // タイマーを更新
+
+				// タイマーが1秒以上経過したら体力回復処理を行う
+				if (ostrichTimer >= 1f)
 				{
-					CurrentHP += ostrich_heal;
+					// HP回復処理
+					// 1秒に5％回復するように設定しているため、回復量は最大HPの5％
+					if (MaxHP != CurrentHP)
+					{
+						CurrentHP += (MaxHP* Heal_hp_rate) / 100;
+						Debug.Log("ダチョウの固有スキルで毎秒最大HP5％体力回復:" + CurrentHP);
+						Debug.Log("<color=#00ff00>" + (MaxHP * Heal_hp_rate / 100) + "</color>");
+					}
+					ostrichTimer = 0f;
 				}
-				timer = 0f;
 			}
 		}
 		else
