@@ -488,13 +488,6 @@ public class InputPlayer : MonoBehaviour
         MoveFlag = true;
     }
 
-    public void DeleteCollision()
-    {
-        Destroy(collisionObject);
-    }
-
-
-
     /// <summary>
     /// 現在の動物名に合わせて、エフェクトの発生位置を計算する
     /// </summary>
