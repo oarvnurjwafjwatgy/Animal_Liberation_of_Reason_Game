@@ -171,7 +171,7 @@ GameObject:
   - component: {fileID: 4017874331804370152}
   - component: {fileID: -2545590804071349432}
   m_Layer: 0
-  m_Name: bird
+  m_Name: Ostrich
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
