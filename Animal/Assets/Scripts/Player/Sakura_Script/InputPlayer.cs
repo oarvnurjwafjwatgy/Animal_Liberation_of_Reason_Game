@@ -408,25 +408,25 @@ public class InputPlayer : MonoBehaviour
     }
 
 
-    // 攻撃与えたら
-    private void OnTriggerEnter(Collider other)
-    {
-        GameObject collsionobj = other.gameObject;
+    //// 攻撃与えたら
+    //private void OnTriggerEnter(Collider other)
+    //{
+    //    GameObject collsionobj = other.gameObject;
 
-        Character_Status damage = collsionobj.GetComponentInParent<Character_Status>();
-
-
-        switch (collsionobj.tag)
-        {
-            case "Player1": Debug.Log("1Pダメージ"); damage.TakeDamage(50); ColliderDelete(); break;
-            case "Player2": Debug.Log("2Pダメージ"); damage.TakeDamage(50); ColliderDelete(); break;
+    //    Character_Status damage = collsionobj.GetComponentInParent<Character_Status>();
 
 
-        }
+    //    switch (collsionobj.tag)
+    //    {
+    //        case "Player1": Debug.Log("1Pダメージ"); damage.TakeDamage(50); ColliderDelete(); break;
+    //        case "Player2": Debug.Log("2Pダメージ"); damage.TakeDamage(50); ColliderDelete(); break;
+
+
+    //    }
 
 
 
-    }
+    //}
 
     public void SetupDynamicReferences(GameObject normal, GameObject reason)
     {
