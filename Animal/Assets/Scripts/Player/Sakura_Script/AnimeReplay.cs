@@ -18,4 +18,12 @@ public class AnimeReplay : MonoBehaviour
             playerInput.MoveFlagFalse(); // MoveFlag ‚ğ true ‚É–ß‚·
         }
     }
+
+    public void OnDeleteCollision()
+    {
+        if (playerInput != null)
+        {
+            playerInput.DeleteCollision(); // “–‚½‚è”»’è‚ğÁ‚·
+        }
+    }
 }

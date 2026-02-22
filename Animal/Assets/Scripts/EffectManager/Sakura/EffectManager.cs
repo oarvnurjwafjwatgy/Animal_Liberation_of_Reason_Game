@@ -3,19 +3,19 @@ using UnityEngine;
 public class EffectManager : MonoBehaviour
 {
     [Header("共通エフェクト")]
-    public GameObject[] common_effectPrefabs;
+    public GameObject[] Common_EffectPrefabs;
 
     [Header("ライオンエフェクト")]
-    public GameObject[] Lion_effectPrefabs;
+    public GameObject[] Lion_EffectPrefabs;
 
     [Header("ダチョウエフェクト")]
-    public GameObject[] Ostrich_effectPrefabs;
+    public GameObject[] Ostrich_EffectPrefabs;
 
     [Header("サイエフェクト")]
-    public GameObject[] Rhinoceros_effectPrefabs;
+    public GameObject[] Rhinoceros_EffectPrefabs;
 
     [Header("ラーテルエフェクト")]
-    public GameObject[] Ratel_effectPrefabs;
+    public GameObject[] Ratel_EffectPrefabs;
 
   
     /// <summary>
@@ -24,7 +24,7 @@ public class EffectManager : MonoBehaviour
     /// <param name="animalName">動物の名前（"Common", "Lion", "Ostrich", "Rhino", "Ratel"）</param>
     /// <param name="id">その動物内でのエフェクト番号</param>
     /// <param name="position">出す場所</param>
-    public void PlayEffect(string animalName, int id, Vector3 position)
+    public void PlayEffect(string animalName, int id, Vector3 position, Quaternion rotation)
     {
         // 1. 使うべき配列を一時的に格納する変数
         GameObject[] targetArray = null;
@@ -33,19 +33,19 @@ public class EffectManager : MonoBehaviour
         switch (animalName)
         {
             case "Common":
-                targetArray = common_effectPrefabs;
+                targetArray = Common_EffectPrefabs;
                 break;
-            case "Lion":
-                targetArray = Lion_effectPrefabs;
+            case "Lion(Clone)":
+                targetArray = Lion_EffectPrefabs;
                 break;
-            case "Ostrich":
-                targetArray = Ostrich_effectPrefabs;
+            case "Ostrich(Clone)":
+                targetArray = Ostrich_EffectPrefabs;
                 break;
-            case "Rhino":
-                targetArray = Rhinoceros_effectPrefabs;
+            case "Rhinoceros(Clone)":
+                targetArray = Rhinoceros_EffectPrefabs;
                 break;
-            case "Ratel":
-                targetArray = Ratel_effectPrefabs;
+            case "Ratel(Clone)":
+                targetArray = Ratel_EffectPrefabs;
                 break;
             default:
                 Debug.LogError($"EffectManager: {animalName} という名前のリストは見つかりません。");
@@ -57,7 +57,7 @@ public class EffectManager : MonoBehaviour
         {
             if (targetArray[id] != null)
             {
-                GameObject instance = Instantiate(targetArray[id], position, Quaternion.identity);
+                GameObject instance = Instantiate(targetArray[id], position, rotation);
                 Destroy(instance, 2.0f);
             }
             else
