@@ -322,9 +322,20 @@ public class InputPlayer : MonoBehaviour
             switch (character_Status.CharaAnim)
             {
                 case Character_Status.CharacterType.LION:
-                    Position = new Vector3(effectPosition.x, effectPosition.y, effectPosition.z);
-                    Quaternion = activeModel.transform.rotation * Quaternion.Euler(0f, 0f, 0f);
-                    Scale = new Vector3(1f, 1f, 1f);
+                    // 1. モデルの「右・上・前」の方向ベクトルを取得
+                    Vector3 Liright = activeModel.transform.right;
+                    Vector3 Liup = activeModel.transform.up;
+                    Vector3 Liforward = activeModel.transform.forward;
+
+                    // 2. この形なら add_pos.x を変えると「常にキャラの右/左」に動きます！
+                    Position = new Vector3(
+                        effectPosition.x + (Liright.x * add_pos.x) + (Liup.x * add_pos.y) + (Liforward.x * add_pos.z),
+                        effectPosition.y + (Liright.y * add_pos.x) + (Liup.y * add_pos.y) + (Liforward.y * add_pos.z),
+                        effectPosition.z + (Liright.z * add_pos.x) + (Liup.z * add_pos.y) + (Liforward.z * add_pos.z)
+                    );
+
+                    Quaternion = activeModel.transform.rotation * Quaternion.Euler(add_rot.x, add_rot.y, add_rot.z);
+                    Scale = new Vector3(add_scale.x, add_scale.y, add_scale.z);
 
                     break;
 
@@ -377,13 +388,16 @@ public class InputPlayer : MonoBehaviour
 
                     // 2. この形なら add_pos.x を変えると「常にキャラの右/左」に動きます！
                     Position = new Vector3(
-                        effectPosition.x + (RAright.x * add_pos.x) + (RAup.x * add_pos.y) + (RAforward.x * add_pos.z),
-                        effectPosition.y + (RAright.y * add_pos.x) + (RAup.y * add_pos.y) + (RAforward.y * add_pos.z),
-                        effectPosition.z + (RAright.z * add_pos.x) + (RAup.z * add_pos.y) + (RAforward.z * add_pos.z)
+                        effectPosition.x + (RAright.x * 0.6f) + (RAup.x * 0.5f) + (RAforward.x * 0),
+                        effectPosition.y + (RAright.y * 0.6f) + (RAup.y * 0.5f) + (RAforward.y * 0),
+                        effectPosition.z + (RAright.z * 0.6f) + (RAup.z * 0.5f) + (RAforward.z * 0)
                     );
 
-                    Quaternion = activeModel.transform.rotation * Quaternion.Euler(add_rot.x, add_rot.y, add_rot.z);
-                    Scale = new Vector3(add_scale.x, add_scale.y, add_scale.z);
+                    Quaternion = activeModel.transform.rotation * Quaternion.Euler(0, 0, 30);
+                    Scale = new Vector3(0.8f, 0.8f, 0.8f);
+                    // エフェクト再生
+                    Effect_Manager.PlayEffect(normalObject.name, 0, Position, Quaternion, Scale, this.transform);
+                    Quaternion = activeModel.transform.rotation * Quaternion.Euler(0, 0, -30);
 
                     break;
 
@@ -401,7 +415,7 @@ public class InputPlayer : MonoBehaviour
             if (deathFlag) return;
         }
     }
-
+    3
     private void OnModeChange(InputAction.CallbackContext context)
     {
         if (LiveFlag == true)
