@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using static UnityEditor.PlayerSettings;
 
 public class Character_Status : MonoBehaviour
 {
@@ -59,12 +60,15 @@ public class Character_Status : MonoBehaviour
 
 	[Header("キャラクターごとの固有特性設定一覧")]
 	[Header("ライオン特性：蓄積ダメージ設定")]
+	private Image lionRageFill;                                    // 外周ゲージを制御するための変数
+	private Transform uiPos;
 	private int accumulatedDamage = 0;
 	[SerializeField] private int burstThreshold = 80;			   // これ以上食らわないと発動しない
 	[SerializeField] private float lionBurstDuration = 8f;		   // バフが続く秒数（調整可能）
 	private float lionBurstSpeedBoost = 1.0f;
 	private float lionBurstAtkBoost = 1.0f;
-	private float lionBurstTimer = 0f;							   // バフの持続時間用
+	private float lionBurstTimer = 0f;                             // バフの持続時間用
+
 
 	[Header("毎時体力回復能力(ダチョウ)")]
 	[SerializeField] protected int Heal_hp_rate = 2;               // 体力回復割合量(ダチョウ固有)
@@ -164,10 +168,11 @@ public class Character_Status : MonoBehaviour
 	}
 
 	// Hpゲージと理性ゲージのUIコンポーネントを外部からセットする関数
-	public void SetUIComponents(Slider hpSlider, Slider rsSlider)
+	public void SetUIComponents(Slider hpSlider, Slider rsSlider,UIManager uIManager, Transform barPos)
 	{
 		this.hp_gauge = hpSlider;
 		this.reason_gauge = rsSlider;
+		this.uiPos = barPos;
 
 		// 初期値をセット
 		if (hp_gauge != null)
@@ -179,6 +184,21 @@ public class Character_Status : MonoBehaviour
 		{
 			reason_gauge.maxValue = MaxReason;
 			reason_gauge.value = CurrentReason;
+		}
+
+		// ライオンなら専用アイコンも作る
+		if (CharaAnim == CharacterType.LION)
+		{
+			// UIManagerに同じように頼む（Sliderは返ってこないが生成はされる）
+			// uiPosは 1PBarPosition などの Transform
+			UIManager.UI_ID id = UIManager.UI_ID.LION_RAGE;
+
+			// 生成された実体は ui_list の最後に入っているのを利用する
+			uIManager.CreateUI(id, uiPos, playerID);
+
+			// リストの最後（今作ったアイコン）から Gauge 画像を探す
+			GameObject iconObj = uIManager.ui_list[uIManager.ui_list.Count - 1];
+			lionRageFill = iconObj.transform.Find("Gauge").GetComponent<Image>();
 		}
 	}
 
@@ -221,6 +241,26 @@ public class Character_Status : MonoBehaviour
 		if (Input.GetKeyDown(KeyCode.O))
 		{
 			GetModeChange();
+		}
+
+		// ライオンの専用UIの更新
+		if (CharaAnim == CharacterType.LION && lionRageFill != null)
+		{
+			if (lionBurstTimer > 0)
+			{
+				// バフ発動中：残り時間をカウントダウン（赤色など）
+				lionRageFill.fillAmount = lionBurstTimer / lionBurstDuration;
+				lionRageFill.color = Color.red;
+			}
+			else
+			{
+				// 蓄積中：ダメージの溜まり具合を表示（黄色など）
+				float ratio = (float)accumulatedDamage / burstThreshold;
+				lionRageFill.fillAmount = Mathf.Clamp01(ratio);
+
+				// 溜まったら色を変えて教える（オレンジなど）
+				lionRageFill.color = (ratio >= 1f) ? new Color(1f, 0.5f, 0f) : Color.yellow;
+			}
 		}
 
 		JudgeModeChange();              //毎度切替を判定する

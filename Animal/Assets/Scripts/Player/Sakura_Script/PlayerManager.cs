@@ -80,7 +80,8 @@ public partial class PlayerManager : MonoBehaviour
                 {
                     status.ReInitialize(i); // プレイヤーIDを設定
                     spawnedPlayers.Add(status);
-                    status.SetUIComponents(hp, rs);
+                    //実際のデータが入っている uiPositions[padIndex] を渡す
+                    status.SetUIComponents(hp, rs, uiManager, uiPositions[padIndex]);
                 }
 
                 // 5. 初期位置へ移動

@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
-	public enum UI_ID { GAUGE_HP, GAUGE_REASON }
+	public enum UI_ID { GAUGE_HP, GAUGE_REASON, LION_RAGE }
 	public List<GameObject> ui_list = new List<GameObject>();
 	public Transform canvasParent;
 
@@ -18,7 +18,8 @@ public class UIManager : MonoBehaviour
 	{
 		GameObject prefab = null;
 		if (ui_id == UI_ID.GAUGE_HP) prefab = Resources.Load("Prefab/UI/HP_ber") as GameObject;
-		else prefab = Resources.Load("Prefab/UI/Reason_ber") as GameObject;
+        else if (ui_id == UI_ID.GAUGE_REASON) prefab = Resources.Load("Prefab/UI/Reason_ber") as GameObject;
+        else if (ui_id == UI_ID.LION_RAGE) prefab = Resources.Load("Prefab/UI/Lion_Rage_Icon") as GameObject;
 
 		if (prefab != null)
 		{
@@ -38,6 +39,12 @@ public class UIManager : MonoBehaviour
 				{
 					rect.anchoredPosition += new Vector2(0f, 19f);
 					rect.localScale = new Vector3(0.8f, 0.6f, 1.0f); // è≠Çµç◊í∑Ç≠
+				}
+				else if (ui_id == UI_ID.LION_RAGE)
+				{
+					// ÉoÅ[ÇÃç∂ë§Ç…Ç∏ÇÁÇ∑ÅB
+					rect.anchoredPosition += new Vector2(-200f, -100f);
+					rect.localScale = new Vector3(1.0f, 1.0f, 1.0f);
 				}
 			}
 			ui_list.Add(uiObj);
