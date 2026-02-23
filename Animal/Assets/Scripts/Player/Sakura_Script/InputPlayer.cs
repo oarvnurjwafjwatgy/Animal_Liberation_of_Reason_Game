@@ -43,6 +43,14 @@ public class InputPlayer : MonoBehaviour
 
     bool LiveFlag = true; //生きているか
 
+    Vector3 Position;
+    Quaternion Quaternion;
+    Vector3 Scale;
+
+    public Vector3 add_pos;
+    public Vector3 add_rot;
+    public Vector3 add_scale;
+
 
     public enum Direction
     {
@@ -311,8 +319,68 @@ public class InputPlayer : MonoBehaviour
             // 【新機能】動物ごとの最適座標を計算して取得
             Vector3 effectPosition = GetEffectSpawnPosition(activeModel);
 
+            switch (character_Status.CharaAnim)
+            {
+                case Character_Status.CharacterType.LION:
+                    Position = new Vector3(effectPosition.x, effectPosition.y, effectPosition.z);
+                    Quaternion = activeModel.transform.rotation * Quaternion.Euler(0f, 0f, 0f);
+                    Scale = new Vector3(1f, 1f, 1f);
+
+                    break;
+
+                case Character_Status.CharacterType.OSTRICH:
+
+                    // 1. モデルの「右・上・前」の方向ベクトルを取得
+                    Vector3 right = activeModel.transform.right;
+                    Vector3 up = activeModel.transform.up;
+                    Vector3 forward = activeModel.transform.forward;
+
+                    // 2. この形なら add_pos.x を変えると「常にキャラの右/左」に動きます！
+                    Position = new Vector3(
+                        effectPosition.x + (right.x * -0.5f) + (up.x *  0) + (forward.x * 0),
+                        effectPosition.y + (right.y * -0.5f) + (up.y * 0) + (forward.y * 0),
+                        effectPosition.z + (right.z * -0.5f) + (up.z * 0) + (forward.z * 0)
+                    );
+
+                    Quaternion = activeModel.transform.rotation * Quaternion.Euler(20f, 0, 0);
+                    Scale = new Vector3(0.3f, 0.3f, 0.3f);
+
+                    break;
+
+                    //Vector3 offset = new Vector3(other.gameObject.transform.position.x - 0.7f, other.gameObject.transform.position.y, other.gameObject.transform.position.z - 1.0f);
+
+
+                case Character_Status.CharacterType.RHINOCELOS:
+
+                    // 1. モデルの「右・上・前」の方向ベクトルを取得
+                    Vector3 RHright = activeModel.transform.right;
+                    Vector3 RHup = activeModel.transform.up;
+                    Vector3 RHforward = activeModel.transform.forward;
+
+                    // 2. この形なら add_pos.x を変えると「常にキャラの右/左」に動きます！
+                    Position = new Vector3(
+                        effectPosition.x + (RHright.x * add_pos.x) + (RHup.x * add_pos.y) + (RHforward.x * add_pos.z),
+                        effectPosition.y + (RHright.y * add_pos.x) + (RHup.y * add_pos.y) + (RHforward.y * add_pos.z),
+                        effectPosition.z + (RHright.z * add_pos.x) + (RHup.z * add_pos.y) + (RHforward.z * add_pos.z)
+                    );
+
+                    Quaternion = activeModel.transform.rotation * Quaternion.Euler(add_rot.x,add_rot.y,add_rot.z);
+                    Scale = new Vector3(add_scale.x, add_scale.y, add_scale.z);
+
+                    break;
+
+                case Character_Status.CharacterType.RATEL:
+                    Position = new Vector3(effectPosition.x, effectPosition.y, effectPosition.z);
+                    Quaternion = activeModel.transform.rotation * Quaternion.Euler(0f, 0f, 0f);
+                    Scale = new Vector3(0.5f, 0.5f, 0.5f);
+
+                    break;
+
+
+            }
+
             // エフェクト再生
-            Effect_Manager.PlayEffect(normalObject.name, 0, effectPosition, activeModel.transform.rotation, new Vector3(1f, 1f, 1f));
+            Effect_Manager.PlayEffect(normalObject.name, 0, Position, Quaternion, Scale,this.transform);
 
             // 当たり判定生成
             AttackCollider();
