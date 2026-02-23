@@ -459,16 +459,34 @@ public class InputPlayer : MonoBehaviour
             // 【新機能】動物ごとの最適座標を計算して取得
             Vector3 effectPosition = GetEffectSpawnPosition(activeModel);
 
-            switch (character_Status.CharaAnim)
+           
+                switch (character_Status.CharaAnim)
             {
                 case Character_Status.CharacterType.RHINOCELOS:
-                    animator.SetBool("RhinocerosSkill",true);
+                    // --- サイの処理: true と false を入れ替える ---
+                    bool currentRhinocerosSkill = animator.GetBool("RhinocerosSkill");
+                    animator.SetBool("RhinocerosSkill", !currentRhinocerosSkill);
 
-
+                    // スキル解除時は移動可能にするなどの調整が必要な場合はここで行います
+                    MoveFlag = currentRhinocerosSkill; // true(解除)になるなら移動可
                     break;
 
                 case Character_Status.CharacterType.RATEL:
-                    animator.SetInteger("RatelSkill", 1);
+                    // --- ラーテルの処理: 1 と 2 を入れ替える ---
+                    int currentRatelSkill = animator.GetInteger("RatelSkill");
+
+
+                    if (currentRatelSkill == 1)
+                    {
+                        animator.SetInteger("RatelSkill", 2);
+                        MoveFlag = true; // 状態2（終了モーションなど）なら動けるようにする例
+                    }
+                    else
+                    {
+                        animator.SetInteger("RatelSkill", 1);
+
+                        MoveFlag = false; // 状態1（スキル中）は動けない
+                    }
                     break;
 
                 default: animator.SetTrigger("Skill"); break;
