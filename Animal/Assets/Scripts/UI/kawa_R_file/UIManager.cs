@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
@@ -13,6 +14,12 @@ public class UIManager : MonoBehaviour
 
     // 順位表示用RawImage(0:2位, 1:3位, 2:4位)
     [SerializeField] private RawImage[] rankImage;
+
+	// タイトルへ戻るボタン
+	[SerializeField] private GameObject titleButton;
+
+	// 最初に選択されるボタン
+    [SerializeField] private GameObject firstSelectedButton;
 
     public Slider CreateUI(UI_ID ui_id, Transform pos, int pID) // pIDを追加
 	{
@@ -53,6 +60,9 @@ public class UIManager : MonoBehaviour
 		return null;
 	}
 
+    // リザルトの敗北キャラの設定
+    // ranking_index	順位(昇順)
+    // player_chara_id	キャラクターのID
     public void ShowResult(int[] ranking_index, Character_Status.CharacterType[] player_chara_id)
     {
         // ranking[0] は1位なのでスキップ
@@ -65,6 +75,16 @@ public class UIManager : MonoBehaviour
             rankImage[i - 1].texture = loseCharaRT[chara_id];
             rankImage[i - 1].gameObject.SetActive(true);
         }
+    }
+
+	// タイトルへ戻るボタンのアクティブフラグの設定
+	public void SetTitleButton()
+	{
+		titleButton.SetActive(true);
+
+		// 最初に選択されるボタンを設定する
+        EventSystem.current.SetSelectedGameObject(null);
+        EventSystem.current.SetSelectedGameObject(firstSelectedButton);
     }
 
 }
