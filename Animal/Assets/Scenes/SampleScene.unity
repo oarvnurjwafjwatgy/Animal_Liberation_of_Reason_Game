@@ -3299,7 +3299,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a1749318d3e2b446950b4228c3164db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ui_list: []
+  ui_list:
+  - {fileID: 3262447914522581464, guid: b7052343257a8034894ef2723d7e643b, type: 3}
   canvasParent: {fileID: 2128653797376308318}
   loseCharaRT:
   - {fileID: 8400000, guid: 282bfbf95cac4bf4a877b79b402a69b2, type: 2}
