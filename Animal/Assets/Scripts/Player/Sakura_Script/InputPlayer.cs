@@ -336,7 +336,7 @@ public class InputPlayer : MonoBehaviour
                     );
 
                     Quaternion = activeModel.transform.rotation * Quaternion.Euler(add_rot.x, add_rot.y, add_rot.z);
-                    Scale = new Vector3(add_scale.x, add_scale.y, add_scale.z);
+                    Scale = new Vector3(0.4f, 0.4f, 0.4f);
 
                     break;
 
@@ -462,13 +462,13 @@ public class InputPlayer : MonoBehaviour
             switch (character_Status.CharaAnim)
             {
                 case Character_Status.CharacterType.RHINOCELOS:
-
+                    animator.SetBool("RhinocerosSkill",true);
 
 
                     break;
 
                 case Character_Status.CharacterType.RATEL:
-
+                    animator.SetInteger("RatelSkill", 1);
                     break;
 
                 default: animator.SetTrigger("Skill"); break;
