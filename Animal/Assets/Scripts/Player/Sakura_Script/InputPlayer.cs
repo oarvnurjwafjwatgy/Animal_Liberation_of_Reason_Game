@@ -322,20 +322,21 @@ public class InputPlayer : MonoBehaviour
             switch (character_Status.CharaAnim)
             {
                 case Character_Status.CharacterType.LION:
+
                     // 1. モデルの「右・上・前」の方向ベクトルを取得
-                    Vector3 Liright = activeModel.transform.right;
-                    Vector3 Liup = activeModel.transform.up;
-                    Vector3 Liforward = activeModel.transform.forward;
+                    Vector3 LIright = activeModel.transform.right;
+                    Vector3 LIup = activeModel.transform.up;
+                    Vector3 LIforward = activeModel.transform.forward;
 
                     // 2. この形なら add_pos.x を変えると「常にキャラの右/左」に動きます！
                     Position = new Vector3(
-                        effectPosition.x + (Liright.x * add_pos.x) + (Liup.x * add_pos.y) + (Liforward.x * add_pos.z),
-                        effectPosition.y + (Liright.y * add_pos.x) + (Liup.y * add_pos.y) + (Liforward.y * add_pos.z),
-                        effectPosition.z + (Liright.z * add_pos.x) + (Liup.z * add_pos.y) + (Liforward.z * add_pos.z)
+                        effectPosition.x + (LIright.x *add_pos.x) + (LIup.x * add_pos.y) + (LIforward.x * add_pos.z),
+                        effectPosition.y + (LIright.y * add_pos.x) + (LIup.y * add_pos.y) + (LIforward.y * add_pos.z),
+                        effectPosition.z + (LIright.z * add_pos.x) + (LIup.z * add_pos.y) + (LIforward.z * add_pos.z)
                     );
 
                     Quaternion = activeModel.transform.rotation * Quaternion.Euler(add_rot.x, add_rot.y, add_rot.z);
-                    Scale = new Vector3(add_scale.x, add_scale.y, add_scale.z);
+                    Scale = new Vector3(0.4f, 0.4f, 0.4f);
 
                     break;
 
@@ -404,8 +405,17 @@ public class InputPlayer : MonoBehaviour
 
             }
 
-            // エフェクト再生
-            Effect_Manager.PlayEffect(normalObject.name, 0, Position, Quaternion, Scale,this.transform);
+            if(character_Status.CharaAnim !=Character_Status.CharacterType.LION)
+            {
+                // エフェクト再生
+                Effect_Manager.PlayEffect(normalObject.name, 0, Position, Quaternion, Scale, this.transform);
+            }
+            else
+            {
+                // エフェクト再生
+                Effect_Manager.PlayEffect(normalObject.name, 0, Position, Quaternion, Scale);
+            }
+            
 
             // 当たり判定生成
             AttackCollider();
@@ -449,7 +459,24 @@ public class InputPlayer : MonoBehaviour
             // 【新機能】動物ごとの最適座標を計算して取得
             Vector3 effectPosition = GetEffectSpawnPosition(activeModel);
 
-            animator.SetTrigger("Skill");
+            switch (character_Status.CharaAnim)
+            {
+                case Character_Status.CharacterType.RHINOCELOS:
+                    animator.SetBool("RhinocerosSkill",true);
+
+
+                    break;
+
+                case Character_Status.CharacterType.RATEL:
+                    animator.SetInteger("RatelSkill", 1);
+                    break;
+
+                default: animator.SetTrigger("Skill"); break;
+            }
+           
+
+
+            
 
             // エフェクト再生
             Effect_Manager.PlayEffect(normalObject.name, 1, effectPosition, activeModel.transform.rotation, new Vector3(1f, 1f, 1f));
