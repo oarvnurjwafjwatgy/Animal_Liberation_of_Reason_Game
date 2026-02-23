@@ -29,19 +29,19 @@ public class Character_Status : MonoBehaviour
 
 	[Header("ダチョウ ステータス")]
 	private const int OSTRICH_HP = 350;
-	private const int OSTRICH_ATK = 15;
-	private const int OSTRICH_DEF = 10;
-	private const float OSTRICH_SPD = 8.5f;
+	private const int OSTRICH_ATK = 20;
+	private const int OSTRICH_DEF = 13;
+	private const float OSTRICH_SPD = 7.5f;
 
 	[Header("サイ ステータス")]
 	private const int RHINO_HP = 600;
-	private const int RHINO_ATK = 18;
+	private const int RHINO_ATK = 40;
 	private const int RHINO_DEF = 30;
-	private const float RHINO_SPD = 4.0f;
+	private const float RHINO_SPD = 4.5f;
 
 	[Header("ラーテル ステータス")]
 	private const int RATEL_HP = 400;
-	private const int RATEL_ATK = 20;
+	private const int RATEL_ATK = 25;
 	private const int RATEL_DEF = 20;
 	private const float RATEL_SPD = 5.0f;
 
@@ -365,13 +365,13 @@ public class Character_Status : MonoBehaviour
 				if (timer >= 1f)
 				{
 					ReasonDecrease();
-
-					// ダチョウの固有特性（体力回復）も同時に呼び出す
-					if (CharaAnim == CharacterType.OSTRICH)
-					{
-						UniqueSkill_Ostrich();
-					}
 					timer = 0f;
+				}
+
+				// ダチョウの固有特性（体力回復）も同時に呼び出す
+				if (CharaAnim == CharacterType.OSTRICH)
+				{
+					UniqueSkill_Ostrich();
 				}
 				break;
 		}
@@ -748,7 +748,7 @@ public class Character_Status : MonoBehaviour
 		if (CharaState == State.DEAD) return;
 
 		//0でないなら体力回復処理
-		if (CurrentHP != 0)
+		if (CurrentHP > 0)
 		{
 			//理性開放してるなら体力回復処理
 			if (CharaMode == Mode.SPSIAL_ANIMAL)
@@ -759,7 +759,7 @@ public class Character_Status : MonoBehaviour
 
 				//共通タイマー(timer)ではなく専用タイマーを使用し爆速化を防止
 				ostrichTimer += Time.deltaTime;
-
+				Debug.Log("ダチョウ特性チェック中");
 				// タイマーが1秒以上経過したら体力回復処理を行う
 				if (ostrichTimer >= 1f)
 				{
