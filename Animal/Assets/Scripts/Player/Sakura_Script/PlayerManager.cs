@@ -14,6 +14,7 @@ public partial class PlayerManager : MonoBehaviour
     [Header("UI設定")]
     [SerializeField] private UIManager uiManager;// UIマネージャーの参照
     [SerializeField] private List<Transform> uiPositions = new List<Transform>();// 1P~4PのUI位置
+    [SerializeField] private EndManager endManager;     // エンドマネージャーの参照
 
     [HideInInspector] // インスペクターには出さなくて良い場合はこれをつける
     public int playerCount;
@@ -157,6 +158,10 @@ public partial class PlayerManager : MonoBehaviour
             int[] ranking = diedPlayer.ToArray();
             Array.Reverse(ranking);
             uiManager.ShowResult(ranking, Animal_Select.playerChoices);
+
+            // ゲーム終了フラグを設定する
+            if (endManager != null)
+                endManager.SetEndFlag(true);
         }
     }
 
