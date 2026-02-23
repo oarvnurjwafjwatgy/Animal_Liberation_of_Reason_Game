@@ -1737,7 +1737,7 @@ MonoBehaviour:
   - {fileID: 7960375901420732853, guid: 946e3ca3a245045e485f7d30d0cdf7ca, type: 3}
   - {fileID: 1965314282148930855, guid: 6ecdb4d59b40548a1aa6f14ecdaa8b4c, type: 3}
   Lion_EffectPrefabs:
-  - {fileID: 612873504426744502, guid: dde9f9eceb1a149f3b0defda5e90d1d3, type: 3}
+  - {fileID: 519479822872947081, guid: 1ee7f075050c9554788171e848ec3bfc, type: 3}
   - {fileID: 5453872566350051695, guid: de293a82b5b8744afb358462cb26def5, type: 3}
   - {fileID: 425167456520409862, guid: 57fd14d22feec462c81c38bc4e8fba59, type: 3}
   Ostrich_EffectPrefabs:
