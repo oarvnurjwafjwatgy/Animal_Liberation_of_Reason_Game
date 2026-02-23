@@ -453,8 +453,10 @@ public class InputPlayer : MonoBehaviour
         {
             MoveFlag = false;
 
-            // 現在のモデル（通常か強化か）を取得
-            GameObject activeModel = (character_Status.GetMode() == Character_Status.Mode.SPSIAL_ANIMAL) ? reasonObject : normalObject;
+			character_Status.Skill();
+
+			// 現在のモデル（通常か強化か）を取得
+			GameObject activeModel = (character_Status.GetMode() == Character_Status.Mode.SPSIAL_ANIMAL) ? reasonObject : normalObject;
 
             // 【新機能】動物ごとの最適座標を計算して取得
             Vector3 effectPosition = GetEffectSpawnPosition(activeModel);

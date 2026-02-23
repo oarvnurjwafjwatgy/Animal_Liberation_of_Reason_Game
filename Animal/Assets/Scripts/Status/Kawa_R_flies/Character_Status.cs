@@ -23,7 +23,7 @@ public class Character_Status : MonoBehaviour
 	// --- キャラクター別ベースステータス定数 ---
 	[Header("ライオン ステータス")]
 	private const int LION_HP = 450;
-	private const int LION_ATK = 30;
+	private const int LION_ATK = 20;
 	private const int LION_DEF = 15;
 	private const float LION_SPD = 6.0f;
 
@@ -36,7 +36,7 @@ public class Character_Status : MonoBehaviour
 	[Header("サイ ステータス")]
 	private const int RHINO_HP = 600;
 	private const int RHINO_ATK = 40;
-	private const int RHINO_DEF = 30;
+	private const int RHINO_DEF = 25;
 	private const float RHINO_SPD = 4.5f;
 
 	[Header("ラーテル ステータス")]
@@ -52,23 +52,23 @@ public class Character_Status : MonoBehaviour
 	private const float DEFAULT_MULT = 1.3f;                // 基本的な上昇幅
 
 	// --- 理性ゲージの減少・回復率定数 ---
-	private const float REASON_DECREASE_RATE = 0.02f;		// 最大理性ゲージから2%分
-	private const float REASON_HEAL_RATE = 0.01f;			// 通常時、最大理性の1%分回復
+	private const float REASON_DECREASE_RATE = 0.02f;       // 最大理性ゲージから2%分
+	private const float REASON_HEAL_RATE = 0.01f;           // 通常時、最大理性の1%分回復
 
 	[Header("理性ゲージ解放時の減少設定")]
 	[SerializeField] protected int Decrease_in_reason_time = 1;     // 理性ゲージ減少ダメージ
+
 
 	[Header("キャラクターごとの固有特性設定一覧")]
 	[Header("ライオン特性：蓄積ダメージ設定")]
 	private Image lionRageFill;                                    // 外周ゲージを制御するための変数
 	private Transform uiPos;
 	private int accumulatedDamage = 0;
-	[SerializeField] private int burstThreshold = 80;			   // これ以上食らわないと発動しない
-	[SerializeField] private float lionBurstDuration = 8f;		   // バフが続く秒数（調整可能）
+	[SerializeField] private int burstThreshold = 80;              // これ以上食らわないと発動しない
+	[SerializeField] private float lionBurstDuration = 8f;         // バフが続く秒数（調整可能）
 	private float lionBurstSpeedBoost = 1.0f;
 	private float lionBurstAtkBoost = 1.0f;
 	private float lionBurstTimer = 0f;                             // バフの持続時間用
-
 
 	[Header("毎時体力回復能力(ダチョウ)")]
 	[SerializeField] protected int Heal_hp_rate = 2;               // 体力回復割合量(ダチョウ固有)
@@ -84,6 +84,27 @@ public class Character_Status : MonoBehaviour
 	[Header("プレイヤー識別番号(1~4)")]
 	public int playerID;
 
+	//スキル関連
+	[Header("共通スキル設定")]
+	[SerializeField] protected float skillCooldownTimer = 0f; // 現在のCT
+	[SerializeField] protected float skillCTMax = 10f;        // スキルの最大CT
+
+	// ライオン専用のバフ変数
+	private float lionSkillAtkBoost = 1.0f;
+	private float lionSkillDurationTimer = 0f;
+	private const float LION_SKILL_DURATION = 5.0f; // バフ持続時間
+
+	// サイの突進状態管理用フラグ
+	private bool isRhinoDashing = false; // 突進中かどうか
+	private Coroutine rhinoDashCoroutine;
+	private float rhinoDashSpeedBoost = 1.0f;
+
+	// --- キャラクター別スキルクールタイム(CT)定数 ---
+	private const float LION_CT = 15.0f;     // ライオンは爆発力が高いので長め
+	private const float OSTRICH_CT = 8.0f;   // ダチョウは機動力活かしで短め
+	private const float RATEL_CT = 12.0f;    // ラーテルはバランス
+											 // サイは特殊（CTなし）
+
 
 	// 実際に計算に使用する倍率（1.0f = 等倍）
 	private float currentAtkMult = 1.0f;
@@ -91,9 +112,9 @@ public class Character_Status : MonoBehaviour
 	private float currentSpdMult = 1.0f;
 
 	// 外部参照用のプロパティ（蓄積バフ倍率も掛け合わせる）
-	public int CurrentAttackPower => (int)(AttackPower * currentAtkMult * lionBurstAtkBoost);
+	public int CurrentAttackPower => (int)(AttackPower * currentAtkMult * lionBurstAtkBoost * lionSkillAtkBoost);
 	public int CurrentDefensePower => (int)(DefensePower * currentDefMult);
-	public float CurrentMoveSpeed => MoveSpeed * currentSpdMult * lionBurstSpeedBoost;
+	public float CurrentMoveSpeed => MoveSpeed * currentSpdMult * lionBurstSpeedBoost * rhinoDashSpeedBoost;
 
 	private Slider hp_gauge;               //HPゲージUIスライダー参照用変数
 	private Slider reason_gauge;           //HPゲージUIスライダー参照用変数
@@ -168,7 +189,7 @@ public class Character_Status : MonoBehaviour
 	}
 
 	// Hpゲージと理性ゲージのUIコンポーネントを外部からセットする関数
-	public void SetUIComponents(Slider hpSlider, Slider rsSlider,UIManager uIManager, Transform barPos)
+	public void SetUIComponents(Slider hpSlider, Slider rsSlider, UIManager uIManager, Transform barPos)
 	{
 		this.hp_gauge = hpSlider;
 		this.reason_gauge = rsSlider;
@@ -241,6 +262,23 @@ public class Character_Status : MonoBehaviour
 		if (Input.GetKeyDown(KeyCode.O))
 		{
 			GetModeChange();
+		}
+
+		// --- 共通クールタイムのカウントダウン ---
+		if (skillCooldownTimer > 0)
+		{
+			skillCooldownTimer -= Time.deltaTime;
+		}
+
+		// --- ライオンの咆哮バフ時間のカウントダウン ---
+		if (CharaAnim == CharacterType.LION && lionSkillDurationTimer > 0)
+		{
+			lionSkillDurationTimer -= Time.deltaTime;
+			if (lionSkillDurationTimer <= 0)
+			{
+				lionSkillAtkBoost = 1.0f; // 時間切れで攻撃力倍率を等倍に戻す
+				Debug.Log("<color=white>ライオン：咆哮の効果が終了した</color>");
+			}
 		}
 
 		// ライオンの専用UIの更新
@@ -395,13 +433,13 @@ public class Character_Status : MonoBehaviour
 			//ライオンの理性解放時の倍率設定は攻撃力1.6倍、その他1.3倍（攻撃特化）
 			case CharacterType.LION:
 				currentAtkMult = LION_REASON_ATK_MULT;
-				currentDefMult =DEFAULT_MULT;
+				currentDefMult = DEFAULT_MULT;
 				currentSpdMult = DEFAULT_MULT;
 				break;
 
 			//ダチョウの理性解放時の倍率設定は移動速度1.5倍、その他1.3倍（速度特化）
 			case CharacterType.OSTRICH: // ダチョウ：速度特化
-				currentAtkMult = DEFAULT_MULT; 
+				currentAtkMult = DEFAULT_MULT;
 				currentSpdMult = OSTRICH_REASON_SPD_MULT;
 				currentDefMult = DEFAULT_MULT;
 				break;
@@ -524,7 +562,7 @@ public class Character_Status : MonoBehaviour
 				SetMultiplierByAnimal(true);        // 倍率設定関数呼び出し
 
 				//ライオンなら
-				if(CharaAnim==CharacterType.LION)
+				if (CharaAnim == CharacterType.LION)
 				{
 					//ライオンの特性関数呼び出し（蓄積ダメージに応じてさらに強くなる）
 					Characteristic();
@@ -553,11 +591,18 @@ public class Character_Status : MonoBehaviour
 		}
 	}
 
-	
+
 
 	//死亡処理関数
 	protected virtual void Die()
 	{
+		// サイの突進を強制停止
+		if (rhinoDashCoroutine != null)
+		{
+			StopCoroutine(rhinoDashCoroutine);
+			rhinoDashCoroutine = null;
+		}
+
 		//もし理性解放中に死亡したなら現在HPを0に設定する
 		if (CharaMode == Mode.SPSIAL_ANIMAL)
 		{
@@ -662,21 +707,32 @@ public class Character_Status : MonoBehaviour
 		}
 	}
 
-	//キャラの特有のスキル関数
-	protected virtual void Skill()
+	// キャラ特有のスキル実行
+	public virtual void Skill()
 	{
+		// 死亡時、またはCT中は発動不可（サイ以外）
+		if (CharaState == State.DEAD || (skillCooldownTimer > 0 && CharaAnim != CharacterType.RHINOCELOS))
+			return;
+
 		switch (CharaAnim)
 		{
 			case CharacterType.LION:
 				Skill_Lion();
+				skillCooldownTimer = LION_CT; // ライオン用のCTをセット
 				break;
+
 			case CharacterType.OSTRICH:
+				// Skill_Ostrich(); // ダチョウのスキル
+				skillCooldownTimer = OSTRICH_CT;
 				break;
+
 			case CharacterType.RHINOCELOS:
-				Skill_Rhinocelos();
+				Skill_Rhinocelos(); // サイは CT セットなし（理性が続く限り）
 				break;
+
 			case CharacterType.RATEL:
 				UniqueSkill_Ratel();
+				skillCooldownTimer = RATEL_CT;
 				break;
 		}
 	}
@@ -684,34 +740,88 @@ public class Character_Status : MonoBehaviour
 	//ライオンの固有スキル処理関数
 	void Skill_Lion()
 	{
-		Debug.Log("ライオンの固有スキル発動中");
+		// 理性解放中かどうかで倍率を変化（覚醒ならより強く！）
+		if (CharaMode == Mode.SPSIAL_ANIMAL)
+		{
+			lionSkillAtkBoost = 1.7f; // 解放中は 1.7倍！
+			Debug.Log("<color=red>【王者の咆哮：覚醒】一気に決める！</color>");
+		}
+		else
+		{
+			lionSkillAtkBoost = 1.3f; // 通常時は 1.3倍
+			Debug.Log("<color=orange>【王者の咆哮】牙を剥く！</color>");
+		}
+
+		lionSkillDurationTimer = LION_SKILL_DURATION; // 5秒間持続
+
+		// アニメーション再生などの処理
+		//if (animator != null) animator.SetTrigger("Skill_Roar");
 	}
 
 
 	//サイの固有スキル処理関数
 	void Skill_Rhinocelos()
 	{
-		if (CharaState == State.DEAD)
-			return;
-
-		//長押しによる理性消費のロジック（input.IsSkillPressedはInputPlayerの実装に合わせてください）
-
-		//if (input.IsSkillPressed) 
-		//{
-		rhinoDashTimer += Time.deltaTime;
-
-		//理性が0より大きいなら突進処理を行う
-		if (CurrentReason > 0)
+		// もし既に実行中なら、止める
+		if (rhinoDashCoroutine != null)
 		{
-			if (rhinoDashTimer >= 0.1f)
-			{
-				CurrentReason -= 1;         //マッハで減らす
-				rhinoDashTimer = 0f;
-				TakeDamage(0);              //毎度ダメージ関数を呼び出し判定してもらう
-			}
+			StopCoroutine(rhinoDashCoroutine);
+			rhinoDashSpeedBoost = 1.0f; // 速度を元に戻す
+			isRhinoDashing = false;     // フラグを下ろす
+			rhinoDashCoroutine = null;  // 参照を消す
+			Debug.Log("<color=white>サイ：突進を中止しました</color>");
+			return;
 		}
+
+		// 実行中でなければ、コルーチンを開始してループ処理を開始
+		rhinoDashCoroutine = StartCoroutine(RhinoDashLoop());
+
+
+		//if (isRhinoDashing)
+		//	rhinoDashTimer += Time.deltaTime;
+
+		////理性が0より大きいなら突進処理を行う
+		//if (CurrentReason > 0)
+		//{
+		//	if (rhinoDashTimer >= 0.1f)
+		//	{
+		//		CurrentReason -= 1;         //マッハで減らす
+		//		rhinoDashTimer = 0f;
+		//		TakeDamage(0);              //毎度ダメージ関数を呼び出し判定してもらう
+		//	}
 		//}
 	}
+
+	// 突進中の「継続処理」をここに完結させる
+	private System.Collections.IEnumerator RhinoDashLoop()
+	{
+		isRhinoDashing = true;
+		rhinoDashSpeedBoost = 1.8f; // 突進開始！速度を1.8倍にアップ
+		Debug.Log("<color=orange>サイ：突進スキル発動！猛スピードで理性を消費します</color>");
+
+		while (CurrentReason > 0 && isRhinoDashing)
+		{
+			yield return new WaitForSeconds(0.1f);
+			CurrentReason -= 1;
+
+			UpdateUI();
+			TakeDamage(0);
+
+			if (CurrentReason <= 0 || CurrentHP <= 0)
+			{
+				// 理性が尽きた場合などはループを抜ける
+				break;
+			}
+		}
+
+		// 終了処理（ここを通れば必ず速度が元に戻る）
+		rhinoDashSpeedBoost = 1.0f;
+		rhinoDashCoroutine = null;
+		isRhinoDashing = false;
+		Debug.Log("<color=white>サイ：突進終了。速度が戻りました</color>");
+	}
+
+
 
 	//ライオンの固有特性処理関数
 	void UniqueSkill_Lion()
@@ -781,7 +891,7 @@ public class Character_Status : MonoBehaviour
 		}
 	}
 
-	
+
 
 	//ラーテルの固有スキル処理関数
 	void UniqueSkill_Ratel()
