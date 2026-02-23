@@ -415,7 +415,6 @@ public class InputPlayer : MonoBehaviour
             if (deathFlag) return;
         }
     }
-    3
     private void OnModeChange(InputAction.CallbackContext context)
     {
         if (LiveFlag == true)
