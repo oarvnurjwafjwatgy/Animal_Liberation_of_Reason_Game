@@ -359,20 +359,31 @@ public class InputPlayer : MonoBehaviour
 
                     // 2. この形なら add_pos.x を変えると「常にキャラの右/左」に動きます！
                     Position = new Vector3(
-                        effectPosition.x + (RHright.x * add_pos.x) + (RHup.x * add_pos.y) + (RHforward.x * add_pos.z),
-                        effectPosition.y + (RHright.y * add_pos.x) + (RHup.y * add_pos.y) + (RHforward.y * add_pos.z),
-                        effectPosition.z + (RHright.z * add_pos.x) + (RHup.z * add_pos.y) + (RHforward.z * add_pos.z)
+                        effectPosition.x + (RHright.x * 0) + (RHup.x * 0) + (RHforward.x * 0),
+                        effectPosition.y + (RHright.y * 0) + (RHup.y * 0) + (RHforward.y * 0),
+                        effectPosition.z + (RHright.z * 0) + (RHup.z * 0) + (RHforward.z * 0)
                     );
 
-                    Quaternion = activeModel.transform.rotation * Quaternion.Euler(add_rot.x,add_rot.y,add_rot.z);
-                    Scale = new Vector3(add_scale.x, add_scale.y, add_scale.z);
+                    Quaternion = activeModel.transform.rotation * Quaternion.Euler(0, 0, 0);
+                    Scale = new Vector3(0.3f, 0.3f, 0.3f);
 
                     break;
 
                 case Character_Status.CharacterType.RATEL:
-                    Position = new Vector3(effectPosition.x, effectPosition.y, effectPosition.z);
-                    Quaternion = activeModel.transform.rotation * Quaternion.Euler(0f, 0f, 0f);
-                    Scale = new Vector3(0.5f, 0.5f, 0.5f);
+                    // 1. モデルの「右・上・前」の方向ベクトルを取得
+                    Vector3 RAright = activeModel.transform.right;
+                    Vector3 RAup = activeModel.transform.up;
+                    Vector3 RAforward = activeModel.transform.forward;
+
+                    // 2. この形なら add_pos.x を変えると「常にキャラの右/左」に動きます！
+                    Position = new Vector3(
+                        effectPosition.x + (RAright.x * add_pos.x) + (RAup.x * add_pos.y) + (RAforward.x * add_pos.z),
+                        effectPosition.y + (RAright.y * add_pos.x) + (RAup.y * add_pos.y) + (RAforward.y * add_pos.z),
+                        effectPosition.z + (RAright.z * add_pos.x) + (RAup.z * add_pos.y) + (RAforward.z * add_pos.z)
+                    );
+
+                    Quaternion = activeModel.transform.rotation * Quaternion.Euler(add_rot.x, add_rot.y, add_rot.z);
+                    Scale = new Vector3(add_scale.x, add_scale.y, add_scale.z);
 
                     break;
 
