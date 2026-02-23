@@ -176,7 +176,7 @@ public class InputPlayer : MonoBehaviour
             // 3. Rigidbody の速度 (velocity) を変更して移動させる
             Vector3 cameraForward = Vector3.Scale(camera.transform.forward, new Vector3(1, 0, 1)).normalized;
             Vector3 moveForward = cameraForward * leftStickInput.y + camera.transform.right * leftStickInput.x;
-            rb.velocity = moveForward * moveSpeed + new Vector3(0, rb.velocity.y, 0);
+            rb.velocity = moveForward * character_Status.CurrentMoveSpeed + new Vector3(0, rb.velocity.y, 0);
 
 
             // カメラの位置の更新
