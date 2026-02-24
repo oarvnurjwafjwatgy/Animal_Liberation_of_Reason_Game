@@ -24,6 +24,7 @@ public class InputPlayer : MonoBehaviour
     private Quaternion cachedRotate;
     private GameObject collisionObject;
 
+    private float outOfRangeDamageTimer;      // 範囲外のダメージのタイマー
 
     Character_Status character_Status;
     private Animator animator;
@@ -84,6 +85,7 @@ public class InputPlayer : MonoBehaviour
         if (animator == null) animator = GetComponent<Animator>();
 
         deathFlag = false;
+        outOfRangeDamageTimer = 0f;
     }
 
     private void Awake()
@@ -134,6 +136,9 @@ public class InputPlayer : MonoBehaviour
 
              SetDeath();
         }
+
+        // 奈落落下チェック
+        this.CheckAbyss();
     }
 
 
@@ -707,6 +712,40 @@ public class InputPlayer : MonoBehaviour
                + activeModel.transform.forward * baseOffset.z
                + activeModel.transform.up * baseOffset.y
                + activeModel.transform.right * baseOffset.x;
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.tag == "DamageZone")
+        {
+            outOfRangeDamageTimer += Time.deltaTime;
+
+            if (outOfRangeDamageTimer > 2f)
+            {
+                // ダメージ処理
+                if (character_Status !=  null)
+                    character_Status.OutOfRangeDamage();
+
+                // タイマーリセット
+                outOfRangeDamageTimer = 0f;
+            }
+        }
+        else
+        {
+            // 範囲内に戻ったらタイマーリセット
+            outOfRangeDamageTimer = 0f;
+        }
+    }
+
+    // 奈落に落ちたかのチェック
+    private void CheckAbyss()
+    {
+        // Y座標が-50より上にいるなら処理しない
+        if (this.transform.position.y > -50f) return;
+
+        // 奈落死
+        if (character_Status != null)
+            character_Status.DieAbyss();
     }
 }
 
