@@ -263,12 +263,12 @@ public class InputPlayer : MonoBehaviour
         // ÉJÉÅÉâÇÃècà⁄ìÆ
         float camera_angle_x = cameraObject.transform.localEulerAngles.x;
         //Debug.Log(camera_angle_x);
-        if (rightStickInput.y > 0.25f && (camera_angle_x > 280f || camera_angle_x >= 0f && camera_angle_x < 180f))
+        if (rightStickInput.y > 0.25f && (camera_angle_x >= 0f && camera_angle_x < 180f))
         {
             // â∫à⁄ìÆ
             cameraObject.transform.RotateAround(this.transform.position, cameraObject.transform.right, -rightStickInput.y * Time.deltaTime * 200f);
         }
-        if (rightStickInput.y < -0.25f && (camera_angle_x < 80f || camera_angle_x <= 360f && camera_angle_x > 180f))
+        if (rightStickInput.y < -0.25f && (camera_angle_x < 60f || camera_angle_x <= 360f && camera_angle_x > 180f))
         {
             // è„à⁄ìÆ
             cameraObject.transform.RotateAround(this.transform.position, cameraObject.transform.right, -rightStickInput.y * Time.deltaTime * 200f);
