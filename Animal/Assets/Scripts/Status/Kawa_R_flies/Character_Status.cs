@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using static UnityEditor.PlayerSettings;
+//using static UnityEditor.PlayerSettings;
 
 public class Character_Status : MonoBehaviour
 {
@@ -892,10 +892,36 @@ public class Character_Status : MonoBehaviour
 	}
 
 
+	// 奈落に落ちていった時に呼ばれる
+	public void DieAbyss()
+	{
+		CurrentHP = 0;
+		CurrentReason = 0;
+
+		// 死亡処理関数呼び出し
+		this.Die();
+
+	}
 
 	//ラーテルの固有スキル処理関数
 	void UniqueSkill_Ratel()
 	{
 		Debug.Log("ラーテルの固有スキル発動中");
 	}
+
+	// 範囲外に出た時に呼ばれる
+	public void OutOfRangeDamage()
+	{
+		CurrentHP -= (int)((float)MaxHP * 0.05);
+
+        // 死亡判定
+        if (CurrentHP <= 0)
+        {
+            CurrentHP = 0;
+            CurrentReason = 0;
+
+            // 死亡処理関数呼び出し
+            this.Die();
+        }
+    }
 }
