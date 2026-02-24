@@ -13,16 +13,28 @@ public class TitleMenu : MonoBehaviour
 
 	private bool isTransitioning = false;
 	private bool canInput = false; // 入力許可フラグ
-	private float inputTimer = 0f;
+    private float inputTimer = 0f;
 
-	// 動画が終わった時に外部（VideoHandler）から呼ばれる関数
-	public void EnableInput()
-	{
-		canInput = true;
-		inputTimer = 0.5f; // 0.5秒の猶予を設ける（動画終了直後の誤入力防止）
+	GameObject SoundManagerObj;
+	SoundManager soundmanager;
+
+    // 動画が終わった時に外部（VideoHandler）から呼ばれる関数
+    public void EnableInput()
+    {
+        canInput = true;
+        inputTimer = 0.5f; // 0.5秒の猶予を設ける（動画終了直後の誤入力防止）
+    }
+
+
+
+    private void Start()
+    {
+		SoundManagerObj = GameObject.Find("SoundManager");
+		soundmanager = SoundManagerObj.GetComponent<SoundManager>();
+
 	}
 
-	void Update()
+    void Update()
 	{
 		if (!canInput) return; // 入力が許可されていない場合は何もしない
 
@@ -68,9 +80,11 @@ public class TitleMenu : MonoBehaviour
 		isTransitioning = true;
 		Debug.Log("Scene Transition Start!");
 
-		// ここで決定音を鳴らす処理を入れる！
+        // ここで決定音を鳴らす処理を入れる！
+        soundmanager.PlaySE(0);
 
-		// シーン移動
-		SceneManager.LoadScene(nextSceneName);
+
+        // シーン移動
+        SceneManager.LoadScene(nextSceneName);
 	}
 }

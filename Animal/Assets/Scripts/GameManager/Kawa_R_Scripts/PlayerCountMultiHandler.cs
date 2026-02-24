@@ -8,8 +8,15 @@ public class PlayerCountMultiHandler : MonoBehaviour
     public Button[] countButtons;			// 1P～4Pボタンを順番に
     public GameDataManager dataManager;     //参加人数を管理するスクリプトの参照
 
+
+    GameObject SoundManagerObj;
+    SoundManager soundmanager;
+
     void Start()
     {
+        SoundManagerObj = GameObject.Find("SoundManager");
+        soundmanager = SoundManagerObj.GetComponent<SoundManager>();
+
         // 最初は1Pボタンを選択状態にする
         if (countButtons.Length > 0)
         {
@@ -29,6 +36,7 @@ public class PlayerCountMultiHandler : MonoBehaviour
             countButtons[i].onClick.AddListener(() =>
             {
                 OnButtonClicked(index);
+                soundmanager.PlaySE(0);
             });
         }
     }
