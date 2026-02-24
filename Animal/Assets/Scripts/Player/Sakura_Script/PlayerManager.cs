@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.XR;
 
 public partial class PlayerManager : MonoBehaviour
 {
@@ -41,6 +42,16 @@ public partial class PlayerManager : MonoBehaviour
         var gamepads = Gamepad.all;
 
         spawnedPlayers.Clear(); // 既存のプレイヤーリストをクリア
+
+        // スポーン位置をシャッフルする
+        for (int i = PlayerTransforms.Count - 1; i > 0; i--)
+        {
+            int j = UnityEngine.Random.Range(0, i + 1);
+            if (i == j) continue;
+            Transform temp = PlayerTransforms[i];
+            PlayerTransforms[i] = PlayerTransforms[j];
+            PlayerTransforms[j] = temp;
+        }
 
         // プレイヤーの生成ループ
         for (int i = 1; i <= playersToSpawn; i++)

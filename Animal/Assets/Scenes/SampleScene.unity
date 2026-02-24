@@ -367,7 +367,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -0.5, z: 0}
-  m_LocalScale: {x: 10, y: 10, z: 10}
+  m_LocalScale: {x: 25, y: 25, z: 25}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
@@ -3907,8 +3907,8 @@ SceneRoots:
   - {fileID: 1728472146}
   - {fileID: 88307230}
   - {fileID: 306034721}
-  - {fileID: 1120257519}
   - {fileID: 1495075334}
+  - {fileID: 1120257519}
   - {fileID: 2141513860}
   - {fileID: 396392357}
   - {fileID: 957128023}
