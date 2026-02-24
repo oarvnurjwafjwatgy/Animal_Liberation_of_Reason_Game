@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class EffectManager : MonoBehaviour
 {
@@ -17,14 +18,15 @@ public class EffectManager : MonoBehaviour
     [Header("ラーテルエフェクト:攻撃０、スキル１・２、")]
     public GameObject[] Ratel_EffectPrefabs;
 
-  
+    private Dictionary<Transform, GameObject> activeLoopEffects = new Dictionary<Transform, GameObject>();
+
     /// <summary>
     /// 動物の名前とIDを指定してエフェクトを生成
     /// </summary>
     /// <param name="animalName">動物の名前（"Common", "Lion", "Ostrich", "Rhino", "Ratel"）</param>
     /// <param name="id">その動物内でのエフェクト番号</param>
     /// <param name="position">出す場所</param>
-    public void PlayEffect(string animalName, int id, Vector3 position, Quaternion rotation,Vector3 scale,Transform parent = null)
+    public void PlayEffect(string animalName, int id, Vector3 position, Quaternion rotation, Vector3 scale, bool roop = false, Transform parent = null)
     {
         GameObject[] targetArray = null;
 
@@ -44,22 +46,40 @@ public class EffectManager : MonoBehaviour
         {
             if (targetArray[id] != null)
             {
-                // Instantiate の引数に parent を追加
                 GameObject instance = Instantiate(targetArray[id], position, rotation, parent);
-
-                // --- 追加：大きさを変更する処理 ---
                 instance.transform.localScale = scale;
 
-                Destroy(instance, 2.0f);
+                if (roop == false)
+                {
+                    // ループしない場合は2秒後に削除
+                    Destroy(instance, 2.0f);
+                }
+                else
+                {
+                    // ループする場合：もし既に同じ親にエフェクトが出ていたら先に消す
+                    if (parent != null)
+                    {
+                        StopLoopEffect(parent);
+                        activeLoopEffects[parent] = instance;
+                    }
+                }
             }
             else
             {
                 Debug.LogWarning($"EffectManager: {animalName} の ID {id} が空っぽです！");
             }
         }
-        else
+    }
+
+    public void StopLoopEffect(Transform parent)
+    {
+        if (parent != null && activeLoopEffects.ContainsKey(parent))
         {
-            Debug.LogError($"EffectManager: {animalName} の ID {id} は範囲外です。");
+            if (activeLoopEffects[parent] != null)
+            {
+                Destroy(activeLoopEffects[parent]);
+            }
+            activeLoopEffects.Remove(parent);
         }
     }
 }

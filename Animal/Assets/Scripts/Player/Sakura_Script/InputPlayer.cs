@@ -495,12 +495,41 @@ public class InputPlayer : MonoBehaviour
                 switch (character_Status.CharaAnim)
             {
                 case Character_Status.CharacterType.RHINOCELOS:
-                    // --- サイの処理: true と false を入れ替える ---
-                    bool currentRhinocerosSkill = animator.GetBool("RhinocerosSkill");
-                    animator.SetBool("RhinocerosSkill", !currentRhinocerosSkill);
+                    //// --- サイの処理: true と false を入れ替える ---
+                    //bool currentRhinocerosSkill = animator.GetBool("RhinocerosSkill");
+                    //animator.SetBool("RhinocerosSkill", !currentRhinocerosSkill);
 
-                    // スキル解除時は移動可能にするなどの調整が必要な場合はここで行います
-                    MoveFlag = currentRhinocerosSkill; // true(解除)になるなら移動可
+                    //// スキル解除時は移動可能にするなどの調整が必要な場合はここで行います
+                    //MoveFlag = currentRhinocerosSkill; // true(解除)になるなら移動可
+
+                    // --- サイの処理: true と false を入れ替える ---
+                    bool nextSkillState = !animator.GetBool("RhinocerosSkill"); // 次の状態
+                    animator.SetBool("RhinocerosSkill", nextSkillState);
+
+                    // エフェクトの制御
+                    if (nextSkillState)
+                    {
+                        // スキル発動：ループエフェクト(roop: true)として生成
+                        // parentに this.transform または activeModel.transform を渡すのがポイントです
+                        Effect_Manager.PlayEffect(
+                            normalObject.name,
+                            1,
+                            effectPosition,
+                            activeModel.transform.rotation,
+                            Vector3.one,
+                            true,               // roop を true に
+                            this.transform      // このキャラに関連付け
+                        );
+                    }
+                    else
+                    {
+                        // スキル解除：このキャラに紐付いているループエフェクトを消去
+                        Effect_Manager.StopLoopEffect(this.transform);
+                    }
+
+                    // スキル解除時は移動可能にする
+                    MoveFlag = !nextSkillState;
+
                     break;
 
                 case Character_Status.CharacterType.RATEL:
@@ -535,8 +564,12 @@ public class InputPlayer : MonoBehaviour
 
 
 
-            // エフェクト再生
-            Effect_Manager.PlayEffect(normalObject.name, 1, effectPosition, activeModel.transform.rotation, new Vector3(1f, 1f, 1f));
+            
+            if(character_Status.CharaAnim != Character_Status.CharacterType.RHINOCELOS)
+            {
+                // エフェクト再生
+                Effect_Manager.PlayEffect(normalObject.name, 1, effectPosition, activeModel.transform.rotation, new Vector3(1f, 1f, 1f));
+            }
 
 
             Debug.Log("スキル発動");
