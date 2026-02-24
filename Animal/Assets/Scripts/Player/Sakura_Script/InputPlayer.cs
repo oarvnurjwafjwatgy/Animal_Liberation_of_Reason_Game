@@ -52,6 +52,10 @@ public class InputPlayer : MonoBehaviour
     public Vector3 add_rot;
     public Vector3 add_scale;
 
+    GameObject SoundManagerObj;
+    SoundManager soundmanager;
+
+
 
     public enum Direction
     {
@@ -69,6 +73,9 @@ public class InputPlayer : MonoBehaviour
     {
         EffectManager = GameObject.Find("EffectManager");
         Effect_Manager = EffectManager.GetComponent<EffectManager>();
+
+        SoundManagerObj = GameObject.Find("SoundManager");
+        soundmanager = SoundManagerObj.GetComponent<SoundManager>();
 
         // cameraObject と ghostObject は土台プレハブに元からあるはずなので取得
         // ただし、既に SetupDynamicReferences で設定されている場合は何もしない
@@ -328,6 +335,8 @@ public class InputPlayer : MonoBehaviour
             {
                 case Character_Status.CharacterType.LION:
 
+                    soundmanager.PlaySE(1);
+
                     // 1. モデルの「右・上・前」の方向ベクトルを取得
                     Vector3 LIright = activeModel.transform.right;
                     Vector3 LIup = activeModel.transform.up;
@@ -346,6 +355,8 @@ public class InputPlayer : MonoBehaviour
                     break;
 
                 case Character_Status.CharacterType.OSTRICH:
+
+                    soundmanager.PlaySE(2);
 
                     // 1. モデルの「右・上・前」の方向ベクトルを取得
                     Vector3 right = activeModel.transform.right;
@@ -368,6 +379,7 @@ public class InputPlayer : MonoBehaviour
 
 
                 case Character_Status.CharacterType.RHINOCELOS:
+                    soundmanager.PlaySE(3);
 
                     // 1. モデルの「右・上・前」の方向ベクトルを取得
                     Vector3 RHright = activeModel.transform.right;
@@ -387,6 +399,8 @@ public class InputPlayer : MonoBehaviour
                     break;
 
                 case Character_Status.CharacterType.RATEL:
+                    soundmanager.PlaySE(4);
+
                     // 1. モデルの「右・上・前」の方向ベクトルを取得
                     Vector3 RAright = activeModel.transform.right;
                     Vector3 RAup = activeModel.transform.up;
@@ -436,6 +450,17 @@ public class InputPlayer : MonoBehaviour
         {
 
             Effect_Manager.PlayEffect("Common", 0, this.transform.position, this.transform.rotation, new Vector3(2.0f, 2.0f, 2.0f), this.transform);
+
+            switch(character_Status.CharaAnim)
+            {
+                case Character_Status.CharacterType.LION: soundmanager.PlaySE(6); break;
+                case Character_Status.CharacterType.OSTRICH: soundmanager.PlaySE(7); break;
+                case Character_Status.CharacterType.RHINOCELOS: soundmanager.PlaySE(8); break;
+                case Character_Status.CharacterType.RATEL: soundmanager.PlaySE(9); break;
+
+            }
+
+
             character_Status.GetModeChange();
             Enhancement();
 
@@ -498,10 +523,17 @@ public class InputPlayer : MonoBehaviour
 
                 default: animator.SetTrigger("Skill"); break;
             }
-           
+
+            switch (character_Status.CharaAnim)
+            {
+                case Character_Status.CharacterType.LION: soundmanager.PlaySE(6); break;
+                case Character_Status.CharacterType.OSTRICH: soundmanager.PlaySE(7); break;
+                case Character_Status.CharacterType.RHINOCELOS: soundmanager.PlaySE(8); break;
+                case Character_Status.CharacterType.RATEL: soundmanager.PlaySE(9); break;
+
+            }
 
 
-            
 
             // エフェクト再生
             Effect_Manager.PlayEffect(normalObject.name, 1, effectPosition, activeModel.transform.rotation, new Vector3(1f, 1f, 1f));
