@@ -413,7 +413,7 @@ MonoBehaviour:
   Decrease_in_reason_time: 1
   burstThreshold: 80
   lionBurstDuration: 8
-  Heal_hp_rate: 2
+  Heal_hp_rate: 1
   ReasonHP: 200
   ReasonAttackPower: 50
   ReasonDefensePower: 60

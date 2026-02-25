@@ -13,7 +13,7 @@ public class Character_Status : MonoBehaviour
 	/******ステータス変数*************/
 	[Header("基本ステータス")]
 	[SerializeField] protected int MaxHP = 400;                // キャラクター最大HP
-	[SerializeField] protected int MaxReason = 100;            // キャラクター理性最大HP
+	[SerializeField] protected int MaxReason = 500;            // キャラクター理性最大HP
 	[SerializeField] protected int ReasonPoint = 100;          // 理性ゲージ
 	[SerializeField] protected int AttackPower = 10;           // キャラクター攻撃力
 	[SerializeField] protected int DefensePower = 20;          // キャラクター防御力
@@ -35,7 +35,7 @@ public class Character_Status : MonoBehaviour
 
 	[Header("サイ ステータス")]
 	private const int RHINO_HP = 600;
-	private const int RHINO_ATK = 40;
+	private const int RHINO_ATK = 35;
 	private const int RHINO_DEF = 25;
 	private const float RHINO_SPD = 4.5f;
 
@@ -71,7 +71,7 @@ public class Character_Status : MonoBehaviour
 	private float lionBurstTimer = 0f;                             // バフの持続時間用
 
 	[Header("毎時体力回復能力(ダチョウ)")]
-	[SerializeField] protected int Heal_hp_rate = 2;               // 体力回復割合量(ダチョウ固有)
+	[SerializeField] protected int Heal_hp_rate = 1;               // 体力回復割合量(ダチョウ固有)
 
 
 
