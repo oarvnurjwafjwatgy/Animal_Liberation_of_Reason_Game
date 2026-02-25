@@ -571,60 +571,97 @@ public class InputPlayer : MonoBehaviour
         // 連打によるバグ防止
         if (Time.time - lastSkillTime < 0.2f) return;
 
+        // 現在のモデル（通常か強化か）を取得
+        GameObject activeModel = (character_Status.GetMode() == Character_Status.Mode.SPSIAL_ANIMAL) ? reasonObject : normalObject;
+        // 動物ごとの最適座標を計算して取得
+        Vector3 effectPosition = GetEffectSpawnPosition(activeModel);
+
         switch (currentType)
         {
             case Character_Status.CharacterType.RHINOCELOS:
                 bool isSkillActive = animator.GetBool("RhinocerosSkill");
-                bool nextSkillState = !isSkillActive; // ONならOFF、OFFならONへ
+                bool nextSkillState = !isSkillActive;
 
                 animator.SetBool("RhinocerosSkill", nextSkillState);
 
-                if (nextSkillState) // 【スキル開始】
+                if (nextSkillState) // 【サイ：スキル開始】
                 {
-                    GameObject activeModel = (character_Status.GetMode() == Character_Status.Mode.SPSIAL_ANIMAL) ? reasonObject : normalObject;
-
-                    // ★この瞬間の正面を突進方向に決定
                     skillDirection = activeModel.transform.forward;
-                    MoveFlag = false; // 通常のスティック操作を無効化
+                    MoveFlag = false;
 
                     soundmanager.PlaySE(8);
-                    Vector3 effectPos = GetEffectSpawnPosition(activeModel);
+                    // サイ専用：ループエフェクト(roop: true)
+                    Effect_Manager.PlayEffect(
+                        normalObject.name,
+                        1,
+                        effectPosition + new Vector3(0, -0.2f, 0),
+                        activeModel.transform.rotation,
+                        Vector3.one,
+                        this.transform,
+                        true
+                    );
 
-                    effectPos.y += -0.2f;
-                    Effect_Manager.PlayEffect(normalObject.name, 1, effectPos, activeModel.transform.rotation, Vector3.one, this.transform, true);
+                    AttackCollider();
                 }
-                else // 【スキル解除】
+                else // 【サイ：スキル解除】
                 {
-                    MoveFlag = true; // スティック操作を有効に戻す
+                    MoveFlag = true;
                     Effect_Manager.StopLoopEffect(this.transform);
-                    rb.velocity = new Vector3(0, rb.velocity.y, 0); // その場で止まる
+                    rb.velocity = new Vector3(0, rb.velocity.y, 0);
                 }
-                lastSkillTime = Time.time;
                 break;
 
             case Character_Status.CharacterType.RATEL:
+                // --- ラーテルの処理 ---
                 int currentRatelSkill = animator.GetInteger("RatelSkill");
                 if (currentRatelSkill == 1)
                 {
+                    Effect_Manager.PlayEffect(normalObject.name, 2, effectPosition, activeModel.transform.rotation, Vector3.one, this.transform, false);
                     animator.SetInteger("RatelSkill", 2);
+                    Invoke("AttackCollider", 0.5f);
                     MoveFlag = true;
                 }
                 else
                 {
+                    // 以前のスクリプトにあった再生処理を維持
+                    Effect_Manager.PlayEffect(normalObject.name, 1, effectPosition, activeModel.transform.rotation, Vector3.one, this.transform);
                     animator.SetInteger("RatelSkill", 1);
                     MoveFlag = false;
                     ratelSkillStartHP = character_Status.GetCurrentHP();
                 }
-                lastSkillTime = Time.time;
+                break;
+
+            case Character_Status.CharacterType.LION:
+                // --- ライオンの処理（以前のスクリプトの統合） ---
+                soundmanager.PlaySE(6);
+                // エフェクト2番再生
+                Effect_Manager.PlayEffect(normalObject.name, 2, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1));
+                // エフェクト1番再生
+                Effect_Manager.PlayEffect(normalObject.name, 1, this.gameObject.transform.position, activeModel.transform.rotation, new Vector3(1f, 1f, 1f));
+                // エフェクト3番ループ再生
+                Effect_Manager.PlayEffect(normalObject.name, 3, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1), this.gameObject.transform, true);
+
+                animator.SetTrigger("Skill");
+                StartCoroutine(StopLionEffectAfterDelay(5.0f));
+                break;
+
+            case Character_Status.CharacterType.OSTRICH:
+                // --- ダチョウの処理（以前のスクリプトの統合） ---
+                soundmanager.PlaySE(7);
+                AttackCollider();
+                // ダチョウなどの通常エフェクト再生
+                Effect_Manager.PlayEffect(normalObject.name, 1, effectPosition, activeModel.transform.rotation, new Vector3(1f, 1f, 1f));
+                animator.SetTrigger("Skill");
                 break;
 
             default:
                 animator.SetTrigger("Skill");
-                lastSkillTime = Time.time;
                 break;
         }
 
+        // ステータス側のスキル呼び出し
         character_Status.Skill();
+        lastSkillTime = Time.time;
     }
 
 
@@ -878,6 +915,13 @@ public class InputPlayer : MonoBehaviour
             Effect_Manager.StopLoopEffect(this.transform);
             Debug.Log("ライオンのループエフェクトを停止しました");
         }
+    }
+
+
+    public bool IsRhinocerosSkillActive()
+    {
+        if (animator == null) return false;
+        return animator.GetBool("RhinocerosSkill");
     }
 }
 
