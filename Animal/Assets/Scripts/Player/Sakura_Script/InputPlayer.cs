@@ -1,15 +1,30 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections.Generic; 
+
+
+// 動物ごとの設定をインスペクターで表示するためのクラス
+[System.Serializable]
+public struct AnimalAttackSettings
+{
+    public Character_Status.CharacterType type;
+    public float attackcooldown; // 攻撃クールタイム（秒）
+    public float skillCooldown;  // スキルクールタイム
+}
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(Controller))]
 
-
-
 public class InputPlayer : MonoBehaviour
 {
-    [Header("エフェクトの位置調整")]
-    [SerializeField] private Vector3 effectOffset = new Vector3(0f, 0.2f, 1.0f);
+
+    [Header("クールタイム設定")]
+    [SerializeField] private List<AnimalAttackSettings> animalSettings = new List<AnimalAttackSettings>();
+    private Dictionary<Character_Status.CharacterType, float> cooldownDict = new Dictionary<Character_Status.CharacterType, float>();
+    private float lastAttackTime; // 最後に攻撃した時間
+    private float lastSkillTime; // 最後にスキルを使った時間
+
+    private Vector3 effectOffset = new Vector3(0f, 0.2f, 1.0f);
 
     [Header("攻撃の設定")]
     public float attackRange = 2.0f;   // 攻撃が届く距離
@@ -95,6 +110,14 @@ public class InputPlayer : MonoBehaviour
 
         deathFlag = false;
         outOfRangeDamageTimer = 0f;
+
+
+        // 辞書の初期化（リストから検索しやすい辞書形式に変換）
+        foreach (var setting in animalSettings)
+        {
+            if (!cooldownDict.ContainsKey(setting.type))
+                cooldownDict.Add(setting.type, setting.attackcooldown);
+        }
     }
 
     private void Awake()
@@ -349,7 +372,39 @@ public class InputPlayer : MonoBehaviour
     private void OnAttack(InputAction.CallbackContext context)
     {
         if(LiveFlag ==  true)
-        { 
+        {
+
+            // --- 追加：クールタイムの判定 ---
+            Character_Status.CharacterType currentType = character_Status.CharaAnim;
+
+            float cooldown = 2.0f;
+
+            switch (currentType)
+            {
+                case Character_Status.CharacterType.LION: break;
+                case Character_Status.CharacterType.OSTRICH: break;
+                case Character_Status.CharacterType.RHINOCELOS: break;
+                case Character_Status.CharacterType.RATEL: break;
+
+            }
+
+
+            if (cooldownDict.ContainsKey(currentType))
+            {
+                cooldown = cooldownDict[currentType];
+            }
+
+            // 現在の時間 - 最後に攻撃した時間 が クールタイムより短い場合は何もしない
+            if (Time.time - lastAttackTime < cooldown)
+            {
+                Debug.Log($"{currentType} はまだ攻撃できません。残：{cooldown - (Time.time - lastAttackTime):F2}秒");
+                return;
+            }
+
+            // 攻撃成功：最後に攻撃した時間を更新
+            lastAttackTime = Time.time;
+            // ----------------------------
+
 
             MoveFlag = false;
 
@@ -509,6 +564,35 @@ public class InputPlayer : MonoBehaviour
     {
         if (LiveFlag == true)
         {
+            // --- 追加：スキルのクールタイム判定 ---
+            Character_Status.CharacterType currentType = character_Status.CharaAnim;
+            float cooldown = 2.0f;
+
+            switch (currentType)
+            {
+                case Character_Status.CharacterType.LION: break;
+                case Character_Status.CharacterType.OSTRICH: break;
+                case Character_Status.CharacterType.RHINOCELOS: break;
+                case Character_Status.CharacterType.RATEL: break;
+
+            }
+
+            if (cooldownDict.ContainsKey(currentType))
+            {
+                // 構造体で定義したスキル用の数値を取得（Startで辞書に登録しておく必要があります）
+                cooldown = animalSettings.Find(s => s.type == currentType).skillCooldown;
+            }
+
+            if (Time.time - lastSkillTime < cooldown)
+            {
+                Debug.Log($"スキルはまだ使えません。あと {cooldown - (Time.time - lastSkillTime):F1} 秒");
+                return;
+            }
+
+            // スキル発動成功：時間を記録
+            lastSkillTime = Time.time;
+            // ----------------------------------
+
             MoveFlag = false;
 
 			character_Status.Skill();
