@@ -33,6 +33,8 @@ public partial class PlayerManager : MonoBehaviour
     [Header("出現位置")]
     [SerializeField] private List<Transform> PlayerTransforms = new List<Transform>();
 
+    InputPlayer input_player;
+
     void Start()
     {
         int playersToSpawn = GameDataManager.SelectedPlayerCount;
@@ -137,40 +139,48 @@ public partial class PlayerManager : MonoBehaviour
     //更新
     void Update()
     {
-        int aliveCount = 0;     // 生存しているプレイヤーの数をカウント
-        int last_player = 0;    // 最後まで残ったプレイヤーの番号を保持する
+        int aliveCount = 0; // 生存しているプレイヤーの数をカウント
+        int last_player_id = 0;  // 最後まで残ったプレイヤーの番号を保持;
+        // ★追加: 生き残っているプレイヤーのコンポーネントを保持する変数
+        Character_Status survivorStatus = null;
 
-        // spawnedPlayersリストをループして、生存しているプレイヤーをカウント
         foreach (var player in spawnedPlayers)
         {
-            // playerがnullでなく、かつ死亡していない場合はaliveCountを増やす
             if (player != null && !player.IsDead)
             {
                 aliveCount++;
-
-                // 生きているプレイヤーを保持する
-                last_player = player.playerID;
+                last_player_id = player.playerID;
+                // ★追加: 生きているプレイヤーのStatusを上書きして保持
+                survivorStatus = player;
             }
-
         }
 
-        playerCount = aliveCount; // 生存しているプレイヤーの数をplayerCountに反映
+        playerCount = aliveCount;
 
-        // 残り1人になったらリザルトへ（複数人で始めた場合）
-        // GameDataManager.SelectedPlayerCount が 1 より大きいときのみ判定
         if (GameDataManager.SelectedPlayerCount > 1 && playerCount == 1 && !isGameEnd)
         {
             Debug.Log("決着！リザルトシーンへ移動します。");
 
             isGameEnd = true;
-            lastPlayer = last_player;
+            lastPlayer = last_player_id;
 
-            diedPlayer.Add(last_player);
+            // ★ここで最後の一人のGameObjectを取得できます！
+            if (survivorStatus != null)
+            {
+                GameObject winnerObject = survivorStatus.gameObject;
+                Debug.Log("優勝したオブジェクトの名前: " + winnerObject.name);
+
+                // 必要であれば、ここでwinnerObjectを使った処理（エフェクトを出す、カメラを寄せる等）ができます
+                input_player = winnerObject.GetComponent<InputPlayer>();
+                input_player.Win();
+
+            }
+
+            diedPlayer.Add(last_player_id);
             int[] ranking = diedPlayer.ToArray();
             Array.Reverse(ranking);
             uiManager.ShowResult(ranking, Animal_Select.playerChoices);
 
-            // ゲーム終了フラグを設定する
             if (endManager != null)
                 endManager.SetEndFlag(true);
         }

@@ -566,9 +566,37 @@ public class InputPlayer : MonoBehaviour
         if (LiveFlag == false) return;
 
         Character_Status.CharacterType currentType = character_Status.CharaAnim;
+        bool isSpecial = (character_Status.GetMode() == Character_Status.Mode.SPSIAL_ANIMAL);
 
-        // 連打によるバグ防止
-        if (Time.time - lastSkillTime < 0.2f) return;
+        // --- 【復活】クールタイムの計算 ---
+        float cooldown = 0f;
+        switch (currentType)
+        {
+            case Character_Status.CharacterType.LION: cooldown = 5f; break;
+            case Character_Status.CharacterType.OSTRICH: cooldown = 2f; break;
+            case Character_Status.CharacterType.RHINOCELOS: cooldown = 0f; break; // サイは0
+            case Character_Status.CharacterType.RATEL: cooldown = 0f; break; // ラーテルも0（HP監視があるため）
+        }
+
+        // インスペクターの設定がある場合は辞書から上書き
+        if (cooldownDict.ContainsKey(currentType))
+        {
+            var settings = animalSettings.Find(s => s.type == currentType);
+            cooldown = isSpecial ? settings.skillCooldown * 0.5f : settings.skillCooldown;
+        }
+
+        // --- 【復活】クールタイム判定 (サイとラーテル以外に適用する場合) ---
+        // もしラーテルにもクールタイムが必要なら、下の条件からRATELを消してください
+        if (currentType != Character_Status.CharacterType.RHINOCELOS && currentType != Character_Status.CharacterType.RATEL)
+        {
+            if (Time.time - lastSkillTime < cooldown)
+            {
+                Debug.Log($"{currentType} のスキルは準備中です。あと {cooldown - (Time.time - lastSkillTime):F1} 秒");
+                return;
+            }
+        }
+        // lastSkillTime の更新はここ、あるいは関数の最後で行う
+        lastSkillTime = Time.time;
 
         // 現在のモデル（通常か強化か）を取得
         GameObject activeModel = (character_Status.GetMode() == Character_Status.Mode.SPSIAL_ANIMAL) ? reasonObject : normalObject;
@@ -924,6 +952,52 @@ public class InputPlayer : MonoBehaviour
     {
         if (animator == null) return false;
         return animator.GetBool("RhinocerosSkill");
+    }
+
+    public void Win()
+    {
+        MoveFlag = false;
+        animator.SetInteger("State", 3);
+
+        // ★追加：カメラの方を向かせる処理
+        if (cameraObject != null)
+        {
+            // 1. カメラと自分の水平な位置関係を計算（高さYは無視して、足元で向きを合わせる）
+            Vector3 targetPos = cameraObject.transform.position;
+            targetPos.y = this.transform.position.y; // プレイヤーの高さに合わせる（仰け反り防止）
+
+            Vector3 directionToCamera = targetPos - this.transform.position;
+
+            if (directionToCamera != Vector3.zero)
+            {
+                // 2. カメラの方を向く回転値を作成
+                Quaternion lookAtCameraRotation = Quaternion.LookRotation(directionToCamera);
+
+                // 3. アクティブなモデルを回転させる
+                normalObject.transform.rotation = lookAtCameraRotation;
+                reasonObject.transform.rotation = lookAtCameraRotation;
+
+                // cachedRotateも更新しておくと、その後の挙動が安定します
+                cachedRotate = lookAtCameraRotation;
+            }
+        }
+
+        // エフェクト演出（既存の処理）
+        switch (character_Status.CharaAnim)
+        {
+            case Character_Status.CharacterType.LION:
+                Effect_Manager.PlayEffect(normalObject.name, 4, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1f, 1f, 1f), this.gameObject.transform);
+                break;
+            case Character_Status.CharacterType.OSTRICH:
+                Effect_Manager.PlayEffect(normalObject.name, 2, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1f, 1f, 1f), this.gameObject.transform);
+                break;
+            case Character_Status.CharacterType.RHINOCELOS:
+                Effect_Manager.PlayEffect(normalObject.name, 2, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1f, 1f, 1f), this.gameObject.transform);
+                break;
+            case Character_Status.CharacterType.RATEL:
+                Effect_Manager.PlayEffect(normalObject.name, 3, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1f, 1f, 1f), this.gameObject.transform);
+                break;
+        }
     }
 }
 
