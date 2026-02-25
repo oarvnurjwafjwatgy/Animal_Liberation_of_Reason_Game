@@ -90,6 +90,17 @@ public class Character_Status : MonoBehaviour
 	[SerializeField] protected float skillCooldownTimer = 0f; // 現在のCT
 	[SerializeField] protected float skillCTMax = 10f;        // スキルの最大CT
 
+	// バフ・デバフ管理用の列挙型と変数
+	public enum BuffType { SpeedBuff, SpeedDebuff, AttackBuff, AttackDebuff }
+	[Header("バフUI用画像")]
+	[SerializeField] private Sprite spdBuffSprite;
+	[SerializeField] private Sprite spdDebuffSprite;
+	[SerializeField] private Sprite atkBuffSprite;
+	[SerializeField] private Sprite atkDebuffSprite;
+
+	private Transform buffContainer;
+	private System.Collections.Generic.Dictionary<BuffType, BuffIcon> activeBuffs = new System.Collections.Generic.Dictionary<BuffType, BuffIcon>();
+
 	// ライオン専用のバフ変数
 	private float lionSkillAtkBoost = 1.0f;
 	private float lionSkillDurationTimer = 0f;
@@ -242,6 +253,9 @@ public class Character_Status : MonoBehaviour
 			GameObject iconObj = uIManager.ui_list[uIManager.ui_list.Count - 1];
 			lionRageFill = iconObj.transform.Find("Gauge").GetComponent<Image>();
 		}
+
+		uIManager.CreateUI(UIManager.UI_ID.BUFF_CONTAINER, uiPos, playerID);
+		buffContainer = uIManager.ui_list[uIManager.ui_list.Count - 1].transform;
 	}
 
 	//ステータスを再度初期化する（外部から呼び出す用）
@@ -346,6 +360,27 @@ public class Character_Status : MonoBehaviour
 	{
 		if (hp_gauge != null) hp_gauge.value = CurrentHP;
 		if (reason_gauge != null) reason_gauge.value = CurrentReason;
+	}
+
+	// バフ・デバフのアイコンを作成・更新する関数
+	private void CreateOrUpdateBuff(BuffType type, Sprite icon, float duration)
+	{
+		if (buffContainer == null) return;
+
+		// すでに同じバフがあるかチェック
+		if (activeBuffs.ContainsKey(type) && activeBuffs[type] != null)
+		{
+			activeBuffs[type].Setup(icon, duration); // 時間上書き
+		}
+		else
+		{
+			// 新しく作る
+			GameObject go = new GameObject(type.ToString(), typeof(Image), typeof(BuffIcon));
+			go.transform.SetParent(buffContainer, false);
+			BuffIcon script = go.GetComponent<BuffIcon>();
+			script.Setup(icon, duration);
+			activeBuffs[type] = script;
+		}
 	}
 
 	//選択キャラクターによってキャラクタータイプを設定する
@@ -946,6 +981,7 @@ public class Character_Status : MonoBehaviour
 	{
 		nutsSpeedBuffTimer = nuts_speed_buff_time;
 		nutsSpeedBuffPower = nuts_speed_buff_power;
+		CreateOrUpdateBuff(BuffType.SpeedBuff, spdBuffSprite, nuts_speed_buff_time);
 		Debug.Log("<color=#80ffff>スピードバフを付与しました</color>");
     }
 
@@ -953,16 +989,18 @@ public class Character_Status : MonoBehaviour
     public void SetSpeedDebuff()
     {
         nutsSpeedDebuffTimer = nuts_speed_debuff_time;
-        nutsSpeedDebuffPower = nuts_speed_debuff_power;
-        Debug.Log("<color=#00ffff>スピードデバフを付与しました</color>");
+		nutsSpeedDebuffPower = nuts_speed_debuff_power;
+		CreateOrUpdateBuff(BuffType.SpeedDebuff, spdDebuffSprite, nuts_speed_debuff_time);
+		Debug.Log("<color=#00ffff>スピードデバフを付与しました</color>");
     }
 
     // 木の実の攻撃力のバフ設定
     public void SetAttackBuff()
     {
         nutsAttackBuffTimer = nuts_attack_buff_time;
-        nutsAttackBuffPower = nuts_attack_buff_power;
-        Debug.Log("<color=#ff8080>攻撃力バフを付与しました</color>");
+		nutsAttackBuffPower = nuts_attack_buff_power;
+		CreateOrUpdateBuff(BuffType.AttackBuff, atkBuffSprite, nuts_attack_buff_time);
+		Debug.Log("<color=#ff8080>攻撃力バフを付与しました</color>");
     }
 
     // 木の実の攻撃力のデバフ設定
@@ -970,7 +1008,8 @@ public class Character_Status : MonoBehaviour
     {
         nutsAttackDebuffTimer = nuts_attack_debuff_time;
         nutsAttackDebuffPower = nuts_attack_debuff_power;
-        Debug.Log("<color=#ff0000>攻撃力デバフを付与しました</color>");
+		CreateOrUpdateBuff(BuffType.AttackDebuff, atkDebuffSprite, nuts_attack_debuff_time);
+		Debug.Log("<color=#ff0000>攻撃力デバフを付与しました</color>");
     }
 
     // 木の実のHPゲージの回復

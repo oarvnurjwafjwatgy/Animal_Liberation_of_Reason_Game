@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
-	public enum UI_ID { GAUGE_HP, GAUGE_REASON, LION_RAGE }
+	public enum UI_ID { GAUGE_HP, GAUGE_REASON, LION_RAGE, BUFF_CONTAINER }
 	public List<GameObject> ui_list = new List<GameObject>();
 	public Transform canvasParent;
 
@@ -27,6 +27,7 @@ public class UIManager : MonoBehaviour
 		if (ui_id == UI_ID.GAUGE_HP) prefab = Resources.Load("Prefab/UI/HP_ber") as GameObject;
         else if (ui_id == UI_ID.GAUGE_REASON) prefab = Resources.Load("Prefab/UI/Reason_ber") as GameObject;
         else if (ui_id == UI_ID.LION_RAGE) prefab = Resources.Load("Prefab/UI/Lion_Rage_Icon") as GameObject;
+		else if (ui_id == UI_ID.BUFF_CONTAINER)prefab = Resources.Load("Prefab/UI/Buff_Container") as GameObject;
 
 		if (prefab != null)
 		{
@@ -50,7 +51,12 @@ public class UIManager : MonoBehaviour
 				else if (ui_id == UI_ID.LION_RAGE)
 				{
 					// ÉoÅ[ÇÃç∂ë§Ç…Ç∏ÇÁÇ∑ÅB
-					rect.anchoredPosition += new Vector2(-200f, -100f);
+					rect.anchoredPosition += new Vector2(-200f, -120f);
+					rect.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+				}
+				else if (ui_id == UI_ID.BUFF_CONTAINER)
+				{
+					rect.anchoredPosition += new Vector2(-80f, -100f);
 					rect.localScale = new Vector3(1.0f, 1.0f, 1.0f);
 				}
 			}
