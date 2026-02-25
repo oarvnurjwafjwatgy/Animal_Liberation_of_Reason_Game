@@ -763,7 +763,7 @@ public class Character_Status : MonoBehaviour
 				{
 					Debug.Log($"{gameObject.name} はアニメーション" +
 					$"Tag 'Dead' に到達したため、オブジェクトを非アクティブ化します。");
-					input.SetDeath();
+					//input.SetDeath();
 				}
 			}
 		}

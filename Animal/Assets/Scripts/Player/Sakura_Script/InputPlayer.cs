@@ -169,7 +169,6 @@ public class InputPlayer : MonoBehaviour
 
             //Invoke("SetDeath", 3.0f);
 
-            SetDeath();
         }
 
 
@@ -826,7 +825,10 @@ public class InputPlayer : MonoBehaviour
         Destroy(collisionObject);
     }
 
+    public void Death()
+    {
 
+    }
 
     /// <summary>
     /// 現在の動物名に合わせて、エフェクトの発生位置を計算する
