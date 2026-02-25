@@ -75,6 +75,8 @@ public class InputPlayer : MonoBehaviour
 
     private int ratelSkillStartHP; // スキル開始時のHPを保持
 
+    private Vector3 skillDirection; // スキル発動時の向きを固定するための変数
+
     public enum Direction
     {
         Front,
@@ -192,100 +194,76 @@ public class InputPlayer : MonoBehaviour
     // 物理演算は FixedUpdate で行います
     private void FixedUpdate()
     {
+        if (controller == null || rb == null || LiveFlag == false) return;
 
-        // Controller クラスが正しく取得できているか確認
-        if ((controller != null && rb != null) && MoveFlag == true && LiveFlag == true)
+        // --- 【サイのスキル直進ロジック】 ---
+        if (character_Status.CharaAnim == Character_Status.CharacterType.RHINOCELOS && animator.GetBool("RhinocerosSkill"))
         {
-            // 1. Controller クラスからスティックの入力値を取得
+            // スティック入力に関係なく直進
+            rb.velocity = skillDirection * character_Status.CurrentMoveSpeed + new Vector3(0, rb.velocity.y, 0);
+
+            // ★追加：スキル中でもカメラ操作（Rスティック）だけは可能にする
+            if (!deathFlag) this.UpdateCamera();
+            else this.UpdateGhostCamera();
+
+            return; // 通常のLスティック移動処理は行わない
+        }
+
+        // --- 通常の移動処理 ---
+        if (MoveFlag)
+        {
             Vector2 leftStickInput = controller.GetLeftStick();
 
-            if (leftStickInput.x > 0.1)
-            {
-                direction = Direction.Right;
-            }
-            else if (leftStickInput.x < -0.1)
-            {
-                direction = Direction.Left;
-            }
-            else if (leftStickInput.y < -0.1)
-            {
-                direction = Direction.Back;
-            }
-            else
-            {
-                direction = Direction.Front;
-            }
-
-
-            // 2. 入力値 (Vector2) を 3D の移動方向 (Vector3) に変換
-            Vector3 moveDirection = new Vector3(leftStickInput.x, 0, leftStickInput.y);
-
-            GameObject camera = cameraObject;
-            if (deathFlag)
-                camera = ghostObject;
-
-            // 3. Rigidbody の速度 (velocity) を変更して移動させる
+            GameObject camera = deathFlag ? ghostObject : cameraObject;
             Vector3 cameraForward = Vector3.Scale(camera.transform.forward, new Vector3(1, 0, 1)).normalized;
             Vector3 moveForward = cameraForward * leftStickInput.y + camera.transform.right * leftStickInput.x;
+
             rb.velocity = moveForward * character_Status.CurrentMoveSpeed + new Vector3(0, rb.velocity.y, 0);
 
-
-            // カメラの位置の更新
-            if (!deathFlag)
-                this.UpdateCamera();
-            else
-                this.UpdateGhostCamera();
+            // 通常時のカメラ更新
+            if (!deathFlag) this.UpdateCamera();
+            else this.UpdateGhostCamera();
         }
     }
 
     // アニメーションの影響上、プレイヤーの向き更新は LateUpdate で行う
     private void LateUpdate()
     {
-        // Controller クラスが正しく取得できているか確認
-        if ((controller != null && rb != null) && MoveFlag == true && LiveFlag == true)
+        if (controller == null || rb == null || LiveFlag == false) return;
+
+        // --- 【サイのスキル中：向きの強制固定】 ---
+        if (character_Status.CharaAnim == Character_Status.CharacterType.RHINOCELOS && animator.GetBool("RhinocerosSkill"))
         {
-            // Controller クラスからスティックの入力値を取得
+            Quaternion skillRotation = Quaternion.LookRotation(skillDirection);
+            normalObject.transform.rotation = skillRotation;
+            reasonObject.transform.rotation = skillRotation;
+            return; // スキル中はここで終了して、スティックによる回転計算をさせない
+        }
+
+        if (MoveFlag)
+        {
             Vector2 leftStickInput = controller.GetLeftStick();
-
-            // 入力値 (Vector2) を 3D の移動方向 (Vector3) に変換
-            Vector3 moveDirection = new Vector3(leftStickInput.x, 0, leftStickInput.y);
-
-            GameObject camera = cameraObject;
-            if (deathFlag)
-                camera = ghostObject;
-
-            // Rigidbody の速度 (velocity) を変更して移動させる
+            GameObject camera = deathFlag ? ghostObject : cameraObject;
             Vector3 cameraForward = Vector3.Scale(camera.transform.forward, new Vector3(1, 0, 1)).normalized;
             Vector3 moveForward = cameraForward * leftStickInput.y + camera.transform.right * leftStickInput.x;
 
-            if (leftStickInput.magnitude > 0.1f)
-            {
-                animator.SetInteger("State", 1);
-            }
-            else
-            {
-                animator.SetInteger("State", 0);
-            }
+            if (leftStickInput.magnitude > 0.1f) animator.SetInteger("State", 1);
+            else animator.SetInteger("State", 0);
 
-
-
-
-            // Lスティックが入力されている時は、向きを正面にしその向きを保存する
-            if (moveForward != new Vector3(0f, 0f, 0f))
+            if (moveForward != Vector3.zero)
             {
                 Quaternion tmp = Quaternion.LookRotation(moveForward);
-
                 normalObject.transform.rotation = tmp;
                 reasonObject.transform.rotation = tmp;
                 cachedRotate = tmp;
             }
-            // 未入力の時は、保存した向きを呼び出し続ける
             else
             {
                 normalObject.transform.rotation = cachedRotate;
                 reasonObject.transform.rotation = cachedRotate;
             }
         }
+
         if (deathFlag)
         {
             this.UpdateGhostMove();
@@ -586,137 +564,67 @@ public class InputPlayer : MonoBehaviour
 
     private void OnSkill(InputAction.CallbackContext context)
     {
-        if (LiveFlag == true)
+        if (LiveFlag == false) return;
+
+        Character_Status.CharacterType currentType = character_Status.CharaAnim;
+
+        // 連打によるバグ防止
+        if (Time.time - lastSkillTime < 0.2f) return;
+
+        switch (currentType)
         {
-            // --- 追加：スキルのクールタイム判定 ---
-            Character_Status.CharacterType currentType = character_Status.CharaAnim;
+            case Character_Status.CharacterType.RHINOCELOS:
+                bool isSkillActive = animator.GetBool("RhinocerosSkill");
+                bool nextSkillState = !isSkillActive; // ONならOFF、OFFならONへ
 
-            bool isSpecial = (character_Status.GetMode() == Character_Status.Mode.SPSIAL_ANIMAL);
+                animator.SetBool("RhinocerosSkill", nextSkillState);
 
-            float cooldown;
+                if (nextSkillState) // 【スキル開始】
+                {
+                    GameObject activeModel = (character_Status.GetMode() == Character_Status.Mode.SPSIAL_ANIMAL) ? reasonObject : normalObject;
 
-            switch (currentType)
-            {
-                case Character_Status.CharacterType.LION: cooldown = 5f; break;
-                case Character_Status.CharacterType.OSTRICH: cooldown = 2f; break;
-                case Character_Status.CharacterType.RHINOCELOS: cooldown = 0f; break;
-                case Character_Status.CharacterType.RATEL: cooldown = 0f; break;
-            }
+                    // ★この瞬間の正面を突進方向に決定
+                    skillDirection = activeModel.transform.forward;
+                    MoveFlag = false; // 通常のスティック操作を無効化
 
-            if (cooldownDict.ContainsKey(currentType))
-            {
-                var settings = animalSettings.Find(s => s.type == currentType);
-                // 強化中ならスキルクールタイムを半分にする、といった調整も可能
-                cooldown = isSpecial ? settings.skillCooldown * 0.5f : settings.skillCooldown;
-            }
+                    soundmanager.PlaySE(8);
+                    Vector3 effectPos = GetEffectSpawnPosition(activeModel);
 
+                    effectPos.y += -0.2f;
+                    Effect_Manager.PlayEffect(normalObject.name, 1, effectPos, activeModel.transform.rotation, Vector3.one, this.transform, true);
+                }
+                else // 【スキル解除】
+                {
+                    MoveFlag = true; // スティック操作を有効に戻す
+                    Effect_Manager.StopLoopEffect(this.transform);
+                    rb.velocity = new Vector3(0, rb.velocity.y, 0); // その場で止まる
+                }
+                lastSkillTime = Time.time;
+                break;
 
-            // スキル発動成功：時間を記録
-            lastSkillTime = Time.time;
-            // ----------------------------------
+            case Character_Status.CharacterType.RATEL:
+                int currentRatelSkill = animator.GetInteger("RatelSkill");
+                if (currentRatelSkill == 1)
+                {
+                    animator.SetInteger("RatelSkill", 2);
+                    MoveFlag = true;
+                }
+                else
+                {
+                    animator.SetInteger("RatelSkill", 1);
+                    MoveFlag = false;
+                    ratelSkillStartHP = character_Status.GetCurrentHP();
+                }
+                lastSkillTime = Time.time;
+                break;
 
-            MoveFlag = false;
-
-            character_Status.Skill();
-
-            // 現在のモデル（通常か強化か）を取得
-            GameObject activeModel = (character_Status.GetMode() == Character_Status.Mode.SPSIAL_ANIMAL) ? reasonObject : normalObject;
-
-            // 【新機能】動物ごとの最適座標を計算して取得
-            Vector3 effectPosition = GetEffectSpawnPosition(activeModel);
-
-
-            switch (character_Status.CharaAnim)
-            {
-                case Character_Status.CharacterType.RHINOCELOS:
-
-
-                    // --- サイの処理: true と false を入れ替える ---
-                    bool nextSkillState = !animator.GetBool("RhinocerosSkill"); // 次の状態
-                    animator.SetBool("RhinocerosSkill", nextSkillState);
-
-                    // エフェクトの制御
-                    if (nextSkillState)
-                    {
-                        // スキル発動：ループエフェクト(roop: true)として生成
-                        // parentに this.transform または activeModel.transform を渡すのがポイントです
-                        Effect_Manager.PlayEffect(
-                            normalObject.name,
-                            1,
-                            effectPosition,
-                            activeModel.transform.rotation,
-                            Vector3.one,
-                            this.transform,      // このキャラに関連付け
-                            true               // roop を true に
-                        );
-                    }
-                    else
-                    {
-                        // スキル解除：このキャラに紐付いているループエフェクトを消去
-                        Effect_Manager.StopLoopEffect(this.transform);
-                    }
-
-                    // スキル解除時は移動可能にする
-                    MoveFlag = !nextSkillState;
-
-                    break;
-
-                case Character_Status.CharacterType.RATEL:
-                    // --- ラーテルの処理: 1 と 2 を入れ替える ---
-                    int currentRatelSkill = animator.GetInteger("RatelSkill");
-
-                    if (currentRatelSkill == 1) // すでに発動中なら手動解除
-                    {
-                        animator.SetInteger("RatelSkill", 2);
-                        MoveFlag = true;
-                    }
-                    else // 新しくスキル発動
-                    {
-                        animator.SetInteger("RatelSkill", 1);
-                        MoveFlag = false;
-
-                        // ★ここで現在のHPを保存する
-                        ratelSkillStartHP = character_Status.GetCurrentHP();
-                    }
-                    break;
-
-                default: animator.SetTrigger("Skill"); break;
-            }
-
-            switch (character_Status.CharaAnim)
-            {
-                case Character_Status.CharacterType.LION:
-                    soundmanager.PlaySE(6); Effect_Manager.PlayEffect(normalObject.name, 2, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1));
-                    break;
-                case Character_Status.CharacterType.OSTRICH: soundmanager.PlaySE(7); break;
-                case Character_Status.CharacterType.RHINOCELOS: soundmanager.PlaySE(8); break;
-                case Character_Status.CharacterType.RATEL: soundmanager.PlaySE(9); break;
-
-            }
-
-
-
-
-            if (character_Status.CharaAnim != Character_Status.CharacterType.RHINOCELOS || character_Status.CharaAnim != Character_Status.CharacterType.LION)
-            {
-                // エフェクト再生
-                Effect_Manager.PlayEffect(normalObject.name, 1, effectPosition, activeModel.transform.rotation, new Vector3(1f, 1f, 1f));
-            }
-
-            if (character_Status.CharaAnim == Character_Status.CharacterType.LION)
-            {
-                Effect_Manager.PlayEffect(normalObject.name, 1, this.gameObject.transform.position, activeModel.transform.rotation, new Vector3(1f, 1f, 1f));
-
-                Effect_Manager.PlayEffect(normalObject.name, 3, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1), this.gameObject.transform, true);
-
-                StartCoroutine(StopLionEffectAfterDelay(5.0f));
-            }
-
-
-            Debug.Log("スキル発動");
+            default:
+                animator.SetTrigger("Skill");
+                lastSkillTime = Time.time;
+                break;
         }
 
-
+        character_Status.Skill();
     }
 
 
