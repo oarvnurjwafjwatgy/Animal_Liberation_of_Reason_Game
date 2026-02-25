@@ -21,7 +21,7 @@ public class UniversalViewportHandler : MonoBehaviour
 
         if (playerManager != null && status != null)
         {
-            SetViewport(status.playerID, playerManager.playerCount);
+            SetViewport(status.playerID, GameDataManager.SelectedPlayerCount);
         }
     }
 
@@ -58,6 +58,8 @@ public class UniversalViewportHandler : MonoBehaviour
     // 勝利時のビューポート短形の更新
     private void UpdateViewportGameEnd()
     {
+        if (GameDataManager.SelectedPlayerCount <= 1) return;
+
         // ゲームがまだ終了していない場合は処理しない
         if (!playerManager.isGameEnd) return;
 
