@@ -103,18 +103,41 @@ public class Character_Status : MonoBehaviour
 	private const float LION_CT = 15.0f;     // ライオンは爆発力が高いので長め
 	private const float OSTRICH_CT = 8.0f;   // ダチョウは機動力活かしで短め
 	private const float RATEL_CT = 12.0f;    // ラーテルはバランス
-											 // サイは特殊（CTなし）
+                                             // サイは特殊（CTなし）
 
 
-	// 実際に計算に使用する倍率（1.0f = 等倍）
-	private float currentAtkMult = 1.0f;
+    // 木の実バフデバフ
+    private float nutsSpeedBuffTimer = 0f;		// スピードアップの時間
+    private float nutsSpeedBuffPower = 0f;		// スピードアップの強さ
+    private float nutsSpeedDebuffTimer = 0f;	// スピードダウンの時間
+    private float nutsSpeedDebuffPower = 0f;	// スピードダウンの強さ
+    private float nutsAttackBuffTimer = 0f;		// 攻撃力アップの時間
+    private float nutsAttackBuffPower = 0f;		// 攻撃力アップの強さ
+    private float nutsAttackDebuffTimer = 0f;	// 攻撃力ダウンの時間
+    private float nutsAttackDebuffPower = 0f;   // 攻撃力ダウンの強さ
+	// 木の実バフデバフの定数
+    private const float nuts_speed_buff_time = 10f;			// スピードアップの効果時間
+    private const float nuts_speed_buff_power = 0.5f;		// スピードアップの強さ
+    private const float nuts_speed_debuff_time = 10f;		// スピードダウンの効果時間
+    private const float nuts_speed_debuff_power = -0.25f;	// スピードダウンの強さ
+    private const float nuts_attack_buff_time = 10f;		// 攻撃力アップの効果時間
+    private const float nuts_attack_buff_power = 0.5f;		// 攻撃力アップの強さ
+    private const float nuts_attack_debuff_time = 10f;		// 攻撃力ダウンの効果時間
+    private const float nuts_attack_debuff_power = -0.25f;	// 攻撃力ダウンの強さ
+    private const int nuts_hp_heal_min_rate = 2;			// HPゲージ回復の最小％
+    private const int nuts_hp_heal_max_rate = 25;			// HPゲージ回復の最大％
+    private const int nuts_reason_heal_min_rate = 2;		// 理性ゲージ回復の最小％
+    private const int nuts_reason_heal_max_rate = 25;		// 理性ゲージ回復の最大％
+
+    // 実際に計算に使用する倍率（1.0f = 等倍）
+    private float currentAtkMult = 1.0f;
 	private float currentDefMult = 1.0f;
 	private float currentSpdMult = 1.0f;
 
 	// 外部参照用のプロパティ（蓄積バフ倍率も掛け合わせる）
-	public int CurrentAttackPower => (int)(AttackPower * currentAtkMult * lionBurstAtkBoost * lionSkillAtkBoost);
+	public int CurrentAttackPower => (int)(AttackPower * currentAtkMult * lionBurstAtkBoost * lionSkillAtkBoost * (1f + nutsAttackBuffPower + nutsAttackDebuffPower));
 	public int CurrentDefensePower => (int)(DefensePower * currentDefMult);
-	public float CurrentMoveSpeed => MoveSpeed * currentSpdMult * lionBurstSpeedBoost * rhinoDashSpeedBoost;
+	public float CurrentMoveSpeed => MoveSpeed * currentSpdMult * lionBurstSpeedBoost * rhinoDashSpeedBoost * (1f + nutsSpeedBuffPower + nutsSpeedDebuffPower);
 
 	private Slider hp_gauge;               //HPゲージUIスライダー参照用変数
 	private Slider reason_gauge;           //HPゲージUIスライダー参照用変数
@@ -304,9 +327,10 @@ public class Character_Status : MonoBehaviour
 		JudgeModeChange();              //毎度切替を判定する
 		CheckAnimatorStateTag();
 
+		this.CheckNutsEfficacyTime();	// 木の実の効果時間のチェック
 
-		// ライオンのバーストバフタイマー管理
-		if (CharaAnim == CharacterType.LION && lionBurstTimer > 0)
+        // ライオンのバーストバフタイマー管理
+        if (CharaAnim == CharacterType.LION && lionBurstTimer > 0)
 		{
 			lionBurstTimer -= Time.deltaTime;
 			if (lionBurstTimer <= 0)
@@ -924,4 +948,116 @@ public class Character_Status : MonoBehaviour
             this.Die();
         }
     }
+
+    // 木の実のスピードのバフ設定
+    public void SetSpeedBuff()
+	{
+		nutsSpeedBuffTimer = nuts_speed_buff_time;
+		nutsSpeedBuffPower = nuts_speed_buff_power;
+		Debug.Log("<color=#80ffff>スピードバフを付与しました</color>");
+    }
+
+    // 木の実のスピードのデバフ設定
+    public void SetSpeedDebuff()
+    {
+        nutsSpeedDebuffTimer = nuts_speed_debuff_time;
+        nutsSpeedDebuffPower = nuts_speed_debuff_power;
+        Debug.Log("<color=#00ffff>スピードデバフを付与しました</color>");
+    }
+
+    // 木の実の攻撃力のバフ設定
+    public void SetAttackBuff()
+    {
+        nutsAttackBuffTimer = nuts_attack_buff_time;
+        nutsAttackBuffPower = nuts_attack_buff_power;
+        Debug.Log("<color=#ff8080>攻撃力バフを付与しました</color>");
+    }
+
+    // 木の実の攻撃力のデバフ設定
+    public void SetAttackDebuff()
+    {
+        nutsAttackDebuffTimer = nuts_attack_debuff_time;
+        nutsAttackDebuffPower = nuts_attack_debuff_power;
+        Debug.Log("<color=#ff0000>攻撃力デバフを付与しました</color>");
+    }
+
+    // 木の実のHPゲージの回復
+    public void SetNutsHpHeal()
+    {
+		// 最大HPのmin%～max%分回復
+		float heal = (float)Random.Range(nuts_hp_heal_min_rate, nuts_hp_heal_max_rate + 1) / 100f;
+		int heal_hp = (int)((float)MaxHP * heal);
+
+        // 現在のHP+回復量が、最大値を超えたら最大値HP、その他は足した結果をCurrentHPに入れる
+        CurrentHP = (CurrentHP + heal_hp > MaxHP) ? MaxHP : CurrentHP + heal_hp;
+
+        Debug.Log("<color=#ffff80>HPゲージ回復を付与しました</color> : <color=#ffff00>" + (int)(heal * 100f) + "</color>%");
+    }
+
+    // 木の実の理性解放ゲージ回復
+    public void SetNutsReasonHeal()
+    {
+        // 最大理性ゲージのmin%～max%分回復
+        float heal = (float)Random.Range(nuts_reason_heal_min_rate, nuts_reason_heal_max_rate + 1) / 100f;
+		int heal_reason = (int)((float)MaxReason * heal);
+
+        // 現在の理性ゲージ+回復量が、最大値を超えたら最大値理性ゲージ、その他は足した結果をCurrentReasonに入れる
+        CurrentReason = (CurrentReason + heal_reason > MaxReason) ? MaxReason : CurrentReason + heal_reason;
+
+        Debug.Log("<color=#ffff80>理性解放ゲージ回復を付与しました</color> : <color=#ffff00>" + (int)(heal * 100f) + "</color>%");
+    }
+
+	// 木の実の効果時間のチェック
+	private void CheckNutsEfficacyTime()
+	{
+		// スピードバフ
+		if (nutsSpeedBuffTimer > 0f)
+		{
+			nutsSpeedBuffTimer -= Time.deltaTime;
+			if (nutsSpeedBuffTimer <= 0f)
+			{
+				// 効果を消す
+				nutsSpeedBuffTimer = 0f;
+				nutsSpeedBuffPower = 0f;
+                Debug.Log("<color=#80ff80>スピードバフ削除しました</color>");
+            }
+        }
+        // スピードデバフ
+        if (nutsSpeedDebuffTimer > 0f)
+        {
+            nutsSpeedDebuffTimer -= Time.deltaTime;
+            if (nutsSpeedDebuffTimer <= 0f)
+            {
+                // 効果を消す
+                nutsSpeedDebuffTimer = 0f;
+                nutsSpeedDebuffPower = 0f;
+                Debug.Log("<color=#80ff80>スピードデバフ削除しました</color>");
+            }
+        }
+        // 攻撃力バフ
+        if (nutsAttackBuffTimer > 0f)
+        {
+            nutsAttackBuffTimer -= Time.deltaTime;
+            if (nutsAttackBuffTimer <= 0f)
+            {
+                // 効果を消す
+                nutsAttackBuffTimer = 0f;
+                nutsAttackBuffPower = 0f;
+                Debug.Log("<color=#80ff80>攻撃力バフ削除しました</color>");
+            }
+        }
+        // 攻撃力デバフ
+        if (nutsAttackDebuffTimer > 0f)
+        {
+            nutsAttackDebuffTimer -= Time.deltaTime;
+            if (nutsAttackDebuffTimer <= 0f)
+            {
+                // 効果を消す
+                nutsAttackDebuffTimer = 0f;
+                nutsAttackDebuffPower = 0f;
+                Debug.Log("<color=#80ff80>攻撃力デバフ削除しました</color>");
+            }
+        }
+    }
+
 }
