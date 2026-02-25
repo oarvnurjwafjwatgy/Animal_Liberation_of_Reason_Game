@@ -32,4 +32,11 @@ public class BuffIcon : MonoBehaviour
 			Destroy(gameObject); // 時間が来たら自分を消す
 		}
 	}
+
+
+	//手動でバフアイコンを消すための関数（例：バフが解除されたとき）
+	public void ForceDestroy()
+	{
+		Destroy(gameObject);
+	}
 }

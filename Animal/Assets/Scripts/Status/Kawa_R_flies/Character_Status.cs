@@ -91,12 +91,15 @@ public class Character_Status : MonoBehaviour
 	[SerializeField] protected float skillCTMax = 10f;        // スキルの最大CT
 
 	// バフ・デバフ管理用の列挙型と変数
-	public enum BuffType { SpeedBuff, SpeedDebuff, AttackBuff, AttackDebuff }
+	public enum BuffType { SpeedBuff, SpeedDebuff, AttackBuff, AttackDebuff, RhinoDash }
 	[Header("バフUI用画像")]
 	[SerializeField] private Sprite spdBuffSprite;
 	[SerializeField] private Sprite spdDebuffSprite;
 	[SerializeField] private Sprite atkBuffSprite;
 	[SerializeField] private Sprite atkDebuffSprite;
+
+	[Header("ライオン専用バフUI")]
+	[SerializeField] private Sprite lionBurstSpdSprite;   // 特性用
 
 	private Transform buffContainer;
 	private System.Collections.Generic.Dictionary<BuffType, BuffIcon> activeBuffs = new System.Collections.Generic.Dictionary<BuffType, BuffIcon>();
@@ -377,9 +380,21 @@ public class Character_Status : MonoBehaviour
 			// 新しく作る
 			GameObject go = new GameObject(type.ToString(), typeof(Image), typeof(BuffIcon));
 			go.transform.SetParent(buffContainer, false);
+
+			go.GetComponent<RectTransform>().localScale = new Vector3(1.3f, 1.3f, 1.3f);// アイコンサイズ調整
 			BuffIcon script = go.GetComponent<BuffIcon>();
 			script.Setup(icon, duration);
 			activeBuffs[type] = script;
+		}
+	}
+
+	// バフ・デバフのアイコンを消す関数
+	private void RemoveBuff(BuffType type)
+	{
+		if (activeBuffs.ContainsKey(type) && activeBuffs[type] != null)
+		{
+			activeBuffs[type].ForceDestroy(); // アイコンを消す
+			activeBuffs.Remove(type);         // 辞書からも消す
 		}
 	}
 
@@ -806,6 +821,8 @@ public class Character_Status : MonoBehaviour
 	//ライオンの固有スキル処理関数
 	void Skill_Lion()
 	{
+		CreateOrUpdateBuff(BuffType.AttackBuff, atkBuffSprite, LION_SKILL_DURATION);
+
 		// 理性解放中かどうかで倍率を変化（覚醒ならより強く！）
 		if (CharaMode == Mode.SPSIAL_ANIMAL)
 		{
@@ -831,6 +848,8 @@ public class Character_Status : MonoBehaviour
 		// もし既に実行中なら、止める
 		if (rhinoDashCoroutine != null)
 		{
+			// 止める前に掃除をする
+			RemoveBuff(BuffType.SpeedBuff);
 			StopCoroutine(rhinoDashCoroutine);
 			rhinoDashSpeedBoost = 1.0f; // 速度を元に戻す
 			isRhinoDashing = false;     // フラグを下ろす
@@ -847,6 +866,9 @@ public class Character_Status : MonoBehaviour
 	private System.Collections.IEnumerator RhinoDashLoop()
 	{
 		isRhinoDashing = true;
+
+		CreateOrUpdateBuff(BuffType.SpeedBuff, spdBuffSprite, 999f);
+
 		rhinoDashSpeedBoost = 1.8f; // 突進開始！速度を1.8倍にアップ
 		Debug.Log("<color=orange>サイ：突進スキル発動！猛スピードで理性を消費します</color>");
 
@@ -864,6 +886,8 @@ public class Character_Status : MonoBehaviour
 				break;
 			}
 		}
+		// ループを抜けたら、バフを消して速度を元に戻す
+		RemoveBuff(BuffType.SpeedBuff);
 
 		// 終了処理（ここを通れば必ず速度が元に戻る）
 		rhinoDashSpeedBoost = 1.0f;
@@ -887,6 +911,8 @@ public class Character_Status : MonoBehaviour
 
 			// ここで持続時間をセット
 			lionBurstTimer = lionBurstDuration;
+
+			CreateOrUpdateBuff(BuffType.SpeedBuff, lionBurstSpdSprite, lionBurstDuration);
 			Debug.Log($"<color=red>【特性発動】憤怒解放！ {lionBurstDuration}秒間、爆速モード！</color>");
 		}
 		else
