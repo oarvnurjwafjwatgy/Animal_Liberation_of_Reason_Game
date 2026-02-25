@@ -62,6 +62,7 @@ public class Character_Status : MonoBehaviour
 	[Header("キャラクターごとの固有特性設定一覧")]
 	[Header("ライオン特性：蓄積ダメージ設定")]
 	private Image lionRageFill;                                    // 外周ゲージを制御するための変数
+	private GameObject lionRageUIRoot;                             // アイコン全体を制御するための変数
 	private Transform uiPos;
 	private int accumulatedDamage = 0;
 	[SerializeField] private int burstThreshold = 80;              // これ以上食らわないと発動しない
@@ -145,7 +146,6 @@ public class Character_Status : MonoBehaviour
 
 	private float timer = 0f;              //タイマー系の変数
 	private float ostrichTimer = 0f;       //ダチョウ回復専用タイマー（爆速化防止用）
-	private float rhinoDashTimer = 0f;     //サイの突進用タイマー
 
 
 	public int CurrentHP { get; protected set; }    // キャラクター現在HP(外部読み取り可、内部変更可)
@@ -233,12 +233,10 @@ public class Character_Status : MonoBehaviour
 		// ライオンなら専用アイコンも作る
 		if (CharaAnim == CharacterType.LION)
 		{
-			// UIManagerに同じように頼む（Sliderは返ってこないが生成はされる）
-			// uiPosは 1PBarPosition などの Transform
-			UIManager.UI_ID id = UIManager.UI_ID.LION_RAGE;
+			uIManager.CreateUI(UIManager.UI_ID.LION_RAGE, uiPos, playerID);
 
-			// 生成された実体は ui_list の最後に入っているのを利用する
-			uIManager.CreateUI(id, uiPos, playerID);
+			// 生成されたアイコンはリストの最後に追加されるはずなので、そこから参照する
+			lionRageUIRoot = uIManager.ui_list[uIManager.ui_list.Count - 1];
 
 			// リストの最後（今作ったアイコン）から Gauge 画像を探す
 			GameObject iconObj = uIManager.ui_list[uIManager.ui_list.Count - 1];
@@ -639,7 +637,16 @@ public class Character_Status : MonoBehaviour
 
 		if (hp_gauge != null) hp_gauge.value = 0;
 		if (reason_gauge != null) reason_gauge.value = 0;
-		Debug.Log("キャラクターが死亡しました。");
+
+
+		//体力ゲージ・理性ゲージのUIを非表示にする処理
+		if (hp_gauge != null) hp_gauge.gameObject.SetActive(false);
+		if (reason_gauge != null) reason_gauge.gameObject.SetActive(false);
+
+		// ライオンの専用UIも非表示にする
+		if (lionRageUIRoot != null) lionRageUIRoot.gameObject.SetActive(false);
+
+		Debug.Log($"{gameObject.name} が死亡したため、UIを非表示にしました。");
 
 		if (CharaState != State.DEAD)
 			playerManager.SetDiePlayerList(playerID);
@@ -799,21 +806,6 @@ public class Character_Status : MonoBehaviour
 
 		// 実行中でなければ、コルーチンを開始してループ処理を開始
 		rhinoDashCoroutine = StartCoroutine(RhinoDashLoop());
-
-
-		//if (isRhinoDashing)
-		//	rhinoDashTimer += Time.deltaTime;
-
-		////理性が0より大きいなら突進処理を行う
-		//if (CurrentReason > 0)
-		//{
-		//	if (rhinoDashTimer >= 0.1f)
-		//	{
-		//		CurrentReason -= 1;         //マッハで減らす
-		//		rhinoDashTimer = 0f;
-		//		TakeDamage(0);              //毎度ダメージ関数を呼び出し判定してもらう
-		//	}
-		//}
 	}
 
 	// 突進中の「継続処理」をここに完結させる
