@@ -17,15 +17,23 @@ public class PlayerCountMultiHandler : MonoBehaviour
         SoundManagerObj = GameObject.Find("SoundManager");
         soundmanager = SoundManagerObj.GetComponent<SoundManager>();
 
-        // 最初は1Pボタンを選択状態にする
-        if (countButtons.Length > 0)
+		//1Pは時間的に実装が難しいため、最初から選べないようにする
+		if (countButtons.Length > 0)
         {
-            // EventSystem経由で選択しないとUIナビゲーションが動かない
-            EventSystem.current.SetSelectedGameObject(countButtons[0].gameObject);
+            countButtons[0].gameObject.SetActive(false);
+            countButtons[0].interactable = false;
         }
 
-        // ボタンにイベント登録（※AIに聞きました）
-        for (int i = 0; i < countButtons.Length; i++)
+        //最初は2pボタンを選択状態にする
+        if (countButtons.Length > 1)
+        {
+            EventSystem.current.SetSelectedGameObject(countButtons[1].gameObject);
+        }
+
+
+		// ボタンにイベント登録
+		//1Pは実装が難しいため、最初から選べないようにするので、ループは2Pから
+		for (int i = 1; i < countButtons.Length; i++)
         {
             // onClickは引数なし関数しか受け取れないがindexを渡したいため、
             // 引数なしのラムダ式を呼び、その中で引数付き関数を呼ぶ
@@ -54,10 +62,22 @@ public class PlayerCountMultiHandler : MonoBehaviour
         int connectedCount = Gamepad.all.Count;
 
         //参加してないPlayerの数は選べないようにする
-        for (int j = 0; j < countButtons.Length; j++)
+        for (int j = 1; j < countButtons.Length; j++)
         {
             // 接続数以下なら選択可能、超えてたら選択不可にする
             countButtons[j].interactable = (j + 1 <= connectedCount);
+        }
+        GameObject currentSelected = EventSystem.current.currentSelectedGameObject;
+
+        //ボタンが選択されているか確認し、選択されている場合はそのボタンが有効かどうかを確認する
+        if (currentSelected != null)
+        {
+            Button btn = currentSelected.GetComponent<Button>();
+
+            if (btn != null&&!btn.interactable) 
+            { 
+            EventSystem.current.SetSelectedGameObject(countButtons[1].gameObject);
+			}
         }
     }
 
