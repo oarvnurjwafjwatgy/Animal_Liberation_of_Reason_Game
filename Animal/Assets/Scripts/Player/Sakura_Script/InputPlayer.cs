@@ -35,6 +35,8 @@ public class InputPlayer : MonoBehaviour
     private Rigidbody rb;
     private Controller controller; // 作成した Controller クラス
 
+    private const float ghostMoveSpeed = 15f;
+
     [SerializeField] private GameObject Collision;
 
     private GameObject EffectManager;
@@ -132,7 +134,7 @@ public class InputPlayer : MonoBehaviour
 
 
 
-        if (character_Status.CurrentHP <= 0)
+        if (character_Status.CurrentHP <= 0 || character_Status.CurrentReason <= 0)
         {
             animator.SetInteger("State", 2);
             LiveFlag = false;
@@ -247,6 +249,11 @@ public class InputPlayer : MonoBehaviour
                 reasonObject.transform.rotation = cachedRotate;
             }
         }
+        if (deathFlag)
+        {
+            this.UpdateGhostMove();
+            this.UpdateGhostCamera();
+        }
     }
 
     // 通常時のカメラ更新
@@ -298,6 +305,27 @@ public class InputPlayer : MonoBehaviour
         {
             // 上移動
             ghostObject.transform.RotateAround(this.transform.position, ghostObject.transform.right, -rightStickInput.y * Time.deltaTime * 200f);
+        }
+    }
+
+    // 観戦モード時の移動
+    private void UpdateGhostMove()
+    {
+        // Controller クラスが正しく取得できているか確認
+        if (controller != null && rb != null)
+        {
+            // Controller クラスからスティックの入力値を取得
+            Vector2 leftStickInput = controller.GetLeftStick();
+
+            // 2. 入力値 (Vector2) を 3D の移動方向 (Vector3) に変換
+            Vector3 moveDirection = new Vector3(leftStickInput.x, 0, leftStickInput.y);
+
+            GameObject camera = ghostObject.transform.GetChild(0).gameObject;
+
+            // 3. Rigidbody の速度 (velocity) を変更して移動させる
+            Vector3 cameraForward = Vector3.Scale(camera.transform.forward, new Vector3(1, 0, 1)).normalized;
+            Vector3 moveForward = cameraForward * leftStickInput.y + camera.transform.right * leftStickInput.x;
+            rb.velocity = moveForward * ghostMoveSpeed + new Vector3(0, rb.velocity.y, 0);
         }
     }
 
@@ -621,21 +649,21 @@ public class InputPlayer : MonoBehaviour
     {
        if(deathFlag == false)
         {
-            //// 死亡フラグをtrueにする
-            //deathFlag = true;
+            // 死亡フラグをtrueにする
+            deathFlag = true;
 
-            //// 観戦者用に各アクティブ状態を変更する
-            //cameraObject.SetActive(false);
-            //normalObject.SetActive(false);
-            //reasonObject.SetActive(false);
-            //ghostObject.SetActive(true);
+            // 観戦者用に各アクティブ状態を変更する
+            cameraObject.SetActive(false);
+            normalObject.SetActive(false);
+            reasonObject.SetActive(false);
+            ghostObject.SetActive(true);
 
-            //// 重力を無効にする
-            //rb.useGravity = false;
+            // 重力を無効にする
+            rb.useGravity = false;
 
-            //// 自身と子オブジェクトのレイヤーをGhostにする
-            //ChangeLayer change_layer = this.GetComponent<ChangeLayer>();
-            //change_layer.SetLayer();
+            // 自身と子オブジェクトのレイヤーをGhostにする
+            ChangeLayer change_layer = this.GetComponent<ChangeLayer>();
+            change_layer.SetLayer();
 
             Effect_Manager.PlayEffect("Common", 4, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1f, 1f, 1f));
 
