@@ -2045,6 +2045,7 @@ MonoBehaviour:
   - {fileID: 8518616532307187625, guid: 4b4e2c10a0e367e4787f65d9ec31db12, type: 3}
   - {fileID: 5453872566350051695, guid: de293a82b5b8744afb358462cb26def5, type: 3}
   - {fileID: 425167456520409862, guid: 57fd14d22feec462c81c38bc4e8fba59, type: 3}
+  - {fileID: 5207654386914458580, guid: 0a9c25a666781284d846f95b5b51ffa9, type: 3}
   Ostrich_EffectPrefabs:
   - {fileID: 4516285636062423811, guid: 682f6689d114f4f12a487939fa52138a, type: 3}
   - {fileID: 5899626682869083158, guid: 62d308c82964042df9bbc5b1ce081f58, type: 3}

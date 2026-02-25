@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using System.Collections.Generic; 
+using System.Collections.Generic;
+using System.Collections;
 
 
 // 動物ごとの設定をインスペクターで表示するためのクラス
@@ -72,7 +73,7 @@ public class InputPlayer : MonoBehaviour
     GameObject SoundManagerObj;
     SoundManager soundmanager;
 
-
+    private int ratelSkillStartHP; // スキル開始時のHPを保持
 
     public enum Direction
     {
@@ -162,11 +163,24 @@ public class InputPlayer : MonoBehaviour
             animator.SetInteger("State", 2);
             LiveFlag = false;
 
-           
+
 
             //Invoke("SetDeath", 3.0f);
 
-             SetDeath();
+            SetDeath();
+        }
+
+
+        // ラーテルがスキル発動中(1)の時だけHPチェック
+        if (character_Status.CharaAnim == Character_Status.CharacterType.RATEL &&
+            animator.GetInteger("RatelSkill") == 1)
+        {
+            if (character_Status.GetCurrentHP() < ratelSkillStartHP)
+            {
+                Debug.Log("ダメージを受けたのでラーテルのスキルを解除します");
+                animator.SetInteger("RatelSkill", 2);
+                MoveFlag = true;
+            }
         }
 
         // 奈落落下チェック
@@ -371,21 +385,31 @@ public class InputPlayer : MonoBehaviour
 
     private void OnAttack(InputAction.CallbackContext context)
     {
-        if(LiveFlag ==  true)
+        if (LiveFlag == true)
         {
 
             // --- 追加：クールタイムの判定 ---
             Character_Status.CharacterType currentType = character_Status.CharaAnim;
 
-            float cooldown = 2.0f;
+            bool isSpecial = (character_Status.GetMode() == Character_Status.Mode.SPSIAL_ANIMAL);
+
+            float cooldown = 0.0f;
 
             switch (currentType)
             {
-                case Character_Status.CharacterType.LION: break;
-                case Character_Status.CharacterType.OSTRICH: break;
-                case Character_Status.CharacterType.RHINOCELOS: break;
-                case Character_Status.CharacterType.RATEL: break;
+                case Character_Status.CharacterType.LION: cooldown = 1.5f; break;
+                case Character_Status.CharacterType.OSTRICH: cooldown = 1f; break;
+                case Character_Status.CharacterType.RHINOCELOS: cooldown = 2f; break;
+                case Character_Status.CharacterType.RATEL: cooldown = 0.5f; break;
 
+            }
+
+
+            if (cooldownDict.ContainsKey(currentType))
+            {
+                var settings = animalSettings.Find(s => s.type == currentType);
+                // 強化中ならスキルクールタイムを半分にする、といった調整も可能
+                cooldown = isSpecial ? settings.skillCooldown * 0.5f : settings.skillCooldown;
             }
 
 
@@ -427,12 +451,12 @@ public class InputPlayer : MonoBehaviour
 
                     // 2. この形なら add_pos.x を変えると「常にキャラの右/左」に動きます！
                     Position = new Vector3(
-                        effectPosition.x + (LIright.x *add_pos.x) + (LIup.x * add_pos.y) + (LIforward.x * add_pos.z),
-                        effectPosition.y + (LIright.y * add_pos.x) + (LIup.y * add_pos.y) + (LIforward.y * add_pos.z),
-                        effectPosition.z + (LIright.z * add_pos.x) + (LIup.z * add_pos.y) + (LIforward.z * add_pos.z)
+                        effectPosition.x + (LIright.x * 0) + (LIup.x * 0.43f) + (LIforward.x * 0),
+                        effectPosition.y + (LIright.y * 0) + (LIup.y * 0.43f) + (LIforward.y * 0),
+                        effectPosition.z + (LIright.z * 0) + (LIup.z * 0.43f) + (LIforward.z * 0)
                     );
 
-                    Quaternion = activeModel.transform.rotation * Quaternion.Euler(add_rot.x, add_rot.y, add_rot.z);
+                    Quaternion = activeModel.transform.rotation * Quaternion.Euler(0, 0, 0);
                     Scale = new Vector3(0.4f, 0.4f, 0.4f);
 
                     break;
@@ -448,7 +472,7 @@ public class InputPlayer : MonoBehaviour
 
                     // 2. この形なら add_pos.x を変えると「常にキャラの右/左」に動きます！
                     Position = new Vector3(
-                        effectPosition.x + (right.x * -0.5f) + (up.x *  0) + (forward.x * 0),
+                        effectPosition.x + (right.x * -0.5f) + (up.x * 0) + (forward.x * 0),
                         effectPosition.y + (right.y * -0.5f) + (up.y * 0) + (forward.y * 0),
                         effectPosition.z + (right.z * -0.5f) + (up.z * 0) + (forward.z * 0)
                     );
@@ -458,7 +482,7 @@ public class InputPlayer : MonoBehaviour
 
                     break;
 
-                    //Vector3 offset = new Vector3(other.gameObject.transform.position.x - 0.7f, other.gameObject.transform.position.y, other.gameObject.transform.position.z - 1.0f);
+                //Vector3 offset = new Vector3(other.gameObject.transform.position.x - 0.7f, other.gameObject.transform.position.y, other.gameObject.transform.position.z - 1.0f);
 
 
                 case Character_Status.CharacterType.RHINOCELOS:
@@ -507,7 +531,7 @@ public class InputPlayer : MonoBehaviour
 
             }
 
-            if(character_Status.CharaAnim !=Character_Status.CharacterType.LION)
+            if (character_Status.CharaAnim != Character_Status.CharacterType.LION)
             {
                 // エフェクト再生
                 Effect_Manager.PlayEffect(normalObject.name, 0, Position, Quaternion, Scale, this.transform);
@@ -517,7 +541,7 @@ public class InputPlayer : MonoBehaviour
                 // エフェクト再生
                 Effect_Manager.PlayEffect(normalObject.name, 0, Position, Quaternion, Scale);
             }
-            
+
 
             // 当たり判定生成
             AttackCollider();
@@ -534,7 +558,7 @@ public class InputPlayer : MonoBehaviour
 
             Effect_Manager.PlayEffect("Common", 0, this.transform.position, this.transform.rotation, new Vector3(2.0f, 2.0f, 2.0f), this.transform);
 
-            switch(character_Status.CharaAnim)
+            switch (character_Status.CharaAnim)
             {
                 case Character_Status.CharacterType.LION: soundmanager.PlaySE(6); break;
                 case Character_Status.CharacterType.OSTRICH: soundmanager.PlaySE(7); break;
@@ -566,28 +590,26 @@ public class InputPlayer : MonoBehaviour
         {
             // --- 追加：スキルのクールタイム判定 ---
             Character_Status.CharacterType currentType = character_Status.CharaAnim;
-            float cooldown = 2.0f;
+
+            bool isSpecial = (character_Status.GetMode() == Character_Status.Mode.SPSIAL_ANIMAL);
+
+            float cooldown;
 
             switch (currentType)
             {
-                case Character_Status.CharacterType.LION: break;
-                case Character_Status.CharacterType.OSTRICH: break;
-                case Character_Status.CharacterType.RHINOCELOS: break;
-                case Character_Status.CharacterType.RATEL: break;
-
+                case Character_Status.CharacterType.LION: cooldown = 5f; break;
+                case Character_Status.CharacterType.OSTRICH: cooldown = 2f; break;
+                case Character_Status.CharacterType.RHINOCELOS: cooldown = 0f; break;
+                case Character_Status.CharacterType.RATEL: cooldown = 0f; break;
             }
 
             if (cooldownDict.ContainsKey(currentType))
             {
-                // 構造体で定義したスキル用の数値を取得（Startで辞書に登録しておく必要があります）
-                cooldown = animalSettings.Find(s => s.type == currentType).skillCooldown;
+                var settings = animalSettings.Find(s => s.type == currentType);
+                // 強化中ならスキルクールタイムを半分にする、といった調整も可能
+                cooldown = isSpecial ? settings.skillCooldown * 0.5f : settings.skillCooldown;
             }
 
-            if (Time.time - lastSkillTime < cooldown)
-            {
-                Debug.Log($"スキルはまだ使えません。あと {cooldown - (Time.time - lastSkillTime):F1} 秒");
-                return;
-            }
 
             // スキル発動成功：時間を記録
             lastSkillTime = Time.time;
@@ -595,24 +617,19 @@ public class InputPlayer : MonoBehaviour
 
             MoveFlag = false;
 
-			character_Status.Skill();
+            character_Status.Skill();
 
-			// 現在のモデル（通常か強化か）を取得
-			GameObject activeModel = (character_Status.GetMode() == Character_Status.Mode.SPSIAL_ANIMAL) ? reasonObject : normalObject;
+            // 現在のモデル（通常か強化か）を取得
+            GameObject activeModel = (character_Status.GetMode() == Character_Status.Mode.SPSIAL_ANIMAL) ? reasonObject : normalObject;
 
             // 【新機能】動物ごとの最適座標を計算して取得
             Vector3 effectPosition = GetEffectSpawnPosition(activeModel);
 
-           
-                switch (character_Status.CharaAnim)
+
+            switch (character_Status.CharaAnim)
             {
                 case Character_Status.CharacterType.RHINOCELOS:
-                    //// --- サイの処理: true と false を入れ替える ---
-                    //bool currentRhinocerosSkill = animator.GetBool("RhinocerosSkill");
-                    //animator.SetBool("RhinocerosSkill", !currentRhinocerosSkill);
 
-                    //// スキル解除時は移動可能にするなどの調整が必要な場合はここで行います
-                    //MoveFlag = currentRhinocerosSkill; // true(解除)になるなら移動可
 
                     // --- サイの処理: true と false を入れ替える ---
                     bool nextSkillState = !animator.GetBool("RhinocerosSkill"); // 次の状態
@@ -629,8 +646,8 @@ public class InputPlayer : MonoBehaviour
                             effectPosition,
                             activeModel.transform.rotation,
                             Vector3.one,
-                            true,               // roop を true に
-                            this.transform      // このキャラに関連付け
+                            this.transform,      // このキャラに関連付け
+                            true               // roop を true に
                         );
                     }
                     else
@@ -648,17 +665,18 @@ public class InputPlayer : MonoBehaviour
                     // --- ラーテルの処理: 1 と 2 を入れ替える ---
                     int currentRatelSkill = animator.GetInteger("RatelSkill");
 
-
-                    if (currentRatelSkill == 1)
+                    if (currentRatelSkill == 1) // すでに発動中なら手動解除
                     {
                         animator.SetInteger("RatelSkill", 2);
-                        MoveFlag = true; // 状態2（終了モーションなど）なら動けるようにする例
+                        MoveFlag = true;
                     }
-                    else
+                    else // 新しくスキル発動
                     {
                         animator.SetInteger("RatelSkill", 1);
+                        MoveFlag = false;
 
-                        MoveFlag = false; // 状態1（スキル中）は動けない
+                        // ★ここで現在のHPを保存する
+                        ratelSkillStartHP = character_Status.GetCurrentHP();
                     }
                     break;
 
@@ -667,7 +685,9 @@ public class InputPlayer : MonoBehaviour
 
             switch (character_Status.CharaAnim)
             {
-                case Character_Status.CharacterType.LION: soundmanager.PlaySE(6); break;
+                case Character_Status.CharacterType.LION:
+                    soundmanager.PlaySE(6); Effect_Manager.PlayEffect(normalObject.name, 2, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1));
+                    break;
                 case Character_Status.CharacterType.OSTRICH: soundmanager.PlaySE(7); break;
                 case Character_Status.CharacterType.RHINOCELOS: soundmanager.PlaySE(8); break;
                 case Character_Status.CharacterType.RATEL: soundmanager.PlaySE(9); break;
@@ -676,23 +696,36 @@ public class InputPlayer : MonoBehaviour
 
 
 
-            
-            if(character_Status.CharaAnim != Character_Status.CharacterType.RHINOCELOS)
+
+            if (character_Status.CharaAnim != Character_Status.CharacterType.RHINOCELOS || character_Status.CharaAnim != Character_Status.CharacterType.LION)
             {
                 // エフェクト再生
                 Effect_Manager.PlayEffect(normalObject.name, 1, effectPosition, activeModel.transform.rotation, new Vector3(1f, 1f, 1f));
+            }
+
+            if (character_Status.CharaAnim == Character_Status.CharacterType.LION)
+            {
+                Effect_Manager.PlayEffect(normalObject.name, 1, this.gameObject.transform.position, activeModel.transform.rotation, new Vector3(1f, 1f, 1f));
+
+                Effect_Manager.PlayEffect(normalObject.name, 3, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1), this.gameObject.transform, true);
+
+                StartCoroutine(StopLionEffectAfterDelay(5.0f));
             }
 
 
             Debug.Log("スキル発動");
         }
 
-           
+
     }
+
+
+
+
 
     private void OnEvation(InputAction.CallbackContext context)
     {
-        if(LiveFlag == true)
+        if (LiveFlag == true)
         {
             switch (direction)
             {
@@ -706,7 +739,7 @@ public class InputPlayer : MonoBehaviour
             Debug.Log("回避");
         }
 
-       
+
     }
 
 
@@ -731,7 +764,7 @@ public class InputPlayer : MonoBehaviour
 
     public void SetDeath()
     {
-       if(deathFlag == false)
+        if (deathFlag == false)
         {
             // 死亡フラグをtrueにする
             deathFlag = true;
@@ -871,7 +904,7 @@ public class InputPlayer : MonoBehaviour
         else if (animalName.Contains("Ostrich(Clone)"))
         {
             // ダチョウ用の微調整
-             baseOffset += new Vector3(0f, 0.2f, 0f);
+            baseOffset += new Vector3(0f, 0.2f, 0f);
         }
         else if (animalName.Contains("Rhinoceros(Clone)"))
         {
@@ -900,7 +933,7 @@ public class InputPlayer : MonoBehaviour
             if (outOfRangeDamageTimer > 2f)
             {
                 // ダメージ処理
-                if (character_Status !=  null)
+                if (character_Status != null)
                     character_Status.OutOfRangeDamage();
 
                 // タイマーリセット
@@ -923,6 +956,20 @@ public class InputPlayer : MonoBehaviour
         // 奈落死
         if (character_Status != null)
             character_Status.DieAbyss();
+    }
+
+    // 5秒待ってからエフェクトを止める魔法の関数
+    private IEnumerator StopLionEffectAfterDelay(float delay)
+    {
+        // 指定された秒数（5秒）待つ
+        yield return new WaitForSeconds(delay);
+
+        // エフェクトを止める
+        if (Effect_Manager != null)
+        {
+            Effect_Manager.StopLoopEffect(this.transform);
+            Debug.Log("ライオンのループエフェクトを停止しました");
+        }
     }
 }
 
