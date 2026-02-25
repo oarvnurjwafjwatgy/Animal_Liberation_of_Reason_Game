@@ -26,7 +26,7 @@ public class EffectManager : MonoBehaviour
     /// <param name="animalName">動物の名前（"Common", "Lion", "Ostrich", "Rhino", "Ratel"）</param>
     /// <param name="id">その動物内でのエフェクト番号</param>
     /// <param name="position">出す場所</param>
-    public void PlayEffect(string animalName, int id, Vector3 position, Quaternion rotation, Vector3 scale, bool roop = false, Transform parent = null)
+    public void PlayEffect(string animalName, int id, Vector3 position, Quaternion rotation, Vector3 scale,Transform parent = null, bool roop = false)
     {
         GameObject[] targetArray = null;
 
