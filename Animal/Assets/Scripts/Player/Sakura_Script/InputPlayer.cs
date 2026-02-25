@@ -197,11 +197,16 @@ public class InputPlayer : MonoBehaviour
         if (controller == null || rb == null || LiveFlag == false) return;
 
         // --- 【サイのスキル直進ロジック】 ---
-        // AnimatorのフラグがTrue（スキル中）であれば、スティック入力を無視して直進
         if (character_Status.CharaAnim == Character_Status.CharacterType.RHINOCELOS && animator.GetBool("RhinocerosSkill"))
         {
+            // スティック入力に関係なく直進
             rb.velocity = skillDirection * character_Status.CurrentMoveSpeed + new Vector3(0, rb.velocity.y, 0);
-            return;
+
+            // ★追加：スキル中でもカメラ操作（Rスティック）だけは可能にする
+            if (!deathFlag) this.UpdateCamera();
+            else this.UpdateGhostCamera();
+
+            return; // 通常のLスティック移動処理は行わない
         }
 
         // --- 通常の移動処理 ---
@@ -215,6 +220,7 @@ public class InputPlayer : MonoBehaviour
 
             rb.velocity = moveForward * character_Status.CurrentMoveSpeed + new Vector3(0, rb.velocity.y, 0);
 
+            // 通常時のカメラ更新
             if (!deathFlag) this.UpdateCamera();
             else this.UpdateGhostCamera();
         }
@@ -583,6 +589,8 @@ public class InputPlayer : MonoBehaviour
 
                     soundmanager.PlaySE(8);
                     Vector3 effectPos = GetEffectSpawnPosition(activeModel);
+
+                    effectPos.y += -0.2f;
                     Effect_Manager.PlayEffect(normalObject.name, 1, effectPos, activeModel.transform.rotation, Vector3.one, this.transform, true);
                 }
                 else // 【スキル解除】
