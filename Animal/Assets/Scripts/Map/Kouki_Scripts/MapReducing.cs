@@ -13,10 +13,17 @@ public class MapReducing : MonoBehaviour
     private Vector3 targetPos;      // 収縮最終地点の座標
     [SerializeField] private float finalRadiusRange;  // 収縮最終地点の設定の範囲の半径
     [SerializeField] private GameObject targetObject; // 収縮最終地点オブジェクト
+
     [SerializeField] private GameObject northWall;    // 北の壁（+z）
     [SerializeField] private GameObject southWall;    // 南の壁（-z）
     [SerializeField] private GameObject eastWall;     // 東の壁（+x）
     [SerializeField] private GameObject westWall;     // 西の壁（+x）
+
+    [SerializeField] private GameObject northWallEffect;    // 北の壁のエフェクト
+    [SerializeField] private GameObject southWallEffect;    // 南の壁のエフェクト
+    [SerializeField] private GameObject eastWallEffect;     // 東の壁のエフェクト
+    [SerializeField] private GameObject westWallEffect;     // 西の壁のエフェクト
+
     [SerializeField] private GameObject nePillar;     // 北東の壁
     [SerializeField] private GameObject nwPillar;     // 北西の壁
     [SerializeField] private GameObject sePillar;     // 南東の壁
@@ -43,6 +50,12 @@ public class MapReducing : MonoBehaviour
         southWall.transform.position = new Vector3(0f, 0f, -mapRadius);
         eastWall.transform.position = new Vector3(mapRadius, 0f, 0f);
         westWall.transform.position = new Vector3(-mapRadius, 0f, 0f);
+
+        // 壁エフェクトの位置の初期化
+        northWallEffect.transform.position = new Vector3(0f, 0f, mapRadius);
+        southWallEffect.transform.position = new Vector3(0f, 0f, -mapRadius);
+        eastWallEffect.transform.position = new Vector3(mapRadius, 0f, 0f);
+        westWallEffect.transform.position = new Vector3(-mapRadius, 0f, 0f);
 
         // 柱の位置の初期化
         nePillar.transform.position = new Vector3(mapRadius, 0f, mapRadius);
@@ -103,6 +116,11 @@ public class MapReducing : MonoBehaviour
         southWall.transform.localScale = new Vector3(southWall.transform.localScale.x, southWall.transform.localScale.y, southWall.transform.localScale.z + new_velocity[1] * 2f);
         eastWall.transform.localScale = new Vector3(eastWall.transform.localScale.x + new_velocity[2] * 2f, eastWall.transform.localScale.y, eastWall.transform.localScale.z);
         westWall.transform.localScale = new Vector3(westWall.transform.localScale.x + new_velocity[3] * 2f, westWall.transform.localScale.y, westWall.transform.localScale.z);
+        // エフェクトの移動
+        northWallEffect.transform.position = new Vector3(0f, 0f, northWallEffect.transform.position.z - new_velocity[0] * 2f);
+        southWallEffect.transform.position = new Vector3(0f, 0f, southWallEffect.transform.position.z + new_velocity[1] * 2f);
+        eastWallEffect.transform.position = new Vector3(eastWallEffect.transform.position.x - new_velocity[2] * 2f, 0f, 0f);
+        westWallEffect.transform.position = new Vector3(westWallEffect.transform.position.x + new_velocity[3] * 2f, 0f, 0f);
         // 柱の移動
         nePillar.transform.position = new Vector3(nePillar.transform.position.x - new_velocity[2] * 2f, 0f, nePillar.transform.position.z - new_velocity[0] * 2f);
         nwPillar.transform.position = new Vector3(nwPillar.transform.position.x + new_velocity[3] * 2f, 0f, nwPillar.transform.position.z - new_velocity[0] * 2f);
