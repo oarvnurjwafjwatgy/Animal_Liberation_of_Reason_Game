@@ -193,6 +193,12 @@ public class InputPlayer : MonoBehaviour
     // 物理演算は FixedUpdate で行います
     private void FixedUpdate()
     {
+        if (deathFlag)
+        {
+            this.UpdateGhostMove();
+            this.UpdateGhostCamera();
+        }
+
         if (controller == null || rb == null || LiveFlag == false) return;
 
         // --- 【サイのスキル直進ロジック】 ---
@@ -263,11 +269,6 @@ public class InputPlayer : MonoBehaviour
             }
         }
 
-        if (deathFlag)
-        {
-            this.UpdateGhostMove();
-            this.UpdateGhostCamera();
-        }
     }
 
     // 通常時のカメラ更新
