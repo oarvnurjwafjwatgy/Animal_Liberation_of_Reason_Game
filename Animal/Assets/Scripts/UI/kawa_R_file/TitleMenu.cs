@@ -30,8 +30,6 @@ public class TitleMenu : MonoBehaviour
     private void Start()
     {
 		SoundManagerObj = GameObject.Find("SoundManager");
-		soundmanager = SoundManagerObj.GetComponent<SoundManager>();
-
 	}
 
     void Update()
@@ -80,11 +78,14 @@ public class TitleMenu : MonoBehaviour
 		isTransitioning = true;
 		Debug.Log("Scene Transition Start!");
 
-        // ここで決定音を鳴らす処理を入れる！
-        soundmanager.PlaySE(0);
+		// ここで決定音を鳴らす処理を入れる！
+		if (AudioManager.Instance != null)
+		{
+			AudioManager.Instance.PlaySEByIndex(0); // 0番に登録したクリック音を鳴らす
+		}
 
 
-        // シーン移動
-        SceneManager.LoadScene(nextSceneName);
+		// シーン移動
+		SceneManager.LoadScene(nextSceneName);
 	}
 }
