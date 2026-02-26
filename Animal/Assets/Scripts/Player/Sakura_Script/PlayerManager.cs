@@ -1,200 +1,205 @@
-ï»¿using System;
-using System.Collections;
+using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.XR;
 
 public partial class PlayerManager : MonoBehaviour
 {
-	//ç”Ÿæˆã—ãŸãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‚’ç®¡ç†ã™ã‚‹ãƒªã‚¹ãƒˆ
-	private List<Character_Status> spawnedPlayers = new List<Character_Status>();
+    //¶¬‚µ‚½ƒvƒŒƒCƒ„[‚ğŠÇ—‚·‚éƒŠƒXƒg
+    private List<Character_Status> spawnedPlayers = new List<Character_Status>();
 
-	[Header("UIè¨­å®š")]
-	[SerializeField] private UIManager uiManager;// UIãƒãƒãƒ¼ã‚¸ãƒ£ãƒ¼ã®å‚ç…§
-	[SerializeField] private List<Transform> uiPositions = new List<Transform>();// 1P~4Pã®UIä½ç½®
-	[SerializeField] private EndManager endManager;     // ã‚¨ãƒ³ãƒ‰ãƒãƒãƒ¼ã‚¸ãƒ£ãƒ¼ã®å‚ç…§
+    [Header("UIİ’è")]
+    [SerializeField] private UIManager uiManager;// UIƒ}ƒl[ƒWƒƒ[‚ÌQÆ
+    [SerializeField] private List<Transform> uiPositions = new List<Transform>();// 1P~4P‚ÌUIˆÊ’u
+    [SerializeField] private EndManager endManager;     // ƒGƒ“ƒhƒ}ƒl[ƒWƒƒ[‚ÌQÆ
 
-	[HideInInspector] // ã‚¤ãƒ³ã‚¹ãƒšã‚¯ã‚¿ãƒ¼ã«ã¯å‡ºã•ãªãã¦è‰¯ã„å ´åˆã¯ã“ã‚Œã‚’ã¤ã‘ã‚‹
-	public int playerCount;
-	public bool isGameEnd;  // ã‚²ãƒ¼ãƒ çµ‚äº†ãƒ•ãƒ©ã‚°
-	public int lastPlayer;  // æœ€å¾Œã«æ®‹ã£ãŸãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼
-	private List<int> diedPlayer = new List<int>(); // æ­»ã‚“ã ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‚’é †ç•ªã«æ ¼ç´
+    [HideInInspector] // ƒCƒ“ƒXƒyƒNƒ^[‚É‚Ío‚³‚È‚­‚Ä—Ç‚¢ê‡‚Í‚±‚ê‚ğ‚Â‚¯‚é
+    public int playerCount;
+    public bool isGameEnd;  // ƒQ[ƒ€I—¹ƒtƒ‰ƒO
+    public int lastPlayer;  // ÅŒã‚Éc‚Á‚½ƒvƒŒƒCƒ„[
+    private List<int> diedPlayer = new List<int>(); // €‚ñ‚¾ƒvƒŒƒCƒ„[‚ğ‡”Ô‚ÉŠi”[
 
-	[Header("ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®åœŸå°ãƒ—ãƒ¬ãƒãƒ–")]
-	[SerializeField] private GameObject PlayerBasePrefab;
+    [Header("ƒvƒŒƒCƒ„[‚Ì“y‘äƒvƒŒƒnƒu")]
+    [SerializeField] private GameObject PlayerBasePrefab;
 
-	[Header("å‹•ç‰©ãƒ—ãƒ¬ãƒãƒ–è¨­å®š (Element 0=LION, 1=OSTRICH...)")]
-	[SerializeField] private List<GameObject> AnimalPrefabs = new List<GameObject>();
-	[SerializeField] private List<GameObject> AnimalReasonPrefabs = new List<GameObject>();
+    [Header("“®•¨ƒvƒŒƒnƒuİ’è (Element 0=LION, 1=OSTRICH...)")]
+    [SerializeField] private List<GameObject> AnimalPrefabs = new List<GameObject>();
+    [SerializeField] private List<GameObject> AnimalReasonPrefabs = new List<GameObject>();
 
-	[Header("å‡ºç¾ä½ç½®")]
-	[SerializeField] private List<Transform> PlayerTransforms = new List<Transform>();
+    [Header("oŒ»ˆÊ’u")]
+    [SerializeField] private List<Transform> PlayerTransforms = new List<Transform>();
 
 	InputPlayer input_player;
 
-	void Start()
-	{
-		Time.timeScale = 1.0f; // å¿µã®ãŸã‚ã€ã‚²ãƒ¼ãƒ é–‹å§‹æ™‚ã«ã‚¿ã‚¤ãƒ ã‚¹ã‚±ãƒ¼ãƒ«ã‚’ãƒªã‚»ãƒƒãƒˆ
-		Time.fixedDeltaTime = 0.02f; // â˜…ç‰©ç†æ¼”ç®—ã‚‚ãƒªã‚»ãƒƒãƒˆ
-		int playersToSpawn = GameDataManager.SelectedPlayerCount;
-		playerCount = playersToSpawn;
-		isGameEnd = false;
-		lastPlayer = 0;
-		var gamepads = Gamepad.all;
+    void Start()
+    {
+        int playersToSpawn = GameDataManager.SelectedPlayerCount;
+        playerCount = playersToSpawn;
+        isGameEnd = false;
+        lastPlayer = 0;
+        var gamepads = Gamepad.all;
 
-		spawnedPlayers.Clear(); // æ—¢å­˜ã®ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãƒªã‚¹ãƒˆã‚’ã‚¯ãƒªã‚¢
+        spawnedPlayers.Clear(); // Šù‘¶‚ÌƒvƒŒƒCƒ„[ƒŠƒXƒg‚ğƒNƒŠƒA
 
-		// ã‚¹ãƒãƒ¼ãƒ³ä½ç½®ã‚’ã‚·ãƒ£ãƒƒãƒ•ãƒ«ã™ã‚‹
-		for (int i = PlayerTransforms.Count - 1; i > 0; i--)
-		{
-			int j = UnityEngine.Random.Range(0, i + 1);
-			if (i == j) continue;
-			Transform temp = PlayerTransforms[i];
-			PlayerTransforms[i] = PlayerTransforms[j];
-			PlayerTransforms[j] = temp;
-		}
+        // ƒXƒ|[ƒ“ˆÊ’u‚ğƒVƒƒƒbƒtƒ‹‚·‚é
+        for (int i = PlayerTransforms.Count - 1; i > 0; i--)
+        {
+            int j = UnityEngine.Random.Range(0, i + 1);
+            if (i == j) continue;
+            Transform temp = PlayerTransforms[i];
+            PlayerTransforms[i] = PlayerTransforms[j];
+            PlayerTransforms[j] = temp;
+        }
 
-		// æˆ¦é—˜ã‚·ãƒ¼ãƒ³ãŒå§‹ã¾ã£ãŸã‚‰ã€BGMã‚’æˆ¦é—˜ç”¨ã«åˆ‡ã‚Šæ›¿ãˆã‚‹
-		if (AudioManager.Instance != null)
-		{
-			AudioManager.Instance.PlayBGM(AudioManager.Instance.battleBGM);
-		}
+        // ƒvƒŒƒCƒ„[‚Ì¶¬ƒ‹[ƒv
+        for (int i = 1; i <= playersToSpawn; i++)
+        {
+            // 1. ‘I‘ğ‚³‚ê‚½“®•¨‚Ìƒ^ƒCƒv‚ğæ“¾ (1P‚È‚ç index 1)
+            Character_Status.CharacterType selectedType = Animal_Select.playerChoices[i];
 
-		// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ç”Ÿæˆãƒ«ãƒ¼ãƒ—
-		for (int i = 1; i <= playersToSpawn; i++)
-		{
-			// 1. é¸æŠã•ã‚ŒãŸå‹•ç‰©ã®ã‚¿ã‚¤ãƒ—ã‚’å–å¾— (1Pãªã‚‰ index 1)
-			Character_Status.CharacterType selectedType = Animal_Select.playerChoices[i];
+            // NONEi–¢‘I‘ğj‚Ìê‡‚Í¶¬‚ğƒXƒLƒbƒv
+            if (selectedType == Character_Status.CharacterType.NONE) continue;
 
-			// NONEï¼ˆæœªé¸æŠï¼‰ã®å ´åˆã¯ç”Ÿæˆã‚’ã‚¹ã‚­ãƒƒãƒ—
-			if (selectedType == Character_Status.CharacterType.NONE) continue;
+            // Enum‚ğint‚É•ÏŠ·‚µ‚ÄƒvƒŒƒnƒu‚ÌƒCƒ“ƒfƒbƒNƒX‚Æ‚µ‚Äg—p
+            int animalIndex = (int)selectedType - 1;
 
-			// Enumã‚’intã«å¤‰æ›ã—ã¦ãƒ—ãƒ¬ãƒãƒ–ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã¨ã—ã¦ä½¿ç”¨
-			int animalIndex = (int)selectedType - 1;
+            // 2. ƒvƒŒƒCƒ„[‚Ì“y‘äiƒJƒƒ‰‚âˆÚ“®ƒXƒNƒŠƒvƒg“ü‚èj‚ğ¶¬
+            int padIndex = i - 1;
+            PlayerInput newPlayer = PlayerInput.Instantiate(
+                prefab: PlayerBasePrefab,
+                playerIndex: padIndex,
+                controlScheme: "Gamepad",
+                pairWithDevice: (padIndex < gamepads.Count) ? gamepads[padIndex] : null
+            );
 
-			// 2. ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®åœŸå°ï¼ˆã‚«ãƒ¡ãƒ©ã‚„ç§»å‹•ã‚¹ã‚¯ãƒªãƒ—ãƒˆå…¥ã‚Šï¼‰ã‚’ç”Ÿæˆ
-			int padIndex = i - 1;
-			PlayerInput newPlayer = PlayerInput.Instantiate(
-				prefab: PlayerBasePrefab,
-				playerIndex: padIndex,
-				controlScheme: "Gamepad",
-				pairWithDevice: (padIndex < gamepads.Count) ? gamepads[padIndex] : null
-			);
+            // 3. “®•¨ƒ‚ƒfƒ‹i’ÊíE—«j‚ğ¶¬‚µAƒvƒŒƒCƒ„[‚Ìq‚É‚·‚é
+            GameObject normalModel = Instantiate(AnimalPrefabs[animalIndex], newPlayer.transform);
+            GameObject reasonModel = Instantiate(AnimalReasonPrefabs[animalIndex], newPlayer.transform);
+            reasonModel.SetActive(false); // —«ƒ‚ƒfƒ‹‚ÍÅ‰‚ÍƒIƒt
 
-			// 3. å‹•ç‰©ãƒ¢ãƒ‡ãƒ«ï¼ˆé€šå¸¸ãƒ»ç†æ€§ï¼‰ã‚’ç”Ÿæˆã—ã€ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®å­ã«ã™ã‚‹
-			GameObject normalModel = Instantiate(AnimalPrefabs[animalIndex], newPlayer.transform);
-			GameObject reasonModel = Instantiate(AnimalReasonPrefabs[animalIndex], newPlayer.transform);
-			reasonModel.SetActive(false); // ç†æ€§ãƒ¢ãƒ‡ãƒ«ã¯æœ€åˆã¯ã‚ªãƒ•
+            // 4. ŠeƒRƒ“ƒ|[ƒlƒ“ƒg‚É¶¬‚µ‚½ƒ‚ƒfƒ‹‚ğ“o˜^‚·‚é
+            SetupPlayer(newPlayer.gameObject, i, normalModel, reasonModel);
 
-			// 4. å„ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã«ç”Ÿæˆã—ãŸãƒ¢ãƒ‡ãƒ«ã‚’ç™»éŒ²ã™ã‚‹
-			SetupPlayer(newPlayer.gameObject, i, normalModel, reasonModel);
+            if (uiManager != null && uiPositions.Count >= i)
+            {
+                // ¶¬‚µ‚½ƒvƒŒƒCƒ„[‚ÌƒXƒe[ƒ^ƒX‚ğƒŠƒXƒg‚É’Ç‰Á
+                var status = newPlayer.GetComponent<Character_Status>();
+                Slider hp = uiManager.CreateUI(UIManager.UI_ID.GAUGE_HP, uiPositions[padIndex], i);
+                Slider rs = uiManager.CreateUI(UIManager.UI_ID.GAUGE_REASON, uiPositions[padIndex], i);
+                if (status != null)
+                {
+                    status.ReInitialize(i); // ƒvƒŒƒCƒ„[ID‚ğİ’è
+                    spawnedPlayers.Add(status);
+                    //ÀÛ‚Ìƒf[ƒ^‚ª“ü‚Á‚Ä‚¢‚é uiPositions[padIndex] ‚ğ“n‚·
+                    status.SetUIComponents(hp, rs, uiManager, uiPositions[padIndex]);
+                }
 
-			if (uiManager != null && uiPositions.Count >= i)
-			{
-				// ç”Ÿæˆã—ãŸãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ã‚’ãƒªã‚¹ãƒˆã«è¿½åŠ 
-				var status = newPlayer.GetComponent<Character_Status>();
-				Slider hp = uiManager.CreateUI(UIManager.UI_ID.GAUGE_HP, uiPositions[padIndex], i);
-				Slider rs = uiManager.CreateUI(UIManager.UI_ID.GAUGE_REASON, uiPositions[padIndex], i);
-				if (status != null)
-				{
-					status.ReInitialize(i); // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼IDã‚’è¨­å®š
-					spawnedPlayers.Add(status);
-					//å®Ÿéš›ã®ãƒ‡ãƒ¼ã‚¿ãŒå…¥ã£ã¦ã„ã‚‹ uiPositions[padIndex] ã‚’æ¸¡ã™
-					status.SetUIComponents(hp, rs, uiManager, uiPositions[padIndex]);
-				}
+                // 5. ‰ŠúˆÊ’u‚ÖˆÚ“®
+                if (PlayerTransforms[padIndex] != null)
+                {
+                    newPlayer.transform.position = PlayerTransforms[padIndex].position;
+                    newPlayer.transform.rotation = PlayerTransforms[padIndex].rotation;
+                }
+            }
+        }
+    }
 
-				// 5. åˆæœŸä½ç½®ã¸ç§»å‹•
-				if (PlayerTransforms[padIndex] != null)
-				{
-					newPlayer.transform.position = PlayerTransforms[padIndex].position;
-					newPlayer.transform.rotation = PlayerTransforms[padIndex].rotation;
-				}
-			}
-		}
-	}
+    private void SetupPlayer(GameObject playerObj, int pID, GameObject normal, GameObject reason)
+    {
+        // ƒJƒƒ‰‚ÍqƒIƒuƒWƒFƒNƒg‚Ì0”Ô–Ú
+        if (playerObj.transform.childCount > 0)
+        {
+            GameObject camObj = playerObj.transform.GetChild(0).gameObject;
 
-	private void SetupPlayer(GameObject playerObj, int pID, GameObject normal, GameObject reason)
-	{
-		// ã‚«ãƒ¡ãƒ©ã¯å­ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®0ç•ªç›®
-		if (playerObj.transform.childCount > 0)
-		{
-			GameObject camObj = playerObj.transform.GetChild(0).gameObject;
-
-			// Viewportã‚¹ã‚¯ãƒªãƒ—ãƒˆã®åˆ¶å¾¡
-			var v1 = camObj.GetComponent<ChangeViewport1p>();
-			var v2 = camObj.GetComponent<ChangeViewport2p>();
+            // ViewportƒXƒNƒŠƒvƒg‚Ì§Œä
+            var v1 = camObj.GetComponent<ChangeViewport1p>();
+            var v2 = camObj.GetComponent<ChangeViewport2p>();
 
 			if (v1 != null) v1.enabled = (pID == 1);
 			if (v2 != null) v2.enabled = (pID == 2);
 		}
 
-		// ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ã®è¨­å®š
-		var status = playerObj.GetComponent<Character_Status>();
-		if (status != null) status.playerID = pID;
+        // ƒXƒe[ƒ^ƒX‚Ìİ’è
+        var status = playerObj.GetComponent<Character_Status>();
+        if (status != null) status.playerID = pID;
 
-		// å…¥åŠ›ã‚¹ã‚¯ãƒªãƒ—ãƒˆã®è¨­å®š
-		var input = playerObj.GetComponent<InputPlayer>();
-		if (input != null)
-		{
-			// å…ˆã«ãƒ¢ãƒ‡ãƒ«ã‚’ç´ä»˜ã‘ã‚‹
-			input.SetupDynamicReferences(normal, reason);
-		}
-	}
+        // “ü—ÍƒXƒNƒŠƒvƒg‚Ìİ’è
+        var input = playerObj.GetComponent<InputPlayer>();
+        if (input != null)
+        {
+            // æ‚Éƒ‚ƒfƒ‹‚ğ•R•t‚¯‚é
+            input.SetupDynamicReferences(normal, reason);
+        }
+    }
 
-	//æ›´æ–°
-	void Update()
-	{
-		int aliveCount = 0; // ç”Ÿå­˜ã—ã¦ã„ã‚‹ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®æ•°ã‚’ã‚«ã‚¦ãƒ³ãƒˆ
-		int last_player_id = 0;  // æœ€å¾Œã¾ã§æ®‹ã£ãŸãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ç•ªå·ã‚’ä¿æŒ;
-								 // â˜…è¿½åŠ : ç”Ÿãæ®‹ã£ã¦ã„ã‚‹ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã‚’ä¿æŒã™ã‚‹å¤‰æ•°
-		Character_Status survivorStatus = null;
+    //XV
+    void Update()
+    {
+        int aliveCount = 0; // ¶‘¶‚µ‚Ä‚¢‚éƒvƒŒƒCƒ„[‚Ì”‚ğƒJƒEƒ“ƒg
+        int last_player_id = 0;  // ÅŒã‚Ü‚Åc‚Á‚½ƒvƒŒƒCƒ„[‚Ì”Ô†‚ğ•Û;
+        // š’Ç‰Á: ¶‚«c‚Á‚Ä‚¢‚éƒvƒŒƒCƒ„[‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg‚ğ•Û‚·‚é•Ï”
+        Character_Status survivorStatus = null;
 
-		foreach (var player in spawnedPlayers)
-		{
-			if (player != null && !player.IsDead)
-			{
-				aliveCount++;
-				last_player_id = player.playerID;
-				// â˜…è¿½åŠ : ç”Ÿãã¦ã„ã‚‹ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®Statusã‚’ä¸Šæ›¸ãã—ã¦ä¿æŒ
-				survivorStatus = player;
-			}
-		}
+        foreach (var player in spawnedPlayers)
+        {
+            if (player != null && !player.IsDead)
+            {
+                aliveCount++;
+                last_player_id = player.playerID;
+                // š’Ç‰Á: ¶‚«‚Ä‚¢‚éƒvƒŒƒCƒ„[‚ÌStatus‚ğã‘‚«‚µ‚Ä•Û
+                survivorStatus = player;
+            }
+        }
 
 		playerCount = aliveCount;
 
-		if (GameDataManager.SelectedPlayerCount > 1 && playerCount == 1 && !isGameEnd)
-		{
-			Debug.Log("æ±ºç€ï¼ãƒªã‚¶ãƒ«ãƒˆã‚·ãƒ¼ãƒ³ã¸ç§»å‹•ã—ã¾ã™ã€‚");
+        if (GameDataManager.SelectedPlayerCount > 1 && playerCount == 1 && !isGameEnd)
+        {
+            Debug.Log("Œˆ’…IƒŠƒUƒ‹ƒgƒV[ƒ“‚ÖˆÚ“®‚µ‚Ü‚·B");
 
 			isGameEnd = true;
 			lastPlayer = last_player_id;
 
-			// â˜…ã“ã“ã§æœ€å¾Œã®ä¸€äººã®GameObjectã‚’å–å¾—ã§ãã¾ã™ï¼
-			if (survivorStatus != null)
-			{
-				GameObject winnerObject = survivorStatus.gameObject;
-				Debug.Log("å„ªå‹ã—ãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®åå‰: " + winnerObject.name);
-				// ã‚¹ãƒ­ãƒ¼æ¼”å‡ºã‹ã‚‰ã‚ºãƒ¼ãƒ ã€ãƒªã‚¶ãƒ«ãƒˆè¡¨ç¤ºã¾ã§ã®å…¨æµã‚Œã‚’é–‹å§‹
-				StartCoroutine(VictorySequenceRoutine(survivorStatus));
-			}
-		}
-	}
+            // š‚±‚±‚ÅÅŒã‚Ìˆêl‚ÌGameObject‚ğæ“¾‚Å‚«‚Ü‚·I
+            if (survivorStatus != null)
+            {
+                GameObject winnerObject = survivorStatus.gameObject;
+                Debug.Log("—DŸ‚µ‚½ƒIƒuƒWƒFƒNƒg‚Ì–¼‘O: " + winnerObject.name);
+
+                // •K—v‚Å‚ ‚ê‚ÎA‚±‚±‚ÅwinnerObject‚ğg‚Á‚½ˆ—iƒGƒtƒFƒNƒg‚ğo‚·AƒJƒƒ‰‚ğŠñ‚¹‚é“™j‚ª‚Å‚«‚Ü‚·
+                input_player = winnerObject.GetComponent<InputPlayer>();
+                input_player.Win();
+
+            }
+
+            diedPlayer.Add(last_player_id);
+            int[] ranking = diedPlayer.ToArray();
+            Array.Reverse(ranking);
+            uiManager.ShowResult(ranking, Animal_Select.playerChoices);
+
+            if (endManager != null)
+                endManager.SetEndFlag(true);
+        }
+    }
 
 	public void SetDiePlayerList(int player_id)
 	{
 		diedPlayer.Add(player_id);
 	}
 
-	//æ±ºç€ã‹ã‚‰ãƒªã‚¶ãƒ«ãƒˆè¡¨ç¤ºã¾ã§ã®ä¸€é€£ã®æ¼”å‡ºã‚’è¡Œã†ã‚³ãƒ«ãƒ¼ãƒãƒ³
+	//æ±ºç€ã‹ã‚‰ãƒªã‚¶ãƒ«ãƒˆè¡¨ç¤ºã¾ã§ã®ä¸€é€£ã®æ¼”å?ºã‚’è¡Œã†ã‚³ãƒ«ãƒ¼ãƒãƒ³
 	private IEnumerator VictorySequenceRoutine(Character_Status survivor)
 	{
-		// --- 1. ãƒˆãƒ‰ãƒ¡ã®ç¬é–“ï¼šã‚¹ãƒ­ãƒ¼é–‹å§‹ ---
-		//é™å¯‚ã®æ¼”å‡ºã®ãŸã‚ã«BGMã‚’æ­¢ã‚ã‚‹
+		// --- 1. ãƒˆãƒ‰ãƒ¡ã®ç¬é–“ï¼šã‚¹ãƒ­ãƒ¼é–‹å§? ---
+		//é™å¯‚ã?®æ¼”å?ºã®ãŸã‚ã«BGMã‚’æ­¢ã‚ã‚‹
 		if (AudioManager.Instance != null) AudioManager.Instance.StopBGM();
 
 		Time.timeScale = 0.02f;
-		// â˜…ãƒ“ãƒ«ãƒ‰å¯¾ç­–ï¼šç‰©ç†æ¼”ç®—ã®æ›´æ–°é–“éš”ã‚‚ã‚¹ãƒ­ãƒ¼ã«åŒæœŸã•ã›ã‚‹
+		// â˜?ãƒ“ãƒ«ãƒ‰å¯¾ç­–ï¼šç‰©ç?æ¼”ç®—ã?®æ›´æ–°é–“éš”ã‚‚ã‚¹ãƒ­ãƒ¼ã«åŒæœŸã•ã›ã‚?
 		Time.fixedDeltaTime = 0.02f * Time.timeScale;
 
 		AudioManager.Instance.PlaySEByIndex(15);
@@ -204,7 +209,7 @@ public partial class PlayerManager : MonoBehaviour
 		Dictionary<Renderer, Material[]> originalMaterials = new Dictionary<Renderer, Material[]>();
 		List<ParticleSystem> pausedParticles = new List<ParticleSystem>();
 
-		// ä¸€æ™‚çš„ã«æ¶ˆã™åœ°é¢ã‚„ã‚¹ãƒ†ãƒ¼ã‚¸ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ãƒªã‚¹ãƒˆ
+		// ä¸€æ™‚çš„ã«æ¶ˆã™åœ°é¢ã‚?ã‚¹ãƒ?ãƒ¼ã‚¸ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã?®ãƒªã‚¹ãƒ?
 		List<Renderer> hiddenRenderers = new List<Renderer>();
 
 		Shader standardShader = Shader.Find("Unlit/Color");
@@ -216,7 +221,7 @@ public partial class PlayerManager : MonoBehaviour
 		Material blackMat = new Material(standardShader) { color = Color.black };
 
 
-		// --- 2. æ¼”å‡ºï¼šèƒŒæ™¯èµ¤ã€ã‚­ãƒ£ãƒ©é»’ã€ã‚¨ãƒ•ã‚§ã‚¯ãƒˆã¨åœ°é¢ã‚’æ¶ˆã™ ---
+		// --- 2. æ¼”å?º?¼šèƒŒæ™¯èµ¤ã€ã‚­ãƒ£ãƒ©é»’ã€ã‚¨ãƒ•ã‚§ã‚¯ãƒˆã¨åœ°é¢ã‚’æ¶ˆã™ ---
 		for (int i = 0; i < allCameras.Length; i++)
 		{
 			originalFlags[i] = allCameras[i].clearFlags;
@@ -225,12 +230,12 @@ public partial class PlayerManager : MonoBehaviour
 			allCameras[i].backgroundColor = Color.red;
 		}
 
-		// ã‚¹ãƒ†ãƒ¼ã‚¸ä¸Šã®ã€Œåœ°é¢ã€ã‚„ã€Œéšœå®³ç‰©ã€ã‚’ã‚¿ã‚°ã‚„åå‰ã§æ¢ã—ã¦éè¡¨ç¤ºã«ã™ã‚‹
-		// "Stage"ã‚¿ã‚°ãŒã¤ã„ã¦ã„ã‚‹ã‹ã€åå‰ãŒ"Floor"ãªã©ã®ã‚‚ã®ã‚’æƒ³å®š
+		// ã‚¹ãƒ?ãƒ¼ã‚¸ä¸Šã?®ã€Œåœ°é¢ã€ã‚„ã€Œéšœå®³ç‰©ã€ã‚’ã‚¿ã‚°ã‚?åå‰ã§æ¢ã—ã¦éè¡¨ç¤ºã«ã™ã‚‹
+		// "Stage"ã‚¿ã‚°ãŒã¤ã?ã¦ã?ã‚‹ã‹ã€åå‰ãŒ"Floor"ãªã©ã®ã‚‚ã?®ã‚’æƒ³å®?
 		Renderer[] allRenderers = GameObject.FindObjectsOfType<Renderer>();
 		foreach (var r in allRenderers)
 		{
-			// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼é–¢ä¿‚ã®Rendererä»¥å¤–ã‚’ã™ã¹ã¦éè¡¨ç¤ºã«ã™ã‚‹
+			// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼é–¢ä¿‚ã?®Rendererä»¥å¤–ã‚’ã™ã¹ã¦éè¡¨ç¤ºã«ã™ã‚‹
 			bool isPlayer = false;
 			foreach (var p in spawnedPlayers)
 			{
@@ -239,7 +244,7 @@ public partial class PlayerManager : MonoBehaviour
 
 			if (!isPlayer && r.enabled)
 			{
-				r.enabled = false; // åœ°é¢ã‚„èƒŒæ™¯ã‚’æ¶ˆã™ï¼
+				r.enabled = false; // åœ°é¢ã‚?èƒŒæ™¯ã‚’æ¶ˆã™?¼?
 				hiddenRenderers.Add(r);
 			}
 		}
@@ -273,12 +278,12 @@ public partial class PlayerManager : MonoBehaviour
 
 		yield return new WaitForSecondsRealtime(1.5f);
 
-		// --- 3. å¾©æ´»ï¼šã™ã¹ã¦å…ƒé€šã‚Šã«ã™ã‚‹ ---
-		// â˜…ãƒ“ãƒ«ãƒ‰å¯¾ç­–ï¼šé‡ã„å¾©å…ƒå‡¦ç†ã®å‰ã«æ™‚é–“ã‚’æˆ»ã™ï¼
+		// --- 3. å¾©æ´»?¼šã™ã¹ã¦å…?é€šã‚Šã«ã™ã‚‹ ---
+		// â˜?ãƒ“ãƒ«ãƒ‰å¯¾ç­–ï¼šé‡ã?å¾©å…?å‡¦ç?ã®å‰ã«æ™‚é–“ã‚’æˆ»ã™ï¼?
 		Time.timeScale = 1.0f;
 		Time.fixedDeltaTime = 0.02f;
 
-		// BGMã‚’å‹åˆ©ç”¨ã«åˆ‡ã‚Šæ›¿ãˆã‚‹
+		// BGMã‚’å‹åˆ©ç”¨ã«åˆ?ã‚Šæ›¿ãˆã‚‹
 		if (AudioManager.Instance != null)
 		{
 			AudioManager.Instance.PlayBGM(AudioManager.Instance.victoryBGM);
@@ -304,14 +309,14 @@ public partial class PlayerManager : MonoBehaviour
 			}
 		}
 
-		// æ¶ˆã—ã¦ã„ãŸåœ°é¢ã‚„ã‚¹ãƒ†ãƒ¼ã‚¸ã‚’å¾©æ´»ã•ã›ã‚‹
+		// æ¶ˆã—ã¦ã?ãŸåœ°é¢ã‚?ã‚¹ãƒ?ãƒ¼ã‚¸ã‚’å¾©æ´»ã•ã›ã‚?
 		foreach (var r in hiddenRenderers)
 		{
 			if (r != null) r.enabled = true;
 		}
 
-		// --- 4. ãƒãƒ¼ã‚ºæ¼”å‡º ---
-		// Time.timeScale = 1.0f; // ä¸Šã«ç§»å‹•ã—ãŸã®ã§ã“ã“ã§ã®è¨­å®šã¯ä¿é™º
+		// --- 4. ãƒã?¼ã‚ºæ¼”å?º ---
+		// Time.timeScale = 1.0f; // ä¸Šã«ç§»å‹•ã—ãŸã?®ã§ã“ã“ã§ã®è¨­å®šã?¯ä¿é™º
 		if (uiManager != null) uiManager.ShowVictoryGraphic();
 		survivor.GetComponent<InputPlayer>()?.Win();
 
