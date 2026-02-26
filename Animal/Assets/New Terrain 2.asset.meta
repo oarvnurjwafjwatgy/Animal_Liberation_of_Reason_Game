@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Animal/Assets/New Terrain 2.asset.meta
 guid: 03e2012135e2f9f4da5cb08c208f2ad1
+========
+guid: 0a6037d652b545b4a80055f4d42eca0b
+>>>>>>>> marge3:Animal/Assets/New Universal Render Pipeline Asset_Renderer.asset.meta
 NativeFormatImporter:
   externalObjects: {}
   mainObjectFileID: 0

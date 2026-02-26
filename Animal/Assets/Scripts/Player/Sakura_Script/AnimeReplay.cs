@@ -18,4 +18,10 @@ public class AnimeReplay : MonoBehaviour
             playerInput.MoveFlagFalse(); // MoveFlag ‚ð true ‚É–ß‚·
         }
     }
+
+
+    public void OnDeath()
+    {
+        playerInput.SetDeath();
+    }
 }
