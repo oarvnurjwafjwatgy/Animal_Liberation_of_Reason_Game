@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -9,25 +10,33 @@ public class UIManager : MonoBehaviour
 	public List<GameObject> ui_list = new List<GameObject>();
 	public Transform canvasParent;
 
-    // キャラごとのRenderTexture(0～3)
-    [SerializeField] private RenderTexture[] loseCharaRT;
+	// キャラごとのRenderTexture(0～3)
+	[SerializeField] private RenderTexture[] loseCharaRT;
 
-    // 順位表示用RawImage(0:2位, 1:3位, 2:4位)
-    [SerializeField] private RawImage[] rankImage;
+	// 順位表示用RawImage(0:2位, 1:3位, 2:4位)
+	[SerializeField] private RawImage[] rankImage;
 
 	// タイトルへ戻るボタン
 	[SerializeField] private GameObject titleButton;
 
 	// 最初に選択されるボタン
-    [SerializeField] private GameObject firstSelectedButton;
+	[SerializeField] private GameObject firstSelectedButton;
 
-    public Slider CreateUI(UI_ID ui_id, Transform pos, int pID) // pIDを追加
+	[SerializeField] private GameObject victoryGroup; // VictoryUIをアサイン
+
+	void Start()
+	{
+		// シーン開始時に確実に隠す
+		victoryGroup.SetActive(false);
+	}
+
+	public Slider CreateUI(UI_ID ui_id, Transform pos, int pID) // pIDを追加
 	{
 		GameObject prefab = null;
 		if (ui_id == UI_ID.GAUGE_HP) prefab = Resources.Load("Prefab/UI/HP_ber") as GameObject;
-        else if (ui_id == UI_ID.GAUGE_REASON) prefab = Resources.Load("Prefab/UI/Reason_ber") as GameObject;
-        else if (ui_id == UI_ID.LION_RAGE) prefab = Resources.Load("Prefab/UI/Lion_Rage_Icon") as GameObject;
-		else if (ui_id == UI_ID.BUFF_CONTAINER)prefab = Resources.Load("Prefab/UI/Buff_Container") as GameObject;
+		else if (ui_id == UI_ID.GAUGE_REASON) prefab = Resources.Load("Prefab/UI/Reason_ber") as GameObject;
+		else if (ui_id == UI_ID.LION_RAGE) prefab = Resources.Load("Prefab/UI/Lion_Rage_Icon") as GameObject;
+		else if (ui_id == UI_ID.BUFF_CONTAINER) prefab = Resources.Load("Prefab/UI/Buff_Container") as GameObject;
 
 		if (prefab != null)
 		{
@@ -66,22 +75,77 @@ public class UIManager : MonoBehaviour
 		return null;
 	}
 
-    // リザルトの敗北キャラの設定
-    // ranking_index	順位(昇順)
-    // player_chara_id	キャラクターのID
-    public void ShowResult(int[] ranking_index, Character_Status.CharacterType[] player_chara_id)
-    {
-        // ranking[0] は1位なのでスキップ
-        for (int i = 1; i < ranking_index.Length; i++)
-        {
-            int player_index = ranking_index[i];					// 何番プレイヤーか
-            int chara_id = (int)player_chara_id[player_index] - 1;	// その人のキャラID
+	// 勝利グラフィックの表示
+	public void ShowVictoryGraphic()
+	{
+		if (victoryGroup != null)
+		{
+			victoryGroup.SetActive(true);
+			// 演出開始！
+			StartCoroutine(AnimateVictoryUI());
+		}
+
+	}
+	private IEnumerator AnimateVictoryUI()
+	{
+		// 演出対象のRectTransformを取得（victoryGroup自身か、その中のテキスト）
+		RectTransform rect = victoryGroup.GetComponent<RectTransform>();
+
+		// --- 1. ドカンと登場（ポップアップ） ---
+		rect.localScale = Vector3.zero; // 最初はサイズ0
+		float elapsed = 0f;
+		float duration = 0.3f; // 0.3秒で巨大化
+
+		while (elapsed < duration)
+		{
+			elapsed += Time.unscaledDeltaTime; // スロー中でも動くようにunscaled
+			float t = elapsed / duration;
+
+			// 勢いよく出て、少しだけバウンドするような動き
+			float bounce = Mathf.Sin(t * Mathf.PI * 0.5f) * 1.2f;
+			if (t > 0.8f) bounce = 1.0f + (1.0f - t) * 0.5f; // 最後は1.0に落ち着く
+
+			rect.localScale = new Vector3(bounce, bounce, 1f);
+			yield return null;
+		}
+		rect.localScale = Vector3.one;
+
+		// --- 2. ふわふわと動く（ループ演出） ---
+		float timer = 0f;
+		Vector2 initialPos = rect.anchoredPosition;
+
+		while (true) // 終了するまでずっと動かす
+		{
+			timer += Time.unscaledDeltaTime;
+
+			// わずかに拡大縮小
+			float pulse = 1.0f + Mathf.Sin(timer * 2f) * 0.05f;
+			rect.localScale = new Vector3(pulse, pulse, 1f);
+
+			// わずかに上下に揺れる
+			float yOffset = Mathf.Sin(timer * 1.5f) * 10f;
+			rect.anchoredPosition = initialPos + new Vector2(0, yOffset);
+
+			yield return null;
+		}
+	}
+
+	// リザルトの敗北キャラの設定
+	// ranking_index	順位(昇順)
+	// player_chara_id	キャラクターのID
+	public void ShowResult(int[] ranking_index, Character_Status.CharacterType[] player_chara_id)
+	{
+		// ranking[0] は1位なのでスキップ
+		for (int i = 1; i < ranking_index.Length; i++)
+		{
+			int player_index = ranking_index[i];                    // 何番プレイヤーか
+			int chara_id = (int)player_chara_id[player_index] - 1;  // その人のキャラID
 
 			// テクスチャを適用する
-            rankImage[i - 1].texture = loseCharaRT[chara_id];
-            rankImage[i - 1].gameObject.SetActive(true);
-        }
-    }
+			rankImage[i - 1].texture = loseCharaRT[chara_id];
+			rankImage[i - 1].gameObject.SetActive(true);
+		}
+	}
 
 	// タイトルへ戻るボタンのアクティブフラグの設定
 	public void SetTitleButton()
@@ -89,8 +153,8 @@ public class UIManager : MonoBehaviour
 		titleButton.SetActive(true);
 
 		// 最初に選択されるボタンを設定する
-        EventSystem.current.SetSelectedGameObject(null);
-        EventSystem.current.SetSelectedGameObject(firstSelectedButton);
-    }
+		EventSystem.current.SetSelectedGameObject(null);
+		EventSystem.current.SetSelectedGameObject(firstSelectedButton);
+	}
 
 }
