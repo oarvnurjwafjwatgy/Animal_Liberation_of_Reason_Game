@@ -24,4 +24,9 @@ public class AnimeReplay : MonoBehaviour
     {
         playerInput.SetDeath();
     }
+
+    public void ResetRatel()
+    {
+        playerInput.ResetRatelSkillParam();
+    }
 }
