@@ -77,6 +77,8 @@ public class InputPlayer : MonoBehaviour
 
     private Vector3 skillDirection; // スキル発動時の向きを固定するための変数
 
+    private bool isGameFinished = false; // 追加
+
     public enum Direction
     {
         Front,
@@ -234,7 +236,7 @@ public class InputPlayer : MonoBehaviour
     // アニメーションの影響上、プレイヤーの向き更新は LateUpdate で行う
     private void LateUpdate()
     {
-        if (controller == null || rb == null || LiveFlag == false) return;
+        if (controller == null || rb == null || LiveFlag == false || isGameFinished) return;
 
         // --- 【サイのスキル中：向きの強制固定】 ---
         if (character_Status.CharaAnim == Character_Status.CharacterType.RHINOCELOS && animator.GetBool("RhinocerosSkill"))
@@ -957,7 +959,11 @@ public class InputPlayer : MonoBehaviour
 
     public void Win()
     {
+        if (isGameFinished) return; // 二重呼び出し防止
+        isGameFinished = true;      // フラグを立てる
+
         MoveFlag = false;
+        rb.velocity = Vector3.zero; // 物理移動も止める
         animator.SetInteger("State", 3);
 
         // ★追加：カメラの方を向かせる処理
