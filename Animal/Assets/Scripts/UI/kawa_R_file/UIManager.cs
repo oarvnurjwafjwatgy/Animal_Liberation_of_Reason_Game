@@ -10,17 +10,17 @@ public class UIManager : MonoBehaviour
 	public List<GameObject> ui_list = new List<GameObject>();
 	public Transform canvasParent;
 
-    // キャラごとのRenderTexture(0～3)
-    [SerializeField] private RenderTexture[] loseCharaRT;
+	// キャラごとのRenderTexture(0～3)
+	[SerializeField] private RenderTexture[] loseCharaRT;
 
-    // 順位表示用RawImage(0:2位, 1:3位, 2:4位)
-    [SerializeField] private RawImage[] rankImage;
+	// 順位表示用RawImage(0:2位, 1:3位, 2:4位)
+	[SerializeField] private RawImage[] rankImage;
 
 	// タイトルへ戻るボタン
 	[SerializeField] private GameObject titleButton;
 
 	// 最初に選択されるボタン
-    [SerializeField] private GameObject firstSelectedButton;
+	[SerializeField] private GameObject firstSelectedButton;
 
 	[SerializeField] private GameObject victoryGroup; // VictoryUIをアサイン
 
@@ -34,9 +34,9 @@ public class UIManager : MonoBehaviour
 	{
 		GameObject prefab = null;
 		if (ui_id == UI_ID.GAUGE_HP) prefab = Resources.Load("Prefab/UI/HP_ber") as GameObject;
-        else if (ui_id == UI_ID.GAUGE_REASON) prefab = Resources.Load("Prefab/UI/Reason_ber") as GameObject;
-        else if (ui_id == UI_ID.LION_RAGE) prefab = Resources.Load("Prefab/UI/Lion_Rage_Icon") as GameObject;
-		else if (ui_id == UI_ID.BUFF_CONTAINER)prefab = Resources.Load("Prefab/UI/Buff_Container") as GameObject;
+		else if (ui_id == UI_ID.GAUGE_REASON) prefab = Resources.Load("Prefab/UI/Reason_ber") as GameObject;
+		else if (ui_id == UI_ID.LION_RAGE) prefab = Resources.Load("Prefab/UI/Lion_Rage_Icon") as GameObject;
+		else if (ui_id == UI_ID.BUFF_CONTAINER) prefab = Resources.Load("Prefab/UI/Buff_Container") as GameObject;
 
 		if (prefab != null)
 		{
@@ -134,18 +134,18 @@ public class UIManager : MonoBehaviour
 	// ranking_index	順位(昇順)
 	// player_chara_id	キャラクターのID
 	public void ShowResult(int[] ranking_index, Character_Status.CharacterType[] player_chara_id)
-    {
-        // ranking[0] は1位なのでスキップ
-        for (int i = 1; i < ranking_index.Length; i++)
-        {
-            int player_index = ranking_index[i];					// 何番プレイヤーか
-            int chara_id = (int)player_chara_id[player_index] - 1;	// その人のキャラID
+	{
+		// ranking[0] は1位なのでスキップ
+		for (int i = 1; i < ranking_index.Length; i++)
+		{
+			int player_index = ranking_index[i];                    // 何番プレイヤーか
+			int chara_id = (int)player_chara_id[player_index] - 1;  // その人のキャラID
 
 			// テクスチャを適用する
-            rankImage[i - 1].texture = loseCharaRT[chara_id];
-            rankImage[i - 1].gameObject.SetActive(true);
-        }
-    }
+			rankImage[i - 1].texture = loseCharaRT[chara_id];
+			rankImage[i - 1].gameObject.SetActive(true);
+		}
+	}
 
 	// タイトルへ戻るボタンのアクティブフラグの設定
 	public void SetTitleButton()
@@ -153,8 +153,8 @@ public class UIManager : MonoBehaviour
 		titleButton.SetActive(true);
 
 		// 最初に選択されるボタンを設定する
-        EventSystem.current.SetSelectedGameObject(null);
-        EventSystem.current.SetSelectedGameObject(firstSelectedButton);
-    }
+		EventSystem.current.SetSelectedGameObject(null);
+		EventSystem.current.SetSelectedGameObject(firstSelectedButton);
+	}
 
 }
