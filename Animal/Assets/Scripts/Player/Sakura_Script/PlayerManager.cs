@@ -31,6 +31,8 @@ public partial class PlayerManager : MonoBehaviour
 	[Header("出現位置")]
 	[SerializeField] private List<Transform> PlayerTransforms = new List<Transform>();
 
+	[SerializeField] private GameObject backTitleAuto;
+
 	InputPlayer input_player;
 
 	void Start()
@@ -322,7 +324,10 @@ public partial class PlayerManager : MonoBehaviour
 		Array.Reverse(ranking);
 		uiManager.ShowResult(ranking, Animal_Select.playerChoices);
 
-		yield return new WaitForSecondsRealtime(1.0f);
+		if (backTitleAuto != null)
+			backTitleAuto.gameObject.SetActive(true);
+
+        yield return new WaitForSecondsRealtime(1.0f);
 		if (endManager != null) endManager.SetEndFlag(true);
 	}
 }
