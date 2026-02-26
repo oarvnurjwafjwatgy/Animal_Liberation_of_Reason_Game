@@ -375,7 +375,6 @@ Transform:
 --- !u!1 &191935716
 GameObject:
   m_ObjectHideFlags: 0
-<<<<<<< HEAD
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
@@ -622,7 +621,6 @@ GameObject:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dfde07c3fbf79d545a93bef20899e6de, type: 3}
-=======
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -695,7 +693,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 191935716}
   m_CullTransparentMesh: 1
->>>>>>> ef0fc943045ae50f71c1a6cade26d8ec5d682446
 --- !u!1 &207154986
 GameObject:
   m_ObjectHideFlags: 0
