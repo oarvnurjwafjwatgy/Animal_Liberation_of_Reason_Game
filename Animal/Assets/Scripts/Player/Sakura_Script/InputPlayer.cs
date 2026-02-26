@@ -228,6 +228,12 @@ public class InputPlayer : MonoBehaviour
     // アニメーションの影響上、プレイヤーの向き更新は LateUpdate で行う
     private void LateUpdate()
     {
+        if (deathFlag)
+        {
+            this.UpdateGhostMove();
+            this.UpdateGhostCamera();
+        }
+
         if (controller == null || rb == null || LiveFlag == false) return;
 
         // --- 【サイのスキル中：向きの強制固定】 ---
@@ -261,12 +267,6 @@ public class InputPlayer : MonoBehaviour
                 normalObject.transform.rotation = cachedRotate;
                 reasonObject.transform.rotation = cachedRotate;
             }
-        }
-
-        if (deathFlag)
-        {
-            this.UpdateGhostMove();
-            this.UpdateGhostCamera();
         }
     }
 
