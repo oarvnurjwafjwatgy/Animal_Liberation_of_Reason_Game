@@ -16,8 +16,13 @@ public class TitleVideoHandler : MonoBehaviour
 
 	void Start()
 	{
-		// UIを最初は消しておく（動画に集中させる場合）
-		if (titleUI != null) titleUI.SetActive(false);
+		if (AudioManager.Instance != null)
+		{
+			// 勝利BGMを止める
+			AudioManager.Instance.StopBGM();
+		}
+			// UIを最初は消しておく（動画に集中させる場合）
+			if (titleUI != null) titleUI.SetActive(false);
 
 		// 動画が終了した時のイベントを登録
 		videoPlayer.loopPointReached += OnVideoEnd;
