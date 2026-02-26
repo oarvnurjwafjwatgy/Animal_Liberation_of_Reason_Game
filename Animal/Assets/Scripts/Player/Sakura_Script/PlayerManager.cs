@@ -314,7 +314,11 @@ public partial class PlayerManager : MonoBehaviour
 
 		// --- 4. ポーズ演出 ---
 		// Time.timeScale = 1.0f; // 上に移動したのでここでの設定は保険
-		if (uiManager != null) uiManager.ShowVictoryGraphic();
+		if (uiManager != null)
+		{
+			uiManager.ShowVictoryGraphic();
+			uiManager.HideAllInGameUI();
+		}
 		survivor.GetComponent<InputPlayer>()?.Win();
 
 		// --- 5. リザルトへ ---

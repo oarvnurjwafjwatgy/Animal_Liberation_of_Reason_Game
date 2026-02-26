@@ -640,18 +640,14 @@ public class InputPlayer : MonoBehaviour
 
             case Character_Status.CharacterType.RATEL:
                 int currentRatelSkill = animator.GetInteger("RatelSkill");
-                if (currentRatelSkill == 1) // 溜め中(1) から 攻撃(2) へ
+                if (currentRatelSkill == 1) // 溜め中 -> 攻撃
                 {
-                    // ★【確認】1秒経過していない場合は、ここで return して攻撃へ移行させない
-                    if (Time.time - ratelSkillStartTime < 1.0f)
-                    {
-                        Debug.Log("ラーテル：まだ溜め始めてから1秒経っていません！");
-                        return;
-                    }
+                    if (Time.time - ratelSkillStartTime < 1.0f) return;
 
-                    // 1秒経過していたら攻撃
-                    Effect_Manager.PlayEffect(normalObject.name, 2, effectPosition, activeModel.transform.rotation, Vector3.one, this.transform, false);
                     animator.SetInteger("RatelSkill", 2);
+                    // ★ 攻撃アニメーションが終わる頃に、すべてのフラグを「0」に戻す
+                    StartCoroutine(ResetRatelSkillState(0.8f));
+
                     Invoke("AttackCollider", 0.5f);
                     MoveFlag = true;
                 }
@@ -669,13 +665,15 @@ public class InputPlayer : MonoBehaviour
             case Character_Status.CharacterType.LION:
                 // ...ライオンの処理（変更なし）
                 animator.SetTrigger("Skill");
-                StartCoroutine(StopLionEffectAfterDelay(5.0f));
+				AudioManager.Instance.PlaySEByIndex(6);
+				StartCoroutine(StopLionEffectAfterDelay(5.0f));
                 break;
 
             case Character_Status.CharacterType.OSTRICH:
                 // ...ダチョウの処理（変更なし）
                 AttackCollider();
-                animator.SetTrigger("Skill");
+				AudioManager.Instance.PlaySEByIndex(7);
+				animator.SetTrigger("Skill");
                 break;
         }
 
@@ -684,10 +682,16 @@ public class InputPlayer : MonoBehaviour
     }
 
 
+	private IEnumerator ResetRatelSkillState(float delay)
+	{
+		yield return new WaitForSeconds(delay);
+		if (animator != null) animator.SetInteger("RatelSkill", 0);
+		// MoveFlagが不安ならここでも true にしておく
+		MoveFlag = true;
+	}
 
 
-
-    private void OnEvation(InputAction.CallbackContext context)
+	private void OnEvation(InputAction.CallbackContext context)
     {
         if (LiveFlag == true)
         {

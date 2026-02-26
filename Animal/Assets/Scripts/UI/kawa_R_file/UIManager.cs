@@ -130,6 +130,15 @@ public class UIManager : MonoBehaviour
 		}
 	}
 
+	//勝利時のUIを非表示にする
+	public void HideAllInGameUI()
+	{
+		foreach (GameObject ui in ui_list)
+		{
+			if (ui != null) ui.SetActive(false);
+		}
+	}
+
 	// リザルトの敗北キャラの設定
 	// ranking_index	順位(昇順)
 	// player_chara_id	キャラクターのID
