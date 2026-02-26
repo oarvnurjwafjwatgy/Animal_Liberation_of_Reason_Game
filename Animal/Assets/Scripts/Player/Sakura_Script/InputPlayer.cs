@@ -643,8 +643,8 @@ public class InputPlayer : MonoBehaviour
                 if (currentRatelSkill == 1) // 溜め中 -> 攻撃
                 {
                     if (Time.time - ratelSkillStartTime < 1.0f) return;
-
-                    animator.SetInteger("RatelSkill", 2);
+					AudioManager.Instance.PlaySEByIndex(5);
+					animator.SetInteger("RatelSkill", 2);
                     // ★ 攻撃アニメーションが終わる頃に、すべてのフラグを「0」に戻す
                     StartCoroutine(ResetRatelSkillState(0.8f));
 
