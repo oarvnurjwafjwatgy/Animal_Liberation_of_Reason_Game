@@ -374,10 +374,10 @@ public class InputPlayer : MonoBehaviour
 
             switch (currentType)
             {
-                case Character_Status.CharacterType.LION: cooldown = 1.5f; break;
-                case Character_Status.CharacterType.OSTRICH: cooldown = 1f; break;
-                case Character_Status.CharacterType.RHINOCELOS: cooldown = 2f; break;
-                case Character_Status.CharacterType.RATEL: cooldown = 0.5f; break;
+                case Character_Status.CharacterType.LION: cooldown = 2.5f; break;
+                case Character_Status.CharacterType.OSTRICH: cooldown = 0.3f; break;
+                case Character_Status.CharacterType.RHINOCELOS: cooldown = 1.5f; break;
+                case Character_Status.CharacterType.RATEL: cooldown = 1f; break;
 
             }
 

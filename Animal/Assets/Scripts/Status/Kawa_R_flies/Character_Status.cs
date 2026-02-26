@@ -23,9 +23,9 @@ public class Character_Status : MonoBehaviour
 	// --- キャラクター別ベースステータス定数 ---
 	[Header("ライオン ステータス")]
 	private const int LION_HP = 450;
-	private const int LION_ATK = 20;
+	private const int LION_ATK = 40;
 	private const int LION_DEF = 15;
-	private const float LION_SPD = 6.0f;
+	private const float LION_SPD = 5.5f;
 
 	[Header("ダチョウ ステータス")]
 	private const int OSTRICH_HP = 350;
@@ -34,9 +34,9 @@ public class Character_Status : MonoBehaviour
 	private const float OSTRICH_SPD = 7.5f;
 
 	[Header("サイ ステータス")]
-	private const int RHINO_HP = 600;
+	private const int RHINO_HP = 400;
 	private const int RHINO_ATK = 35;
-	private const int RHINO_DEF = 25;
+	private const int RHINO_DEF = 30;
 	private const float RHINO_SPD = 4.5f;
 
 	[Header("ラーテル ステータス")]
