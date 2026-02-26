@@ -377,7 +377,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &283746377
+--- !u!1 &230578889
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -385,32 +385,47 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 283746380}
-  - component: {fileID: 283746379}
-  - component: {fileID: 283746378}
-  - component: {fileID: 283746381}
+  - component: {fileID: 230578890}
+  - component: {fileID: 230578892}
+  - component: {fileID: 230578891}
+  - component: {fileID: 230578893}
   m_Layer: 0
-  m_Name: AudioManager
+  m_Name: SoundManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!82 &283746378
+--- !u!4 &230578890
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 230578889}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -32.950573, y: 164.02531, z: -24.52739}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!82 &230578891
 AudioSource:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 283746377}
+  m_GameObject: {fileID: 230578889}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 24300002, guid: f34fe129a0caa6a4f986853bee9262f8, type: 2}
+  OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 0.5
+  m_Volume: 1
   m_Pitch: 1
-  Loop: 1
+  Loop: 0
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -492,70 +507,44 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &283746379
+--- !u!114 &230578892
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 283746377}
+  m_GameObject: {fileID: 230578889}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 45c5ed21eba650e48a038c5b50040a4b, type: 3}
+  m_Script: {fileID: 11500000, guid: c69ad68ebadb2884980f98b24d6d40f3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bgmSource: {fileID: 283746378}
-  seSource: {fileID: 283746378}
-  menuBGM: {fileID: 8300000, guid: 0784f1c6041567a4e9eae26008dcd336, type: 3}
-  battleBGM: {fileID: 8300000, guid: 5bf5730bdefd0e74ba31fe3c2872d621, type: 3}
-  victoryBGM: {fileID: 0}
-  seClips:
+  bgmSource: {fileID: 230578893}
+  seSource: {fileID: 230578891}
+  seList:
   - {fileID: 8300000, guid: 61b5a88397420a04eb5d7ddf2d99ae9f, type: 3}
-  - {fileID: 8300000, guid: 2c40c2d8789a498499ed76e058cba0e3, type: 3}
-  - {fileID: 8300000, guid: 79c1365a3c2dac3438b95cf01686daab, type: 3}
-  - {fileID: 8300000, guid: 4ee33e95a5d8a3b4b98e9c2ae2d9016f, type: 3}
-  - {fileID: 8300000, guid: af024a7f85ba9b54b9187f0d7b20a644, type: 3}
-  - {fileID: 8300000, guid: b508d8587c7da254695a56565ab31a88, type: 3}
-  - {fileID: 8300000, guid: ee830d122ff828c46b516141e966c8c6, type: 3}
-  - {fileID: 8300000, guid: 4885ff6b4900c224cb7f90ff35c3006a, type: 3}
   - {fileID: 8300000, guid: 91db355b66cd292448be3ef3589fa0a4, type: 3}
   - {fileID: 8300000, guid: 2238f74dd1f13bf419cd6a25721855eb, type: 3}
   - {fileID: 8300000, guid: f90808e746904d24b9d391884ebbe123, type: 3}
   - {fileID: 8300000, guid: ddb42e4017ba3f44b864547ca5e96e8f, type: 3}
-  - {fileID: 8300000, guid: 2a2e593a502bb4d449beb6b85555430b, type: 3}
   - {fileID: 8300000, guid: f7e32ea30e5bfee4a97377fae1dcc641, type: 3}
-  - {fileID: 8300000, guid: 92dd6f36390c09549ad43250b2a1a61c, type: 3}
-  - {fileID: 8300000, guid: 76225588bac226b4ebf985e27858a9c3, type: 3}
---- !u!4 &283746380
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 283746377}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 455.4163, y: 353.10065, z: 1200.1362}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!82 &283746381
+  - {fileID: 8300000, guid: ee830d122ff828c46b516141e966c8c6, type: 3}
+  - {fileID: 8300000, guid: 4885ff6b4900c224cb7f90ff35c3006a, type: 3}
+--- !u!82 &230578893
 AudioSource:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 283746377}
+  m_GameObject: {fileID: 230578889}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 24300002, guid: 64727f7753a76d04695c7c76cdf6d71f, type: 2}
+  OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.722
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -1259,7 +1248,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1798747770}
   - component: {fileID: 1798747769}
-  - component: {fileID: 1798747771}
   m_Layer: 0
   m_Name: Directional Light
   m_TagString: Untagged
@@ -1344,29 +1332,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
---- !u!114 &1798747771
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1798747768}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Version: 3
-  m_UsePipelineSettings: 1
-  m_AdditionalLightsShadowResolutionTier: 2
-  m_LightLayerMask: 1
-  m_RenderingLayers: 1
-  m_CustomShadowLayers: 0
-  m_ShadowLayerMask: 1
-  m_ShadowRenderingLayers: 1
-  m_LightCookieSize: {x: 1, y: 1}
-  m_LightCookieOffset: {x: 0, y: 0}
-  m_SoftShadowQuality: 0
 --- !u!1 &1934852222
 GameObject:
   m_ObjectHideFlags: 0
@@ -1782,4 +1747,4 @@ SceneRoots:
   - {fileID: 777568021}
   - {fileID: 1117689808}
   - {fileID: 640147122}
-  - {fileID: 283746380}
+  - {fileID: 230578890}
