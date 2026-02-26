@@ -1709,7 +1709,6 @@ GameObject:
   m_Component:
   - component: {fileID: 461408720}
   - component: {fileID: 461408719}
-  - component: {fileID: 461408718}
   - component: {fileID: 461408717}
   m_Layer: 0
   m_Name: SoundManager
@@ -1814,22 +1813,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &461408718
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 461408716}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c69ad68ebadb2884980f98b24d6d40f3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bgmSource: {fileID: 461408719}
-  seSource: {fileID: 461408717}
-  seList:
-  - {fileID: 8300000, guid: 61b5a88397420a04eb5d7ddf2d99ae9f, type: 3}
 --- !u!82 &461408719
 AudioSource:
   m_ObjectHideFlags: 0
@@ -1837,7 +1820,7 @@ AudioSource:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 461408716}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 0784f1c6041567a4e9eae26008dcd336, type: 3}

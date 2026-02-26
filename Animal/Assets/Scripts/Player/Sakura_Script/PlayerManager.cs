@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using UnityEngine.XR;
 
 public partial class PlayerManager : MonoBehaviour
 {
@@ -57,8 +54,14 @@ public partial class PlayerManager : MonoBehaviour
             PlayerTransforms[j] = temp;
         }
 
-        // プレイヤーの生成ループ
-        for (int i = 1; i <= playersToSpawn; i++)
+		// 戦闘シーンが始まったら、BGMを戦闘用に切り替える
+		if (AudioManager.Instance != null)
+		{
+			AudioManager.Instance.PlayBGM(AudioManager.Instance.battleBGM);
+		}
+
+		// プレイヤーの生成ループ
+		for (int i = 1; i <= playersToSpawn; i++)
         {
             // 1. 選択された動物のタイプを取得 (1Pなら index 1)
             Character_Status.CharacterType selectedType = Animal_Select.playerChoices[i];
@@ -186,8 +189,10 @@ public partial class PlayerManager : MonoBehaviour
 	private IEnumerator VictorySequenceRoutine(Character_Status survivor)
 	{
 		// --- 1. トドメの瞬間：スロー開始 ---
+		//静寂の演出のためにBGMを止める
+		if (AudioManager.Instance != null) AudioManager.Instance.StopBGM();
 		Time.timeScale = 0.02f;
-
+		AudioManager.Instance.PlaySEByIndex(15);
 		Camera[] allCameras = GameObject.FindObjectsOfType<Camera>();
 		CameraClearFlags[] originalFlags = new CameraClearFlags[allCameras.Length];
 		Color[] originalBgColors = new Color[allCameras.Length];
@@ -257,6 +262,12 @@ public partial class PlayerManager : MonoBehaviour
 		yield return new WaitForSecondsRealtime(1.5f);
 
 		// --- 3. 復活：すべて元通りにする ---
+		// BGMを勝利用に切り替える
+		if (AudioManager.Instance != null)
+		{
+			AudioManager.Instance.PlayBGM(AudioManager.Instance.victoryBGM);
+		}
+
 		for (int i = 0; i < allCameras.Length; i++)
 		{
 			allCameras[i].clearFlags = originalFlags[i];
