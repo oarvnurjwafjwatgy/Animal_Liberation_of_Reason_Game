@@ -508,7 +508,7 @@ MonoBehaviour:
   seSource: {fileID: 283746378}
   menuBGM: {fileID: 8300000, guid: 0784f1c6041567a4e9eae26008dcd336, type: 3}
   battleBGM: {fileID: 8300000, guid: 5bf5730bdefd0e74ba31fe3c2872d621, type: 3}
-  victoryBGM: {fileID: 0}
+  victoryBGM: {fileID: 8300000, guid: 46e1e1830bc02f84ca7338a5945a3363, type: 3}
   seClips:
   - {fileID: 8300000, guid: 61b5a88397420a04eb5d7ddf2d99ae9f, type: 3}
   - {fileID: 8300000, guid: 2c40c2d8789a498499ed76e058cba0e3, type: 3}
