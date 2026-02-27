@@ -672,8 +672,9 @@ public class InputPlayer : MonoBehaviour
             case Character_Status.CharacterType.OSTRICH:
                 // ...ダチョウの処理（変更なし）
                 AttackCollider();
-				AudioManager.Instance.PlaySEByIndex(7);
-				animator.SetTrigger("Skill");
+                AudioManager.Instance.PlaySEByIndex(7);
+                Effect_Manager.PlayEffect(normalObject.name, 1, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1), this.transform);
+                animator.SetTrigger("Skill");
                 break;
         }
 
