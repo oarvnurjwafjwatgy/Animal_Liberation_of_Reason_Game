@@ -611,15 +611,20 @@ public class Character_Status : MonoBehaviour
 	public int GetDefensePower()
 	{
 		return DefensePower;
-	}
+    }
 
-	//移動速度取得関数
-	public float GetMoveSpeed()
-	{
-		return MoveSpeed;
-	}
+    //移動速度取得関数
+    public float GetMoveSpeed()
+    {
+        return MoveSpeed;
+    }
 
-	public Mode GetMode()
+	public void NotDied(int hp,int reason)
+    {
+        CurrentHP = hp;
+		CurrentReason = reason;
+    }
+    public Mode GetMode()
 	{
 		return CharaMode;
 	}

@@ -83,6 +83,8 @@ public class InputPlayer : MonoBehaviour
 
     private float ratelSkillStartTime = 0; // ラーテルの溜め開始時間を記録
 
+    private float SkillStartTime = 0; // サイのスキル開始時間を記録
+
     public enum Direction
     {
         Front,
@@ -595,11 +597,37 @@ public class InputPlayer : MonoBehaviour
     {
         if (LiveFlag == false) return;
 
-        Debug.Log(IsAnySkillActive() + "trueならスキル放ってる");
-
-
-
         Character_Status.CharacterType currentType = character_Status.CharaAnim;
+
+        // --- 1. クールタイムの取得 (攻撃と同じやり方) ---
+        float skillCooldown = 0.0f;
+
+        // インスペクターの設定（animalSettings）から取得を試みる
+        var settings = animalSettings.Find(s => s.type == currentType);
+        if (settings.type == currentType) // 見つかった場合
+        {
+            skillCooldown = settings.skillCooldown;
+        }
+        else // 万が一リストに設定がない場合のデフォルト値
+        {
+            switch (currentType)
+            {
+                case Character_Status.CharacterType.LION: skillCooldown = 5.0f; break;
+                case Character_Status.CharacterType.OSTRICH: skillCooldown = 2.0f; break;
+                case Character_Status.CharacterType.RHINOCELOS: skillCooldown = 3.0f; break;
+                case Character_Status.CharacterType.RATEL: skillCooldown = 2.0f; break;
+            }
+        }
+
+        // --- 2. クールタイムの判定 (攻撃と同じやり方) ---
+        if (Time.time - lastSkillTime < skillCooldown)
+        {
+            Debug.Log($"{currentType} のスキルはまだ使えません。残り: {skillCooldown - (Time.time - lastSkillTime):F2}秒");
+            return;
+        }
+
+        // --- 3. スキル発動成功！時間の更新 ---
+        lastSkillTime = Time.time;
 
         // 共通参照の取得
         GameObject activeModel = (character_Status.GetMode() == Character_Status.Mode.SPSIAL_ANIMAL) ? reasonObject : normalObject;
@@ -663,23 +691,25 @@ public class InputPlayer : MonoBehaviour
                 break;
 
             case Character_Status.CharacterType.LION:
-                // ...ライオンの処理（変更なし）
-                animator.SetTrigger("Skill");
-                AudioManager.Instance.PlaySEByIndex(6);
-                Effect_Manager.PlayEffect(normalObject.name, 1, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1), this.transform);
-                Effect_Manager.PlayEffect(normalObject.name, 2, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1), this.transform);
-                Effect_Manager.PlayEffect(normalObject.name, 3, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1), this.transform,true);
-                animator.SetTrigger("Skill");
-                StartCoroutine(StopLionEffectAfterDelay(5.0f));
+
+             
+                    animator.SetTrigger("Skill");
+                    AudioManager.Instance.PlaySEByIndex(6);
+                    Effect_Manager.PlayEffect(normalObject.name, 1, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1), this.transform);
+                    Effect_Manager.PlayEffect(normalObject.name, 2, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1), this.transform);
+                    Effect_Manager.PlayEffect(normalObject.name, 3, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1), this.transform, true);
+                    StartCoroutine(StopLionEffectAfterDelay(5.0f));
+                    
                 break;
 
             case Character_Status.CharacterType.OSTRICH:
-                // ...ダチョウの処理（変更なし）
-                AttackCollider();
-                AudioManager.Instance.PlaySEByIndex(7);
-                Effect_Manager.PlayEffect(normalObject.name, 1, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1), this.transform);
-                animator.SetTrigger("Skill");
-                break;
+                // ...ダチョウの処理（変更なし
+                    AttackCollider();
+                    AudioManager.Instance.PlaySEByIndex(7);
+                    Effect_Manager.PlayEffect(normalObject.name, 1, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1), this.transform);
+                    animator.SetTrigger("Skill");
+                
+                    break;
         }
 
         lastSkillTime = Time.time;
@@ -966,6 +996,8 @@ public class InputPlayer : MonoBehaviour
         MoveFlag = false;
         rb.velocity = Vector3.zero; // 物理移動も止める
         animator.SetInteger("State", 3);
+
+        character_Status.GetCurrentHP();
 
         // ★追加：カメラの方を向かせる処理
         if (cameraObject != null)
