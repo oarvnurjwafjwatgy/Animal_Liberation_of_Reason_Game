@@ -62,56 +62,57 @@ public class Animal_Select : MonoBehaviour
 	private bool allPlayersReady = false;       // 全員決定済みフラグ
 	private bool isTransitioning = false;       // シーン遷移中フラグ
 
-	void Awake()
-	{
-		// --- シーン開始時の初期化処理 ---
-		//最初のボタンのみモデルを割り当てる（重複して割り当てないように）
-		if (buttonIndex == 0)
-		{
-			normalModels_1P = setupNormals_1P;
-			silhouetteModels_1P = setupSilhouettes_1P;
-			normalModels_2P = setupNormals_2P;
-			silhouetteModels_2P = setupSilhouettes_2P;
-			normalModels_3P = setupNormals_3P;
-			silhouetteModels_3P = setupSilhouettes_3P;
-			normalModels_4P = setupNormals_4P;
-			silhouetteModels_4P = setupSilhouettes_4P;
-		}
+    void Awake()
+    {
+        // --- シーン開始時の初期化処理 ---
+        //最初のボタンのみモデルを割り当てる（重複して割り当てないように）
+        if (buttonIndex == 0)
+        {
+            normalModels_1P = setupNormals_1P;
+            silhouetteModels_1P = setupSilhouettes_1P;
+            normalModels_2P = setupNormals_2P;
+            silhouetteModels_2P = setupSilhouettes_2P;
+            normalModels_3P = setupNormals_3P;
+            silhouetteModels_3P = setupSilhouettes_3P;
+            normalModels_4P = setupNormals_4P;
+            silhouetteModels_4P = setupSilhouettes_4P;
+        }
 
-		// 全ボタン共通で1回だけ探せばOK
-		if (readyImage == null)
-		{
-			foreach (GameObject obj in Resources.FindObjectsOfTypeAll<GameObject>())
-			{
-				if (obj.name == "ReadyImage")
-				{
-					readyImage = obj;
-					break;
-				}
-			}
-		}
+        // 全ボタン共通で1回だけ探せばOK
+        if (readyImage == null)
+        {
+            foreach (GameObject obj in Resources.FindObjectsOfTypeAll<GameObject>())
+            {
+                if (obj.name == "ReadyImage")
+                {
+                    readyImage = obj;
+                    break;
+                }
+            }
+        }
 
-		// --- シーン開始時に全ての情報を「強制」リセット ---
-		// どのボタンが担当してもいいですが、重複しないように buttonIndex == 0 の時だけ実行
-		if (buttonIndex == 0)
-		{
-			for (int i = 0; i < playerChoices.Length; i++)
-			{
-				playerChoices[i] = Character_Status.CharacterType.NONE; // 選択をなしにする
-				playerPositions[i] = 0; // カーソルを左端に戻す
-			}
+        // --- シーン開始時に全ての情報を「強制」リセット ---
+        // どのボタンが担当してもいいですが、重複しないように buttonIndex == 0 の時だけ実行
+        if (buttonIndex == 0)
+        {
+            for (int i = 0; i < playerChoices.Length; i++)
+            {
+                playerChoices[i] = Character_Status.CharacterType.NONE; // 選択をなしにする
+                playerPositions[i] = 0; // カーソルを左端に戻す
+            }
 
-			// 準備完了フラグとイラストも初期化
-			allPlayersReady = false;
-			if (readyImage != null) readyImage.SetActive(false);
+            // 準備完了フラグとイラストも初期化
+            allPlayersReady = false;
+            if (readyImage != null) readyImage.SetActive(false);
 
-			Debug.Log("<color=white>Selection Data Forced Reset.</color>");
-		}
+            Debug.Log("<color=white>Selection Data Forced Reset.</color>");
+        }
+
 	}
 
 
-	//更新
-	void Update()
+    //更新
+    void Update()
 	{
 		// シーンが始まってから 0.1秒経つまでは、一切の入力を無視する
 		if (Time.timeSinceLevelLoad < 0.1f) return;
