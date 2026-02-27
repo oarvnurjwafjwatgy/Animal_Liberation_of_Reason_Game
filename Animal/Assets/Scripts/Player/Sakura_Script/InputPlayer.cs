@@ -556,7 +556,7 @@ public class InputPlayer : MonoBehaviour
     {
         if (LiveFlag == true)
         {
-            if (IsAnySkillActive()  || IsAnyAttackActive())
+            if (IsAnySkillActive() || IsAnyAttackActive())
             {
                 Debug.Log("スキル発動中はモードチェンジできません！");
                 return;
@@ -671,8 +671,8 @@ public class InputPlayer : MonoBehaviour
                 if (currentRatelSkill == 1) // 溜め中 -> 攻撃
                 {
                     if (Time.time - ratelSkillStartTime < 1.0f) return;
-					AudioManager.Instance.PlaySEByIndex(5);
-					animator.SetInteger("RatelSkill", 2);
+                    AudioManager.Instance.PlaySEByIndex(5);
+                    animator.SetInteger("RatelSkill", 2);
                     // ★ 攻撃アニメーションが終わる頃に、すべてのフラグを「0」に戻す
                     StartCoroutine(ResetRatelSkillState(0.8f));
 
@@ -692,24 +692,24 @@ public class InputPlayer : MonoBehaviour
 
             case Character_Status.CharacterType.LION:
 
-             
-                    animator.SetTrigger("Skill");
-                    AudioManager.Instance.PlaySEByIndex(6);
-                    Effect_Manager.PlayEffect(normalObject.name, 1, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1), this.transform);
-                    Effect_Manager.PlayEffect(normalObject.name, 2, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1), this.transform);
-                    Effect_Manager.PlayEffect(normalObject.name, 3, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1), this.transform, true);
-                    StartCoroutine(StopLionEffectAfterDelay(5.0f));
-                    
+
+                animator.SetTrigger("Skill");
+                AudioManager.Instance.PlaySEByIndex(6);
+                Effect_Manager.PlayEffect(normalObject.name, 1, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1), this.transform);
+                Effect_Manager.PlayEffect(normalObject.name, 2, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1), this.transform);
+                Effect_Manager.PlayEffect(normalObject.name, 3, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1), this.transform, true);
+                StartCoroutine(StopLionEffectAfterDelay(5.0f));
+
                 break;
 
             case Character_Status.CharacterType.OSTRICH:
                 // ...ダチョウの処理（変更なし
-                    AttackCollider();
-                    AudioManager.Instance.PlaySEByIndex(7);
-                    Effect_Manager.PlayEffect(normalObject.name, 1, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1), this.transform);
-                    animator.SetTrigger("Skill");
-                
-                    break;
+                AttackCollider();
+                AudioManager.Instance.PlaySEByIndex(7);
+                Effect_Manager.PlayEffect(normalObject.name, 1, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1), this.transform);
+                animator.SetTrigger("Skill");
+
+                break;
         }
 
         lastSkillTime = Time.time;
@@ -717,16 +717,16 @@ public class InputPlayer : MonoBehaviour
     }
 
 
-	private IEnumerator ResetRatelSkillState(float delay)
-	{
-		yield return new WaitForSeconds(delay);
-		if (animator != null) animator.SetInteger("RatelSkill", 0);
-		// MoveFlagが不安ならここでも true にしておく
-		MoveFlag = true;
-	}
+    private IEnumerator ResetRatelSkillState(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        if (animator != null) animator.SetInteger("RatelSkill", 0);
+        // MoveFlagが不安ならここでも true にしておく
+        MoveFlag = true;
+    }
 
 
-	private void OnEvation(InputAction.CallbackContext context)
+    private void OnEvation(InputAction.CallbackContext context)
     {
         if (LiveFlag == true)
         {
@@ -995,9 +995,15 @@ public class InputPlayer : MonoBehaviour
 
         MoveFlag = false;
         rb.velocity = Vector3.zero; // 物理移動も止める
+
+        ResetAnimatorParameters();
+        Effect_Manager.StopLoopEffect(this.gameObject.transform);
+
         animator.SetInteger("State", 3);
 
-        character_Status.GetCurrentHP();
+        LiveFlag = false;
+
+        character_Status.NotDied(character_Status.CurrentHP, character_Status.CurrentReason);
 
         // ★追加：カメラの方を向かせる処理
         if (cameraObject != null)
@@ -1102,7 +1108,7 @@ public class InputPlayer : MonoBehaviour
 
     public void ResetRatelSkillParam()
     {
-        if(character_Status.CharaAnim == Character_Status.CharacterType.RATEL)
+        if (character_Status.CharaAnim == Character_Status.CharacterType.RATEL)
         {
             animator.SetInteger("RatelSkill", 0);
             animator.SetInteger("State", 0);
@@ -1112,7 +1118,33 @@ public class InputPlayer : MonoBehaviour
         {
             Debug.Log("ラーテルじゃない");
         }
-        
+
+    }
+
+
+    public void ResetAnimatorParameters()
+    {
+        if (animator == null) return;
+
+        // 数値系 (Int, Float) のリセット
+        animator.SetInteger("State", 0);      // 0: Idle
+        animator.SetInteger("RatelSkill", 0); // ラーテルの溜め状態解除
+
+        // トリガー系 (Trigger) のリセット
+        // ※発動待ちのトリガーがある場合に備えてリセットします
+        animator.ResetTrigger("Attack");
+        animator.ResetTrigger("Skill");
+        animator.ResetTrigger("LeftStep");
+        animator.ResetTrigger("RightStep");
+        animator.ResetTrigger("BackStep");
+
+        // 真偽値系 (Bool) のリセット
+        animator.SetBool("RhinocerosSkill", false); // サイの突進解除
+
+        // 動けなくなっている場合はフラグも戻す
+        MoveFlag = true;
+
+        Debug.Log("アニメーターのパラメータを初期化しました。");
     }
 }
 
