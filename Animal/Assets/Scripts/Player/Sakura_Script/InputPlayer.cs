@@ -665,8 +665,13 @@ public class InputPlayer : MonoBehaviour
             case Character_Status.CharacterType.LION:
                 // ...ライオンの処理（変更なし）
                 animator.SetTrigger("Skill");
-				AudioManager.Instance.PlaySEByIndex(6);
-				StartCoroutine(StopLionEffectAfterDelay(5.0f));
+                AudioManager.Instance.PlaySEByIndex(6);
+                Effect_Manager.PlayEffect(normalObject.name, 1, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1), this.transform);
+                Effect_Manager.PlayEffect(normalObject.name, 2, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1), this.transform);
+                Effect_Manager.PlayEffect(normalObject.name, 3, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1), this.transform,true);
+                animator.SetTrigger("Skill");
+                animator.SetTrigger("Skill");
+                StartCoroutine(StopLionEffectAfterDelay(5.0f));
                 break;
 
             case Character_Status.CharacterType.OSTRICH:
@@ -1008,26 +1013,31 @@ public class InputPlayer : MonoBehaviour
     {
         if (animator == null) return false;
 
-        // ラーテルの溜め(1) または 攻撃中(2)
+        // 1. ラーテルとサイの既存の判定（パラメータベース）
         if (character_Status.CharaAnim == Character_Status.CharacterType.RATEL)
         {
             int ratelState = animator.GetInteger("RatelSkill");
             if (ratelState == 1 || ratelState == 2) return true;
         }
 
-        // サイの突進中
         if (character_Status.CharaAnim == Character_Status.CharacterType.RHINOCELOS)
         {
             if (animator.GetBool("RhinocerosSkill")) return true;
         }
 
+        // 2. 【重要】ライオン・ダチョウなどの「モーション中」判定
+        // 現在のベースレイヤー(0番目)のアニメーション情報を取得
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
 
-        if (character_Status.CharaAnim == Character_Status.CharacterType.LION || character_Status.CharaAnim == Character_Status.CharacterType.OSTRICH)
+        // モーション名に "Skill" が含まれている、かつ 再生が終わっていない(1.0未満)ならスキル中とみなす
+        // ※Animator上のステート名が "Skill" であることを確認してください
+        if (stateInfo.IsName("Skill"))
         {
-            if (animator.GetBool("Skill")) return true;
+            if (stateInfo.normalizedTime < 1.0f)
+            {
+                return true;
+            }
         }
-        // 他の動物（Lion, Ostrichなど）もアニメーション中の入力を防ぎたい場合はここに追加
-        // 例：animator.GetCurrentAnimatorStateInfo(0).IsName("Skill") など
 
         return false;
     }
