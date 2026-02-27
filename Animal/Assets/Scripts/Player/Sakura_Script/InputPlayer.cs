@@ -554,6 +554,9 @@ public class InputPlayer : MonoBehaviour
     }
     private void OnModeChange(InputAction.CallbackContext context)
     {
+       
+
+
         if (LiveFlag == true)
         {
             if (IsAnySkillActive() || IsAnyAttackActive())
