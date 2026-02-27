@@ -1,57 +1,80 @@
 using UnityEngine;
 using UnityEngine.Video;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
+using System.Linq;
 
 public class TitleVideoHandler : MonoBehaviour
 {
-	public VideoPlayer videoPlayer;
-	public RawImage videoDisplay; // 動画を表示しているRawImage
-	public GameObject titleUI;      // ロゴや「PUSH START」などのUI
+    public VideoPlayer videoPlayer;
+    public RawImage videoDisplay;
+    public GameObject titleUI;
+    public AudioClip bgm;
 
+    private bool isVideoPlaying = false;
 
-	GameObject SoundManagerObj;
-	SoundManager soundmanager;
+    void Start()
+    {
+        // イベント登録をリセット
+        videoPlayer.loopPointReached -= OnVideoEnd;
+        videoPlayer.loopPointReached += OnVideoEnd;
 
-	public AudioClip bgm;
+        isVideoPlaying = true;
+        if (videoDisplay != null) videoDisplay.enabled = true;
+        if (titleUI != null) titleUI.SetActive(false);
 
-	void Start()
-	{
-		if (AudioManager.Instance != null)
-		{
-			// 勝利BGMを止める
-			AudioManager.Instance.StopBGM();
-		}
-			// UIを最初は消しておく（動画に集中させる場合）
-			if (titleUI != null) titleUI.SetActive(false);
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.StopBGM();
+        }
 
-		// 動画が終了した時のイベントを登録
-		videoPlayer.loopPointReached += OnVideoEnd;
+        videoPlayer.Play();
+    }
 
-		SoundManagerObj = GameObject.Find("SoundManager");
-		//soundmanager = SoundManagerObj.GetComponent<SoundManager>();
-	}
+    void OnDestroy()
+    {
+        if (videoPlayer != null)
+        {
+            videoPlayer.loopPointReached -= OnVideoEnd;
+        }
+    }
 
-	void OnVideoEnd(VideoPlayer vp)
-	{
-		// 動画が終わった時の処理
-		Debug.Log("動画再生完了");
+    void Update()
+    {
+        if (isVideoPlaying && Gamepad.current != null)
+        {
+            bool gamepadButtonPressed = Gamepad.current.allControls.Any(c =>
+                c is UnityEngine.InputSystem.Controls.ButtonControl b &&
+                b.wasPressedThisFrame &&
+                !c.synthetic);
 
-		// 1. 動画の表示を消す、またはアルファを下げる
-		videoDisplay.enabled = false;
+            if (gamepadButtonPressed)
+            {
+                OnVideoEnd(videoPlayer);
+            }
+        }
+    }
 
-		// 2. タイトルのロゴや「PUSH START」を表示する
-		if (AudioManager.Instance != null)
-		{
-			AudioManager.Instance.PlayBGM(bgm);
-		}
-		else
-		{
-			Debug.LogError("AudioManagerが見つかりません！タイトルシーンに配置されていますか？");
-		}
+    void OnVideoEnd(VideoPlayer vp)
+    {
+        if (!isVideoPlaying) return;
+        isVideoPlaying = false;
 
-		titleUI.SetActive(true);
-		TitleMenu menu = titleUI.GetComponent<TitleMenu>();
-		if (menu != null) menu.EnableInput();
-	}
+        Debug.Log("終了処理：動画をストップします");
+        videoPlayer.Stop();
+        videoDisplay.enabled = false;
 
+        titleUI.SetActive(true);
+
+        if (AudioManager.Instance != null)
+        {
+            // --- ここが重要：一度止めてから再生し直す ---
+            Debug.Log("BGM再生命令を強制的に送ります");
+            AudioManager.Instance.StopBGM(); // 2回目対策：一度完全に止める
+            AudioManager.Instance.PlayBGM(bgm);
+        }
+
+        TitleMenu menu = titleUI.GetComponent<TitleMenu>();
+        if (menu != null) menu.EnableInput();
+    }
 }

@@ -48,7 +48,12 @@ public class AudioManager : MonoBehaviour
 	// --- BGM再生 ---
 	public void PlayBGM(AudioClip clip)
 	{
-		if (clip == null || bgmSource.clip == clip) return;
+		if (clip == null) return;
+
+		// 「同じ曲」かつ「既に再生中」なら何もしない
+		// これにより、停止している状態（動画明け）なら同じ曲でも再生されます
+		if (bgmSource.clip == clip && bgmSource.isPlaying) return;
+
 		bgmSource.clip = clip;
 		bgmSource.Play();
 	}
