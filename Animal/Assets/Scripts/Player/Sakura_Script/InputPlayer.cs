@@ -554,7 +554,7 @@ public class InputPlayer : MonoBehaviour
     {
         if (LiveFlag == true)
         {
-            if (IsAnySkillActive())
+            if (IsAnySkillActive()  || IsAnyAttackActive())
             {
                 Debug.Log("スキル発動中はモードチェンジできません！");
                 return;
@@ -669,7 +669,6 @@ public class InputPlayer : MonoBehaviour
                 Effect_Manager.PlayEffect(normalObject.name, 1, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1), this.transform);
                 Effect_Manager.PlayEffect(normalObject.name, 2, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1), this.transform);
                 Effect_Manager.PlayEffect(normalObject.name, 3, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1), this.transform,true);
-                animator.SetTrigger("Skill");
                 animator.SetTrigger("Skill");
                 StartCoroutine(StopLionEffectAfterDelay(5.0f));
                 break;
@@ -1033,6 +1032,27 @@ public class InputPlayer : MonoBehaviour
         // ※Animator上のステート名が "Skill" であることを確認してください
         if (stateInfo.IsName("Skill"))
         {
+            if (stateInfo.normalizedTime < 1.0f)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private bool IsAnyAttackActive()
+    {
+        if (animator == null) return false;
+
+        // 現在のベースレイヤーのアニメーション情報を取得
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+
+        // 再生中のアニメーション名が "Attack" かどうか、かつ再生が完了していないかチェック
+        // ※Animator上でのステート名が "Attack" である必要があります
+        if (stateInfo.IsName("Attack"))
+        {
+            // normalizedTime が 1.0f 未満であれば再生中とみなす
             if (stateInfo.normalizedTime < 1.0f)
             {
                 return true;
