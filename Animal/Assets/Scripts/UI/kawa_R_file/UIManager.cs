@@ -24,12 +24,20 @@ public class UIManager : MonoBehaviour
 
 	[SerializeField] private GameObject victoryGroup; // VictoryUIをアサイン
 
+	[Header("開始演出用UI")]
+	[SerializeField] private TMPro.TextMeshProUGUI countdownText; // 中央のテキスト
+	[Header("紹介演出用UI")]
+	[SerializeField] private GameObject introductionPanel; // 全画面を隠す黒いPanel
+	[Header("ゲーム画面UIグループ")]
+[SerializeField] private GameObject inGameUIGroup; // 各プレイヤーのHPゲージなどがまとまった親オブジェクト
+
 	void Start()
 	{
 		// シーン開始時に確実に隠す
 		victoryGroup.SetActive(false);
 	}
 
+	// UIの生成
 	public Slider CreateUI(UI_ID ui_id, Transform pos, int pID) // pIDを追加
 	{
 		GameObject prefab = null;
@@ -74,6 +82,60 @@ public class UIManager : MonoBehaviour
 		}
 		return null;
 	}
+
+	// カウントダウン用の別のコルーチンを作って、それをコルーチンとして呼ぶと良いです
+	public void ShowCountdown(string text)
+	{
+		if (countdownText != null)
+		{
+			countdownText.text = text;
+			countdownText.enabled = true;
+			// 文字サイズを一旦小さくして、バウンドさせる演出をここに入れる
+			StartCoroutine(AnimateCountdown());
+		}
+	}
+
+	// カウントダウンの非表示
+	public void HideCountdown()
+	{
+		if (countdownText != null)
+		{
+			countdownText.enabled = false;
+		}
+	}
+
+	// 紹介パネルの表示
+	public void ShowIntroductionPanel()
+	{
+		if (introductionPanel != null) introductionPanel.SetActive(true);
+	}
+
+	// 紹介パネルの非表示
+	public void HideIntroductionPanel()
+	{
+		if (introductionPanel != null) introductionPanel.SetActive(false);
+	}
+
+	private IEnumerator AnimateCountdown()
+	{
+		RectTransform rect = countdownText.GetComponent<RectTransform>();
+		rect.localScale = Vector3.zero; // 小さいところから
+
+		// ドカンと大きくする
+		float elapsed = 0f;
+		float duration = 0.2f;
+		while (elapsed < duration)
+		{
+			elapsed += Time.deltaTime;
+			float t = elapsed / duration;
+			rect.localScale = Vector3.Lerp(Vector3.zero, Vector3.one * 1.5f, t);
+			yield return null;
+		}
+		rect.localScale = Vector3.one * 1.5f;
+		yield return new WaitForSeconds(0.5f);
+		rect.localScale = Vector3.one; // 元のサイズに
+	}
+
 
 	// 勝利グラフィックの表示
 	public void ShowVictoryGraphic()

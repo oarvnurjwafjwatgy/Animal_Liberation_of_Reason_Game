@@ -15,6 +15,9 @@ public partial class PlayerManager : MonoBehaviour
 	[SerializeField] private List<Transform> uiPositions = new List<Transform>();// 1P~4PのUI位置
 	[SerializeField] private EndManager endManager;     // エンドマネージャーの参照
 
+	[Header("演出用カメラ位置")]
+	[SerializeField] private List<Transform> introCameraPositions = new List<Transform>();
+
 	[HideInInspector] // インスペクターには出さなくて良い場合はこれをつける
 	public int playerCount;
 	public bool isGameEnd;  // ゲーム終了フラグ
@@ -33,7 +36,7 @@ public partial class PlayerManager : MonoBehaviour
 
 	[SerializeField] private GameObject backTitleAuto;
 
-	InputPlayer input_player;
+	//InputPlayer input_player;
 
 	void Start()
 	{
@@ -113,6 +116,50 @@ public partial class PlayerManager : MonoBehaviour
 					newPlayer.transform.rotation = PlayerTransforms[padIndex].rotation;
 				}
 			}
+		}
+
+		// プレイヤー生成後、演出を開始
+		StartCoroutine(BattleStartSequence());
+	}
+
+	// 戦闘開始の演出を行うコルーチン
+	IEnumerator BattleStartSequence()
+	{
+		// 1. 全プレイヤーの入力を一時的に無効化（動けないようにする）
+		foreach (var p in spawnedPlayers)
+		{
+			p.GetComponent<InputPlayer>().enabled = false;
+		}
+
+		// 2. 画面を隠してカメラ演出開始 (ここで画面分割をオフにするなどの処理)
+		if (uiManager != null) uiManager.ShowIntroductionPanel(); // 黒画面を表示
+
+		// 3. カウントダウン（UI表示、SE再生）                
+		uiManager.ShowCountdown("3");
+		// AudioManager.Instance.PlaySEByIndex(...); // カウントダウン音を鳴らす
+		yield return new WaitForSeconds(1.0f);
+
+		uiManager.ShowCountdown("2");
+		// AudioManager.Instance.PlaySEByIndex(...);
+		yield return new WaitForSeconds(1.0f);
+
+		uiManager.ShowCountdown("1");
+		// AudioManager.Instance.PlaySEByIndex(...);
+		yield return new WaitForSeconds(1.0f);
+
+		uiManager.ShowCountdown("GO!");
+		// AudioManager.Instance.PlaySEByIndex(...); // 開始音を鳴らす
+		yield return new WaitForSeconds(0.5f); // GOの表示時間
+
+		// 4. キャラクター紹介シーンへカメラを移動する演出
+		// 5. GO! のタイミングでカメラを通常の分割画面に戻す
+		if (uiManager != null) uiManager.HideIntroductionPanel(); // 黒画面を消す
+		uiManager.HideCountdown(); // カウントダウンを消す
+
+		// 6. 全プレイヤーの入力を有効化
+		foreach (var p in spawnedPlayers)
+		{
+			p.GetComponent<InputPlayer>().enabled = true;
 		}
 	}
 
@@ -331,7 +378,7 @@ public partial class PlayerManager : MonoBehaviour
 		if (backTitleAuto != null)
 			backTitleAuto.gameObject.SetActive(true);
 
-        yield return new WaitForSecondsRealtime(1.0f);
+		yield return new WaitForSecondsRealtime(1.0f);
 		if (endManager != null) endManager.SetEndFlag(true);
 	}
 }
