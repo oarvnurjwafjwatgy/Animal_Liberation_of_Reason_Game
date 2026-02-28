@@ -180,6 +180,25 @@ public class InputPlayer : MonoBehaviour
         }
 
 
+        // ★追加：ラーテルの強制復帰ロジック
+        if (character_Status.CharaAnim == Character_Status.CharacterType.RATEL)
+        {
+            AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+
+            // RatelSkill_Outアニメーションが終了間際、または終了してIdleに戻っている場合
+            if (stateInfo.IsName("RatelSkill_Out") && stateInfo.normalizedTime >= 0.95f)
+            {
+                // イベントが呼ばれなくてもここでフラグを戻す
+                if (!MoveFlag || animator.GetInteger("RatelSkill") != 0)
+                {
+                    Debug.Log("スクリプト側でラーテルの状態を正常化しました");
+                    ResetRatelSkillParam();
+                }
+            }
+        }
+
+
+
         // ラーテルがスキル発動中(1)の時だけHPチェック
         if (character_Status.CharaAnim == Character_Status.CharacterType.RATEL &&
             animator.GetInteger("RatelSkill") == 1)
