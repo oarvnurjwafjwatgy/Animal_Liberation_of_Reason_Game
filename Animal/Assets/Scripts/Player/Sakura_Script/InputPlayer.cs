@@ -392,6 +392,15 @@ public class InputPlayer : MonoBehaviour
     {
         if (LiveFlag == true)
         {
+            if (animator.IsInTransition(0) || IsAnySkillActive() || IsAnyAttackActive())
+            {
+                return;
+            }
+
+            if (character_Status.CharaAnim == Character_Status.CharacterType.RATEL)
+            {
+                if (animator.GetInteger("RatelSkill") != 0) return;
+            }
 
             if (IsAnySkillActive())
             {
@@ -690,11 +699,15 @@ public class InputPlayer : MonoBehaviour
 
             case Character_Status.CharacterType.RATEL:
                 int currentRatelSkill = animator.GetInteger("RatelSkill");
+
+                if (animator.IsInTransition(0)) return;
+
                 if (currentRatelSkill == 1) // 溜め中 -> 攻撃
                 {
                     if (Time.time - ratelSkillStartTime < 1.0f) return;
                     AudioManager.Instance.PlaySEByIndex(5);
                     animator.SetInteger("RatelSkill", 2);
+                    animator.ResetTrigger("Attack");
                     // ★ 攻撃アニメーションが終わる頃に、すべてのフラグを「0」に戻す
                     StartCoroutine(ResetRatelSkillState(0.8f));
 
@@ -703,6 +716,7 @@ public class InputPlayer : MonoBehaviour
                 }
                 else if (currentRatelSkill == 0) // 待機中(0) から 溜め開始(1) へ
                 {
+                    if (IsAnyAttackActive()) return;
                     Effect_Manager.PlayEffect(normalObject.name, 1, effectPosition, activeModel.transform.rotation, Vector3.one, this.transform);
                     animator.SetInteger("RatelSkill", 1);
                     ratelSkillStartTime = Time.time; // 開始時間を記録
