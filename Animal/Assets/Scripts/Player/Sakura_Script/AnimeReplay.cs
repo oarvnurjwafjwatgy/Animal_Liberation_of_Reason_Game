@@ -29,4 +29,10 @@ public class AnimeReplay : MonoBehaviour
     {
         playerInput.ResetRatelSkillParam();
     }
+
+
+    public void NotDiedChara()
+    {
+        playerInput.Nodie();
+    }
 }

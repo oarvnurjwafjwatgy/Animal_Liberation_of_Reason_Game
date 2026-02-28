@@ -573,7 +573,7 @@ public class InputPlayer : MonoBehaviour
     }
     private void OnModeChange(InputAction.CallbackContext context)
     {
-       
+
 
 
         if (LiveFlag == true)
@@ -1025,7 +1025,7 @@ public class InputPlayer : MonoBehaviour
 
         LiveFlag = false;
 
-        character_Status.NotDied(character_Status.CurrentHP, character_Status.CurrentReason);
+        character_Status.NotDied(100, 100);
 
         // ★追加：カメラの方を向かせる処理
         if (cameraObject != null)
@@ -1167,6 +1167,14 @@ public class InputPlayer : MonoBehaviour
         MoveFlag = true;
 
         Debug.Log("アニメーターのパラメータを初期化しました。");
+    }
+
+
+    public void Nodie()
+    {
+        int max = 100;
+        
+         character_Status.NotDied(max, max);
     }
 }
 
