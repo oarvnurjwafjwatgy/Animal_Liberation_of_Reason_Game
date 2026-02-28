@@ -526,6 +526,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: f7e32ea30e5bfee4a97377fae1dcc641, type: 3}
   - {fileID: 8300000, guid: 92dd6f36390c09549ad43250b2a1a61c, type: 3}
   - {fileID: 8300000, guid: 76225588bac226b4ebf985e27858a9c3, type: 3}
+  - {fileID: 8300000, guid: 37a5173f37fb7bf44b3d3e274f8d58c0, type: 3}
 --- !u!4 &283746380
 Transform:
   m_ObjectHideFlags: 0
@@ -1249,6 +1250,7 @@ MonoBehaviour:
   nextSceneName: PlayerCountSelect
   pressAnyButtonCG: {fileID: 86946143}
   flashSpeed: 2
+  idleTimeout: 30
 --- !u!1 &1598394611
 GameObject:
   m_ObjectHideFlags: 0

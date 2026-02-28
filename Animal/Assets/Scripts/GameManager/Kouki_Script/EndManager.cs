@@ -30,17 +30,21 @@ public class EndManager : MonoBehaviour
         endFlag = flag;
     }
 
-    private void UpdateTimer()
-    {
-        if (!endFlag) return;
+	private void UpdateTimer()
+	{
+		if (!endFlag) return;
 
-        endWaitTimer += Time.deltaTime;
-        if (endWaitTimer > endWaitTime)
-        {
-            if (uiManager != null)
-                uiManager.SetTitleButton();
-            Debug.Log("<color=#c0ffff>タイトルへ戻るボタンを表示</color>");
-        }
-        Debug.Log("<color=#80ffff>Timer:" +  endWaitTime + "</color>");
-    }
+		endWaitTimer += Time.deltaTime;
+		if (endWaitTimer > endWaitTime)
+		{
+			if (uiManager != null)
+				uiManager.ShowTitleButtonWithFade();    // タイトルへ戻るボタンをフェードインで表示
+
+			Debug.Log("<color=#c0ffff>タイトルへ戻るボタンを表示</color>");
+
+			// 処理を二度と通らないようにフラグを折る
+			endFlag = false;
+		}
+		// Debug.Log("<color=#80ffff>Timer:" + endWaitTimer + "</color>"); // ログ負荷軽減
+	}
 }

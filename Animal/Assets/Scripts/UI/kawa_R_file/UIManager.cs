@@ -24,12 +24,22 @@ public class UIManager : MonoBehaviour
 
 	[SerializeField] private GameObject victoryGroup; // VictoryUIをアサイン
 
+	[Header("開始演出用UI")]
+	[SerializeField] private TMPro.TextMeshProUGUI countdownText; // 中央のテキスト
+	[Header("紹介演出用UI")]
+	[SerializeField] private GameObject introductionPanel; // 全画面を隠す黒いPanel
+	[Header("ゲーム画面UIグループ")]
+[SerializeField] private GameObject inGameUIGroup; // 各プレイヤーのHPゲージなどがまとまった親オブジェクト
+
+
+
 	void Start()
 	{
 		// シーン開始時に確実に隠す
 		victoryGroup.SetActive(false);
 	}
 
+	// UIの生成
 	public Slider CreateUI(UI_ID ui_id, Transform pos, int pID) // pIDを追加
 	{
 		GameObject prefab = null;
@@ -74,6 +84,69 @@ public class UIManager : MonoBehaviour
 		}
 		return null;
 	}
+
+	// カウントダウン用の別のコルーチンを作って、それをコルーチンとして呼ぶと良いです
+	public void ShowCountdown(string text)
+	{
+		if (countdownText != null)
+		{
+			countdownText.text = text;
+			countdownText.enabled = true;
+			// 文字サイズを一旦小さくして、バウンドさせる演出をここに入れる
+			StartCoroutine(AnimateCountdown());
+		}
+	}
+
+	// カウントダウンの非表示
+	public void HideCountdown()
+	{
+		if (countdownText != null)
+		{
+			countdownText.enabled = false;
+		}
+	}
+
+	// 紹介パネルの表示
+	public void ShowIntroductionPanel()
+	{
+		if (introductionPanel != null) introductionPanel.SetActive(true);
+	}
+
+	// 紹介パネルの非表示
+	public void HideIntroductionPanel()
+	{
+		if (introductionPanel != null) introductionPanel.SetActive(false);
+	}
+
+	// カウントダウンの色を変更する関数
+	public void SetCountdownColor(Color color)
+	{
+		if (countdownText != null) // textCountDown ではなく countdownText にする
+		{
+			countdownText.color = color;
+		}
+	}
+
+	private IEnumerator AnimateCountdown()
+	{
+		RectTransform rect = countdownText.GetComponent<RectTransform>();
+		rect.localScale = Vector3.zero; // 小さいところから
+
+		// ドカンと大きくする
+		float elapsed = 0f;
+		float duration = 0.2f;
+		while (elapsed < duration)
+		{
+			elapsed += Time.deltaTime;
+			float t = elapsed / duration;
+			rect.localScale = Vector3.Lerp(Vector3.zero, Vector3.one * 1.5f, t);
+			yield return null;
+		}
+		rect.localScale = Vector3.one * 1.5f;
+		yield return new WaitForSeconds(0.5f);
+		rect.localScale = Vector3.one; // 元のサイズに
+	}
+
 
 	// 勝利グラフィックの表示
 	public void ShowVictoryGraphic()
@@ -143,18 +216,48 @@ public class UIManager : MonoBehaviour
 	// ranking_index	順位(昇順)
 	// player_chara_id	キャラクターのID
 	public void ShowResult(int[] ranking_index, Character_Status.CharacterType[] player_chara_id)
-    {
-        // ranking[0] は1位なのでスキップ
-        for (int i = 1; i < ranking_index.Length; i++)
-        {
-            int player_index = ranking_index[i];					// 何番プレイヤーか
-            int chara_id = (int)player_chara_id[player_index] - 1;	// その人のキャラID
+	{
+		// ranking[0] は1位なのでスキップ
+		for (int i = 1; i < ranking_index.Length; i++)
+		{
+			int player_index = ranking_index[i];                    // 何番プレイヤーか
+			int chara_id = (int)player_chara_id[player_index] - 1;  // その人のキャラID
 
 			// テクスチャを適用する
-            rankImage[i - 1].texture = loseCharaRT[chara_id];
-            rankImage[i - 1].gameObject.SetActive(true);
-        }
-    }
+			rankImage[i - 1].texture = loseCharaRT[chara_id];
+			rankImage[i - 1].gameObject.SetActive(true);
+		}
+	}
+
+	public void ShowTitleButtonWithFade()
+	{
+		if (titleButton != null)
+		{
+			titleButton.SetActive(true);
+			// CanvasGroupコンポーネントがアタッチされている前提
+			CanvasGroup cg = titleButton.GetComponent<CanvasGroup>();
+			if (cg == null) cg = titleButton.AddComponent<CanvasGroup>();
+
+			StartCoroutine(FadeIn(cg));
+		}
+	}
+
+	// フェードインのコルーチン
+	private IEnumerator FadeIn(CanvasGroup cg)
+	{
+		float elapsed = 0f;
+		float duration = 1.0f; // 1秒かけて表示
+		while (elapsed < duration)
+		{
+			elapsed += Time.unscaledDeltaTime;
+			cg.alpha = Mathf.Clamp01(elapsed / duration);
+			yield return null;
+		}
+		cg.alpha = 1f;
+
+		// ボタンにフォーカスを当てる
+		SetTitleButton();
+	}
 
 	// タイトルへ戻るボタンのアクティブフラグの設定
 	public void SetTitleButton()
