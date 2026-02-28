@@ -287,7 +287,8 @@ public class Animal_Select : MonoBehaviour
 	{
 		playerChoices[pID] = animalType;								 //選んだ動物を配列に保存
 		select_saver.Instance.PlayerChoices[pID - 1] = animalType;
-		UpdateDisplayModel(pID, playerPositions[pID], true);			 // 決定したら通常モデルに切り替え
+		UpdateDisplayModel(pID, playerPositions[pID], true);             // 決定したら通常モデルに切り替え
+		PlayCharacterVoice(animalType);
 		Debug.Log($"<color=cyan>{pID}P 決定:</color> {animalType}");
 	}
 
@@ -320,6 +321,37 @@ public class Animal_Select : MonoBehaviour
 			allPlayersReady = true;     //Areyouready？
 			if (readyImage != null) readyImage.SetActive(true); //準備完了イラスト表示
 			Debug.Log("<color=orange>ALL PLAYERS READY!</color>");
+		}
+	}
+
+	void PlayCharacterVoice(Character_Status.CharacterType type)
+	{
+		if (AudioManager.Instance == null) return;
+
+		int voiceIndex = -1;
+
+		// キャラクタータイプに合わせてAudioManagerのSEインデックスを指定
+		// ※番号は実際のseClipsの登録順に合わせて調整
+		switch (type)
+		{
+			case Character_Status.CharacterType.LION:
+				voiceIndex = 21;
+				break;
+			case Character_Status.CharacterType.OSTRICH:
+				voiceIndex = 22;
+				break;
+			case Character_Status.CharacterType.RHINOCELOS:
+				voiceIndex = 23;
+				break;
+			case Character_Status.CharacterType.RATEL:
+				voiceIndex = 24;
+				break;
+		}
+
+		if (voiceIndex != -1)
+		{
+			// ナレーションなので大きめで再生
+			AudioManager.Instance.PlaySEByIndex(voiceIndex, 2f);
 		}
 	}
 
