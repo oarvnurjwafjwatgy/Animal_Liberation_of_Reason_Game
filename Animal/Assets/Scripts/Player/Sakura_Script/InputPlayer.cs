@@ -85,6 +85,8 @@ public class InputPlayer : MonoBehaviour
 
     private float SkillStartTime = 0; // サイのスキル開始時間を記録
 
+    private bool isProcessingAction = false; // アクション実行中の二重介入防止用フラグ
+
     public enum Direction
     {
         Front,
@@ -392,6 +394,18 @@ public class InputPlayer : MonoBehaviour
     {
         if (LiveFlag == true)
         {
+            // 基本チェック
+            if (!LiveFlag || isProcessingAction || isGameFinished) return;
+
+            // ★優先順位の設定：スキルボタンが同時に押されていたら、攻撃は辞退する
+            if (controller.PlayerInput.actions["Skill"].IsPressed())
+            {
+                Debug.Log("スキル優先のため攻撃をキャンセルしました");
+                return;
+            }
+
+
+
             if (animator.IsInTransition(0) || IsAnySkillActive() || IsAnyAttackActive())
             {
                 return;
