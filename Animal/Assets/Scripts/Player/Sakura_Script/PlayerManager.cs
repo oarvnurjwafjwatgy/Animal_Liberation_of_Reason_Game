@@ -286,7 +286,7 @@ public partial class PlayerManager : MonoBehaviour
         // ★ビルド対策：物理演算の更新間隔もスローに同期させる
         Time.fixedDeltaTime = 0.02f * Time.timeScale;
 
-        AudioManager.Instance.PlaySEByIndex(15);
+        AudioManager.Instance.PlaySEByIndex(15,10);
         Camera[] allCameras = GameObject.FindObjectsOfType<Camera>();
         CameraClearFlags[] originalFlags = new CameraClearFlags[allCameras.Length];
         Color[] originalBgColors = new Color[allCameras.Length];

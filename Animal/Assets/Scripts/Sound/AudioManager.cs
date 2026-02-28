@@ -24,7 +24,9 @@ public class AudioManager : MonoBehaviour
 			Instance = this;
 			DontDestroyOnLoad(gameObject);
 
-			// 初回の音量強制設定
+			if (bgmSource != null) bgmSource.volume = 0.1f;
+			if (seSource != null) seSource.volume = 1.0f; // ソース自体の最大値
+														  // 初回の音量強制設定
 			ApplyForceVolume();
 		}
 		else
@@ -72,15 +74,11 @@ public class AudioManager : MonoBehaviour
 	}
 
 	// --- SE再生（番号指定：重なりOK） ---
-	public void PlaySEByIndex(int index)
+	public void PlaySEByIndex(int index, float volumeScale = 5.0f)
 	{
 		if (seClips == null || index < 0 || index >= seClips.Length || seClips[index] == null) return;
 
-		// PlayOneShotで再生（これが標準）
-		seSource.PlayOneShot(seClips[index]);
-
-		// 【デバッグ用】もし音が小さすぎるなら、BGMと同じ方式も同時に試す（不要なら消してOK）
-		// seSource.clip = seClips[index];
-		// seSource.Play();
+		// PlayOneShot の第2引数に volumeScale を渡す
+		seSource.PlayOneShot(seClips[index], volumeScale);
 	}
 }

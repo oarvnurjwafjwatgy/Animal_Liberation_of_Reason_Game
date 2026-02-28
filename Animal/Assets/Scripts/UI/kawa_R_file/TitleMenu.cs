@@ -75,7 +75,7 @@ public class TitleMenu : MonoBehaviour
         isTransitioning = true;
         if (AudioManager.Instance != null)
         {
-            AudioManager.Instance.PlaySEByIndex(0);
+            AudioManager.Instance.PlaySEByIndex(18);
         }
         SceneManager.LoadScene(nextSceneName);
     }

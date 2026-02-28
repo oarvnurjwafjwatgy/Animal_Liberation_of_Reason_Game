@@ -135,21 +135,28 @@ public class Animal_Select : MonoBehaviour
 				if (pID <= Gamepad.all.Count)
 				{
 					var pad = Gamepad.all[pID - 1];
-
+					bool moved = false;// 移動したかどうかのフラグ
+					
 					// 右移動 (3の次は0に戻るループ)
 					if (pad.leftStick.right.wasPressedThisFrame || pad.dpad.right.wasPressedThisFrame)
 					{
 						playerPositions[pID] = (playerPositions[pID] + 1) % 4;
+						moved = true;
 						Debug.Log($"<color=yellow>{pID}P Move Right: Index {playerPositions[pID]}</color>");
 					}
 					// 左移動 (0の次は3に回るループ)
 					if (pad.leftStick.left.wasPressedThisFrame || pad.dpad.left.wasPressedThisFrame)
 					{
 						playerPositions[pID] = (playerPositions[pID] + 3) % 4;
+						moved = true;
 						Debug.Log($"<color=yellow>{pID}P Move Left: Index {playerPositions[pID]}</color>");
 					}
-
-					UpdateDisplayModel(pID, playerPositions[pID], false); // カーソル移動のたびにモデル更新
+					// 移動音の再生&描画 (SE番号 1)
+					if (moved && AudioManager.Instance != null)
+					{
+						AudioManager.Instance.PlaySEByIndex(1);
+						UpdateDisplayModel(pID, playerPositions[pID], false); // カーソル移動のたびにモデル更新
+					}
 				}
 
 				// キーボード2P移動(デバック用)
@@ -185,14 +192,18 @@ public class Animal_Select : MonoBehaviour
 			if (isHere && playerChoices[pID] == Character_Status.CharacterType.NONE)
 			{
 				// コントローラー接続チェックを厳密化
-				if (pID <= Gamepad.all.Count && Gamepad.all[pID - 1] != null && Gamepad.all[pID - 1].buttonSouth.wasPressedThisFrame)
+				if (pID <= Gamepad.all.Count && Gamepad.all[pID - 1] != null &&
+				Gamepad.all[pID - 1].buttonSouth.wasPressedThisFrame)
 				{
+					if (AudioManager.Instance != null) AudioManager.Instance.PlaySEByIndex(0);
 					SetChoice(pID);             //決定処理
 					CheckAllPlayersReady();     //全員決定済みかチェック
 				}
+
 				//キーボード2P用決定ボタン(デバック用)
 				else if (pID == 2 && Input.GetKeyDown(KeyCode.Return))
 				{
+					if (AudioManager.Instance != null) AudioManager.Instance.PlaySEByIndex(0);
 					SetChoice(2);
 					CheckAllPlayersReady();
 				}
@@ -203,11 +214,13 @@ public class Animal_Select : MonoBehaviour
 				//参戦中のプレイヤーかつキャンセルボタンが押されたら
 				if (pID <= Gamepad.all.Count && Gamepad.all[pID - 1] != null && Gamepad.all[pID - 1].buttonEast.wasPressedThisFrame)
 				{
+					AudioManager.Instance.PlaySEByIndex(19);//キャンセル音
 					CancelChoice(pID);      //キャンセル処理
 				}
 				//キーボード2P用キャンセルボタン(デバック用)
 				else if (pID == 2 && Input.GetKeyDown(KeyCode.Backspace))
 				{
+					AudioManager.Instance.PlaySEByIndex(19);//キャンセル音
 					CancelChoice(2);
 				}
 			}
@@ -314,7 +327,8 @@ public class Animal_Select : MonoBehaviour
 	void StartBattle()
 	{
 		Debug.Log("<color=green>Scene Transition Start.</color>");
-		isTransitioning = true;                     // シーン遷移中フラグを立てる
-		SceneManager.LoadScene(mainSceneName);      //シーン移行
+		AudioManager.Instance.PlaySEByIndex(20, 5);         // 決定音（20番）を鳴らす
+		isTransitioning = true;                          // シーン遷移中フラグを立てる
+		SceneManager.LoadScene(mainSceneName);           //シーン移行
 	}
 }

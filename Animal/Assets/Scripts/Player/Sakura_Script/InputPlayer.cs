@@ -443,7 +443,7 @@ public class InputPlayer : MonoBehaviour
             {
                 case Character_Status.CharacterType.LION:
 
-                    AudioManager.Instance.PlaySEByIndex(2);
+                    AudioManager.Instance.PlaySEByIndex(2, 1.5f);
 
                     // 1. モデルの「右・上・前」の方向ベクトルを取得
                     Vector3 LIright = activeModel.transform.right;
@@ -464,7 +464,7 @@ public class InputPlayer : MonoBehaviour
 
                 case Character_Status.CharacterType.OSTRICH:
 
-                    AudioManager.Instance.PlaySEByIndex(3);
+                    AudioManager.Instance.PlaySEByIndex(3, 1.5f);
 
                     // 1. モデルの「右・上・前」の方向ベクトルを取得
                     Vector3 right = activeModel.transform.right;
@@ -487,7 +487,7 @@ public class InputPlayer : MonoBehaviour
 
 
                 case Character_Status.CharacterType.RHINOCELOS:
-                    AudioManager.Instance.PlaySEByIndex(4);
+                    AudioManager.Instance.PlaySEByIndex(4, 1.5f);
 
                     // 1. モデルの「右・上・前」の方向ベクトルを取得
                     Vector3 RHright = activeModel.transform.right;
@@ -507,7 +507,7 @@ public class InputPlayer : MonoBehaviour
                     break;
 
                 case Character_Status.CharacterType.RATEL:
-                    AudioManager.Instance.PlaySEByIndex(5);
+                    AudioManager.Instance.PlaySEByIndex(5, 1.5f);
 
                     // 1. モデルの「右・上・前」の方向ベクトルを取得
                     Vector3 RAright = activeModel.transform.right;
@@ -573,10 +573,10 @@ public class InputPlayer : MonoBehaviour
 
             switch (character_Status.CharaAnim)
             {
-                case Character_Status.CharacterType.LION: AudioManager.Instance.PlaySEByIndex(8); break;
-                case Character_Status.CharacterType.OSTRICH: AudioManager.Instance.PlaySEByIndex(9); break;
-                case Character_Status.CharacterType.RHINOCELOS: AudioManager.Instance.PlaySEByIndex(10); break;
-                case Character_Status.CharacterType.RATEL: AudioManager.Instance.PlaySEByIndex(11); break;
+                case Character_Status.CharacterType.LION: AudioManager.Instance.PlaySEByIndex(8, 1.5f); break;
+                case Character_Status.CharacterType.OSTRICH: AudioManager.Instance.PlaySEByIndex(9, 1.5f); break;
+                case Character_Status.CharacterType.RHINOCELOS: AudioManager.Instance.PlaySEByIndex(10, 1.5f); break;
+                case Character_Status.CharacterType.RATEL: AudioManager.Instance.PlaySEByIndex(11, 1.5f); break;
             }
 
 
@@ -663,7 +663,7 @@ public class InputPlayer : MonoBehaviour
                     skillDirection = activeModel.transform.forward;
                     MoveFlag = false;
                     rhinocerosSkillStartTime = Time.time; // 開始時間を記録
-                    AudioManager.Instance.PlaySEByIndex(14);
+                    AudioManager.Instance.PlaySEByIndex(14, 1.5f);
                     Effect_Manager.PlayEffect(normalObject.name, 1, effectPosition + new Vector3(0, -0.2f, 0), activeModel.transform.rotation, Vector3.one, this.transform, true);
                     AttackCollider();
                 }
@@ -674,7 +674,7 @@ public class InputPlayer : MonoBehaviour
                 if (currentRatelSkill == 1) // 溜め中 -> 攻撃
                 {
                     if (Time.time - ratelSkillStartTime < 1.0f) return;
-                    AudioManager.Instance.PlaySEByIndex(5);
+                    AudioManager.Instance.PlaySEByIndex(5,1.5f);
                     animator.SetInteger("RatelSkill", 2);
                     // ★ 攻撃アニメーションが終わる頃に、すべてのフラグを「0」に戻す
                     StartCoroutine(ResetRatelSkillState(0.8f));
@@ -687,7 +687,7 @@ public class InputPlayer : MonoBehaviour
                     Effect_Manager.PlayEffect(normalObject.name, 1, effectPosition, activeModel.transform.rotation, Vector3.one, this.transform);
                     animator.SetInteger("RatelSkill", 1);
                     ratelSkillStartTime = Time.time; // 開始時間を記録
-                    AudioManager.Instance.PlaySEByIndex(5);
+                    AudioManager.Instance.PlaySEByIndex(5,1.5f);
                     MoveFlag = false;
                     ratelSkillStartHP = character_Status.GetCurrentHP();
                 }
@@ -697,7 +697,7 @@ public class InputPlayer : MonoBehaviour
 
 
                 animator.SetTrigger("Skill");
-                AudioManager.Instance.PlaySEByIndex(6);
+                AudioManager.Instance.PlaySEByIndex(6,1.5f);
                 Effect_Manager.PlayEffect(normalObject.name, 1, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1), this.transform);
                 Effect_Manager.PlayEffect(normalObject.name, 2, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1), this.transform);
                 Effect_Manager.PlayEffect(normalObject.name, 3, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1), this.transform, true);
@@ -708,7 +708,7 @@ public class InputPlayer : MonoBehaviour
             case Character_Status.CharacterType.OSTRICH:
                 // ...ダチョウの処理（変更なし
                 AttackCollider();
-                AudioManager.Instance.PlaySEByIndex(7);
+                AudioManager.Instance.PlaySEByIndex(7,1.5f);
                 Effect_Manager.PlayEffect(normalObject.name, 1, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1), this.transform);
                 animator.SetTrigger("Skill");
 
