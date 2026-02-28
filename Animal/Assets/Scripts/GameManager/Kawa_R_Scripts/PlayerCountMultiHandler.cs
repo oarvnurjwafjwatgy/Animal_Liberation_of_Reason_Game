@@ -8,6 +8,11 @@ public class PlayerCountMultiHandler : MonoBehaviour
 	public Button[] countButtons;            // 1P～4Pボタンを順番に
 	public GameDataManager dataManager;      // 参加人数を管理するスクリプトの参照
 
+	// 枠（カーソル）のRectTransform
+	[SerializeField] private RectTransform cursorRect;
+	// 枠のサイズを調整するオフセット
+	[SerializeField] private Vector2 cursorPadding = new Vector2(20, 20);
+
 	// ★カーソル音の重複防止用
 	private GameObject lastSelected;
 
@@ -86,7 +91,40 @@ public class PlayerCountMultiHandler : MonoBehaviour
 	{
 		// 接続人数に応じてボタンの有効/無効を更新
 		UpdateInteractable();
+
+		//カーソル（枠）を選択中のボタンに追従させる処理
+		UpdateCursorPosition();
 	}
+
+	// カーソル（枠）を選択中のボタンに追従させる処理
+	void UpdateCursorPosition()
+	{
+		GameObject currentSelected = EventSystem.current.currentSelectedGameObject;
+
+		if (currentSelected != null && cursorRect != null)
+		{
+			// 枠を表示する
+			cursorRect.gameObject.SetActive(true);
+
+			// 選択中のボタンのRectTransformを取得
+			RectTransform targetRect = currentSelected.GetComponent<RectTransform>();
+
+			if (targetRect != null)
+			{
+				// 1. 位置を合わせる
+				cursorRect.position = targetRect.position;
+
+				// 2. サイズを合わせる（Paddingで少し大きくする）
+				cursorRect.sizeDelta = targetRect.sizeDelta + cursorPadding;
+			}
+		}
+		else if (cursorRect != null)
+		{
+			// 何も選択されていない時は枠を隠す
+			cursorRect.gameObject.SetActive(false);
+		}
+	}
+
 
 	// 接続されているコントローラー数を取得し、選択可能なボタン数を制限する
 	void UpdateInteractable()
