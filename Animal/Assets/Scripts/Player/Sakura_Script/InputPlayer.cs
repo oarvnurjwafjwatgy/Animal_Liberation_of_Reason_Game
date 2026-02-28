@@ -394,15 +394,9 @@ public class InputPlayer : MonoBehaviour
     {
         if (LiveFlag == true)
         {
-            // 基本チェック
-            if (!LiveFlag || isProcessingAction || isGameFinished) return;
-
-            // ★優先順位の設定：スキルボタンが同時に押されていたら、攻撃は辞退する
-            if (controller.PlayerInput.actions["Skill"].IsPressed())
-            {
-                Debug.Log("スキル優先のため攻撃をキャンセルしました");
-                return;
-            }
+            // 1. 基本チェック（スキル優先：スキルボタンが押されていたら攻撃はしない）
+            if (isProcessingAction || !LiveFlag || isGameFinished) return;
+            if (controller.PlayerInput.actions["Skill"].IsPressed()) return;
 
 
 
@@ -640,7 +634,9 @@ public class InputPlayer : MonoBehaviour
 
     private void OnSkill(InputAction.CallbackContext context)
     {
-        if (LiveFlag == false) return;
+
+
+        if (isProcessingAction || !LiveFlag || isGameFinished) return;
 
         Character_Status.CharacterType currentType = character_Status.CharaAnim;
 
@@ -665,14 +661,21 @@ public class InputPlayer : MonoBehaviour
         }
 
         // --- 2. クールタイムの判定 (攻撃と同じやり方) ---
-        if (Time.time - lastSkillTime < skillCooldown)
+        if (Time.time - lastSkillTime < skillCooldown - 0.01f)
         {
             Debug.Log($"{currentType} のスキルはまだ使えません。残り: {skillCooldown - (Time.time - lastSkillTime):F2}秒");
             return;
         }
 
-        // --- 3. スキル発動成功！時間の更新 ---
-        lastSkillTime = Time.time;
+        // 4. 同時押しガードと時間更新
+        StartCoroutine(ActionLockCoroutine());
+        lastSkillTime = Time.time; // ここで初めて時間を更新
+
+        // 5. ラーテル固有のトリガー掃除（同時押しバグ対策）
+        if (currentType == Character_Status.CharacterType.RATEL)
+        {
+            animator.ResetTrigger("Attack");
+        }
 
         // 共通参照の取得
         GameObject activeModel = (character_Status.GetMode() == Character_Status.Mode.SPSIAL_ANIMAL) ? reasonObject : normalObject;
@@ -1201,8 +1204,15 @@ public class InputPlayer : MonoBehaviour
     public void Nodie()
     {
         int max = 100;
-        
-         character_Status.NotDied(max, max);
+
+        character_Status.NotDied(max, max);
+    }
+
+    private IEnumerator ActionLockCoroutine()
+    {
+        isProcessingAction = true;
+        yield return null; // 1フレーム待機して次のフレームから入力を許可
+        isProcessingAction = false;
     }
 }
 
