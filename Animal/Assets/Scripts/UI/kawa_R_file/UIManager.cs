@@ -31,6 +31,8 @@ public class UIManager : MonoBehaviour
 	[Header("ゲーム画面UIグループ")]
 [SerializeField] private GameObject inGameUIGroup; // 各プレイヤーのHPゲージなどがまとまった親オブジェクト
 
+
+
 	void Start()
 	{
 		// シーン開始時に確実に隠す
@@ -114,6 +116,15 @@ public class UIManager : MonoBehaviour
 	public void HideIntroductionPanel()
 	{
 		if (introductionPanel != null) introductionPanel.SetActive(false);
+	}
+
+	// カウントダウンの色を変更する関数
+	public void SetCountdownColor(Color color)
+	{
+		if (countdownText != null) // textCountDown ではなく countdownText にする
+		{
+			countdownText.color = color;
+		}
 	}
 
 	private IEnumerator AnimateCountdown()
@@ -205,18 +216,48 @@ public class UIManager : MonoBehaviour
 	// ranking_index	順位(昇順)
 	// player_chara_id	キャラクターのID
 	public void ShowResult(int[] ranking_index, Character_Status.CharacterType[] player_chara_id)
-    {
-        // ranking[0] は1位なのでスキップ
-        for (int i = 1; i < ranking_index.Length; i++)
-        {
-            int player_index = ranking_index[i];					// 何番プレイヤーか
-            int chara_id = (int)player_chara_id[player_index] - 1;	// その人のキャラID
+	{
+		// ranking[0] は1位なのでスキップ
+		for (int i = 1; i < ranking_index.Length; i++)
+		{
+			int player_index = ranking_index[i];                    // 何番プレイヤーか
+			int chara_id = (int)player_chara_id[player_index] - 1;  // その人のキャラID
 
 			// テクスチャを適用する
-            rankImage[i - 1].texture = loseCharaRT[chara_id];
-            rankImage[i - 1].gameObject.SetActive(true);
-        }
-    }
+			rankImage[i - 1].texture = loseCharaRT[chara_id];
+			rankImage[i - 1].gameObject.SetActive(true);
+		}
+	}
+
+	public void ShowTitleButtonWithFade()
+	{
+		if (titleButton != null)
+		{
+			titleButton.SetActive(true);
+			// CanvasGroupコンポーネントがアタッチされている前提
+			CanvasGroup cg = titleButton.GetComponent<CanvasGroup>();
+			if (cg == null) cg = titleButton.AddComponent<CanvasGroup>();
+
+			StartCoroutine(FadeIn(cg));
+		}
+	}
+
+	// フェードインのコルーチン
+	private IEnumerator FadeIn(CanvasGroup cg)
+	{
+		float elapsed = 0f;
+		float duration = 1.0f; // 1秒かけて表示
+		while (elapsed < duration)
+		{
+			elapsed += Time.unscaledDeltaTime;
+			cg.alpha = Mathf.Clamp01(elapsed / duration);
+			yield return null;
+		}
+		cg.alpha = 1f;
+
+		// ボタンにフォーカスを当てる
+		SetTitleButton();
+	}
 
 	// タイトルへ戻るボタンのアクティブフラグの設定
 	public void SetTitleButton()
