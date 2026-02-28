@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Linq;
@@ -12,8 +10,9 @@ public class BackTitleAuto : MonoBehaviour
     private float nonInputTimer = 0f;       // 未入力タイマー
     private const float nonInputTime = 60f; // 未入力で切り替わる時間
 
-    // Update is called once per frame
-    void Update()
+
+	// Update is called once per frame
+	void Update()
     {
         this.UpdateTimer();
     }
