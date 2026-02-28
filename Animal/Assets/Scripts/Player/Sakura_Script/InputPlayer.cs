@@ -398,7 +398,10 @@ public class InputPlayer : MonoBehaviour
             if (isProcessingAction || !LiveFlag || isGameFinished) return;
             if (controller.PlayerInput.actions["Skill"].IsPressed()) return;
 
-
+            if (character_Status.CharaAnim == Character_Status.CharacterType.RATEL)
+            {
+                if (animator.GetInteger("RatelSkill") != 0) return;
+            }
 
             if (animator.IsInTransition(0) || IsAnySkillActive() || IsAnyAttackActive())
             {
@@ -727,9 +730,7 @@ public class InputPlayer : MonoBehaviour
                     animator.ResetTrigger("Attack");
                     // ★ 攻撃アニメーションが終わる頃に、すべてのフラグを「0」に戻す
                     StartCoroutine(ResetRatelSkillState(0.8f));
-
                     Invoke("AttackCollider", 0.5f);
-                    MoveFlag = true;
                 }
                 else if (currentRatelSkill == 0) // 待機中(0) から 溜め開始(1) へ
                 {
