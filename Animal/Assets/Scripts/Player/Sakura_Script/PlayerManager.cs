@@ -169,16 +169,23 @@ public partial class PlayerManager : MonoBehaviour
 			introCamera.enabled = false;
 		}
 
-		// 3. カウントダウン（UI表示、SE再生）                
+        // 3. カウントダウン（UI表示、SE再生）                
+        uiManager.SetCountdownColor(Color.cyan); // 青色にする
+		uiManager.ShowCountdown("ShowYour Instincts?");
+		AudioManager.Instance.PlaySEByIndex(25, 2f);          //全員準備完了のナレーション（25番）
+        yield return new WaitForSeconds(2.0f);
+        uiManager.SetCountdownColor(Color.green); // 緑色にする
 		uiManager.ShowCountdown("3");
         AudioManager.Instance.PlaySEByIndex(16); // カウントダウン音を鳴らす
-        yield return new WaitForSeconds(1.0f);
+		yield return new WaitForSeconds(1.0f);
 
-        uiManager.ShowCountdown("2");
+        uiManager.SetCountdownColor(Color.yellow); // 黄色にする
+		uiManager.ShowCountdown("2");
         // AudioManager.Instance.PlaySEByIndex(...);
         yield return new WaitForSeconds(1.0f);
 
-        uiManager.ShowCountdown("1");
+        uiManager.SetCountdownColor(Color.magenta); // マゼンタ色にする
+		uiManager.ShowCountdown("1");
         // AudioManager.Instance.PlaySEByIndex(...);
         yield return new WaitForSeconds(1.0f);
 
@@ -278,11 +285,18 @@ public partial class PlayerManager : MonoBehaviour
     //決着からリザルト表示までの一連の演出を行うコルーチン
     private IEnumerator VictorySequenceRoutine(Character_Status survivor)
     {
-        // --- 1. トドメの瞬間：スロー開始 ---
-        //静寂の演出のためにBGMを止める
-        if (AudioManager.Instance != null) AudioManager.Instance.StopBGM();
+		// --- 1. トドメの瞬間：スロー開始 ---
 
-        Time.timeScale = 0.02f;
+		// 全プレイヤーの入力を無効化して、スロー演出の準備
+		foreach (var p in spawnedPlayers)
+		{
+			p.GetComponent<InputPlayer>().enabled = false;
+		}
+		
+        //静寂の演出のためにBGMを止める
+		if (AudioManager.Instance != null) AudioManager.Instance.StopBGM();
+
+		Time.timeScale = 0.02f;
         // ★ビルド対策：物理演算の更新間隔もスローに同期させる
         Time.fixedDeltaTime = 0.02f * Time.timeScale;
 
@@ -370,8 +384,10 @@ public partial class PlayerManager : MonoBehaviour
         // BGMを勝利用に切り替える
         if (AudioManager.Instance != null)
         {
-            AudioManager.Instance.PlayBGM(AudioManager.Instance.victoryBGM);
-        }
+			//勝利BGM
+			AudioManager.Instance.PlayBGM(AudioManager.Instance.victoryBGM);
+			yield return new WaitForSeconds(1.5f);
+		}
 
         for (int i = 0; i < allCameras.Length; i++)
         {
@@ -409,16 +425,76 @@ public partial class PlayerManager : MonoBehaviour
         survivor.GetComponent<InputPlayer>()?.Win();
 
         // --- 5. リザルトへ ---
-        yield return new WaitForSecondsRealtime(2.0f);
+		//勝者エニモは・・・（ナレーション）
+        Character_Status.CharacterType winnerType = survivor.CharaAnim;
+		AudioManager.Instance.PlaySEByIndex(26, 2.0f);
+
+        //エニモごとの鳴らすタイミングを変える
+        switch (survivor.CharaAnim)
+        {
+            case Character_Status.CharacterType.RHINOCELOS:
+                yield return new WaitForSecondsRealtime(1.6f);
+                break;
+            case Character_Status.CharacterType.RATEL:
+                yield return new WaitForSecondsRealtime(1.1f);
+                break;
+            default:
+                yield return new WaitForSecondsRealtime(1.4f);
+                break;
+        }
+
         diedPlayer.Add(lastPlayer);
         int[] ranking = diedPlayer.ToArray();
         Array.Reverse(ranking);
         uiManager.ShowResult(ranking, Animal_Select.playerChoices);
 
-        if (backTitleAuto != null)
+		// 勝者の動物タイプに応じた勝利ボイスを鳴らす
+		if (AudioManager.Instance != null)
+		{
+			PlayWinnerVoice(survivor.CharaAnim);
+		}
+
+
+		if (backTitleAuto != null)
             backTitleAuto.gameObject.SetActive(true);
 
         yield return new WaitForSecondsRealtime(1.0f);
         if (endManager != null) endManager.SetEndFlag(true);
+
+		// 最後に残ったプレイヤーの入力を有効化して、エンドマネージャーに遷移フラグを渡す
+		foreach (var p in spawnedPlayers)
+		{
+			p.GetComponent<InputPlayer>().enabled = true;
+		}
+    }
+
+
+    // 勝者の動物タイプからボイスを判別して鳴らすメソッド
+    private void PlayWinnerVoice(Character_Status.CharacterType winnerType)
+    {
+        int voiceIndex = -1;
+
+        // 動物タイプに応じてSEインデックスを指定
+        switch (winnerType)
+        {
+            case Character_Status.CharacterType.LION:
+                voiceIndex = 21; // ライオン勝利
+                break;
+            case Character_Status.CharacterType.OSTRICH:
+                voiceIndex = 22; // ダチョウ勝利
+                break;
+            case Character_Status.CharacterType.RHINOCELOS:
+                voiceIndex = 23; // サイ勝利
+                break;
+            case Character_Status.CharacterType.RATEL:
+                voiceIndex = 24; // ラーテル勝利
+                break;
+        }
+
+        if (voiceIndex != -1)
+        {
+			// 勝利ボイス
+			AudioManager.Instance.PlaySEByIndex(voiceIndex, 2.0f);
+        }
     }
 }

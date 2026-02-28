@@ -1,7 +1,7 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
-using UnityEngine.TextCore.Text;
 
 public class Animal_Select : MonoBehaviour
 {
@@ -62,7 +62,10 @@ public class Animal_Select : MonoBehaviour
 	private bool allPlayersReady = false;       // 全員決定済みフラグ
 	private bool isTransitioning = false;       // シーン遷移中フラグ
 
-    void Awake()
+
+	public static ReadyImageController readyImageController;    // ReadyImageControllerへの参照
+
+	void Awake()
     {
         // --- シーン開始時の初期化処理 ---
         //最初のボタンのみモデルを割り当てる（重複して割り当てないように）
@@ -78,22 +81,23 @@ public class Animal_Select : MonoBehaviour
             silhouetteModels_4P = setupSilhouettes_4P;
         }
 
-        // 全ボタン共通で1回だけ探せばOK
-        if (readyImage == null)
-        {
-            foreach (GameObject obj in Resources.FindObjectsOfTypeAll<GameObject>())
-            {
-                if (obj.name == "ReadyImage")
-                {
-                    readyImage = obj;
-                    break;
-                }
-            }
-        }
+		// 全ボタン共通で1回だけ探せばOK
+		if (readyImageController == null)
+		{
+			foreach (GameObject obj in Resources.FindObjectsOfTypeAll<GameObject>())
+			{
+				if (obj.name == "ReadyImage")
+				{
+					readyImageController = obj.GetComponent<ReadyImageController>();
+					obj.SetActive(true);
+					break;
+				}
+			}
+		}
 
-        // --- シーン開始時に全ての情報を「強制」リセット ---
-        // どのボタンが担当してもいいですが、重複しないように buttonIndex == 0 の時だけ実行
-        if (buttonIndex == 0)
+		// --- シーン開始時に全ての情報を「強制」リセット ---
+		// どのボタンが担当してもいいですが、重複しないように buttonIndex == 0 の時だけ実行
+		if (buttonIndex == 0)
         {
             for (int i = 0; i < playerChoices.Length; i++)
             {
@@ -301,6 +305,7 @@ public class Animal_Select : MonoBehaviour
 		
 		//選択状態をリセット
 		allPlayersReady = false;                                    //全員決定済みフラグをリセット
+		if (readyImageController != null) readyImageController.SlideOut();
 		if (readyImage != null) readyImage.SetActive(false);        //準備完了イラスト非表示
 		Debug.Log($"<color=red>{pID}P キャンセル</color>");
 	}
@@ -319,7 +324,8 @@ public class Animal_Select : MonoBehaviour
 		if (count >= dynamicRequiredPlayers)
 		{
 			allPlayersReady = true;     //Areyouready？
-			if (readyImage != null) readyImage.SetActive(true); //準備完了イラスト表示
+			if (readyImage != null) readyImage.SetActive(true);   //準備完了イラスト表示
+			if (readyImageController != null) readyImageController.SlideIn();
 			Debug.Log("<color=orange>ALL PLAYERS READY!</color>");
 		}
 	}
@@ -360,7 +366,36 @@ public class Animal_Select : MonoBehaviour
 	{
 		Debug.Log("<color=green>Scene Transition Start.</color>");
 		AudioManager.Instance.PlaySEByIndex(20, 5);         // 決定音（20番）を鳴らす
-		isTransitioning = true;                          // シーン遷移中フラグを立てる
-		SceneManager.LoadScene(mainSceneName);           //シーン移行
+															//        コルーチンで待機してからシーンを切り替える
+		if (readyImageController != null)
+		{
+			// ズームと移動を制御する
+			StartCoroutine(StartBattleCoroutine());
+		}
+		else
+		{
+			// ReadyImageがない場合のフォールバック
+			StartCoroutine(SceneTransitionCoroutine());
+		}
+		isTransitioning = true; // 遷移開始フラグを立てる
+	}
+
+	// 演出を待ってからシーンを遷移させるコルーチン
+	private IEnumerator StartBattleCoroutine()
+	{
+		// ReadyImageのズーム演出を呼び出す
+		readyImageController.ZoomAndStart();
+
+		// 演出全体(ズーム0.3 + 待機0.2 + 暗転0.2) + シーン読み込み待ち時間
+		yield return new WaitForSeconds(0.5f);
+
+		SceneManager.LoadScene(mainSceneName); //シーン移行
+	}
+
+	//ReadyImageがない場合用の安全な遷移用コルーチン
+	private IEnumerator SceneTransitionCoroutine()
+	{
+		yield return new WaitForSeconds(0.5f);
+		SceneManager.LoadScene(mainSceneName);
 	}
 }
