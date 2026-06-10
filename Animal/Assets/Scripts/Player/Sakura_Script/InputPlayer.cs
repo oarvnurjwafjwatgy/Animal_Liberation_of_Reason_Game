@@ -3,6 +3,8 @@ using UnityEngine.InputSystem;
 using System.Collections.Generic;
 using System.Collections;
 
+/*InputPlayer.cs全体担当者:古澤 桜
+  SE関連担当者            :川上 流輝 */
 
 // 動物ごとの設定をインスペクターで表示するためのクラス
 [System.Serializable]

@@ -13,9 +13,10 @@ public class PlayerCountMultiHandler : MonoBehaviour
 	// 枠のサイズを調整するオフセット
 	[SerializeField] private Vector2 cursorPadding = new Vector2(20, 20);
 
-	// ★カーソル音の重複防止用
+	// カーソル音の重複防止用
 	private GameObject lastSelected;
 
+	//初期化
 	void Start()
 	{
 		// 1Pは時間的に実装が難しいため、最初から選べないようにする
@@ -25,7 +26,7 @@ public class PlayerCountMultiHandler : MonoBehaviour
 			countButtons[0].interactable = false;
 		}
 
-		// ★1Pが非表示になったことで壊れた「上下左右の繋がり」をプログラムで繋ぎ直す
+		// 1Pが非表示になったことで壊れた「上下左右の繋がり」をプログラムで繋ぎ直す
 		FixButtonNavigation();
 
 		// 最初は2Pボタンを選択状態にする
@@ -39,27 +40,25 @@ public class PlayerCountMultiHandler : MonoBehaviour
 		// 1Pは実装が難しいため、最初から選べないようにするので、ループは2Pから
 		for (int i = 1; i < countButtons.Length; i++)
 		{
-			// onClickは引数なし関数しか受け取れないがindexを渡したいため、
-			// 引数なしのラムダ式を呼び、その中で引数付き関数を呼ぶ
-
-			// ループ変数はそのまま使うとバグるのでローカルコピーを作る
-			// (ラムダ式は、その場の値を保存するのではなく「変数そのもの」を参照)
 			int index = i;
+			// ボタンが押されたときの処理
 			countButtons[i].onClick.AddListener(() =>
 			{
-				OnButtonClicked(index);
-				// 決定音（0番）を鳴らす
+				OnButtonClicked(index); //押されたボタンのインデックスを渡す
+
+				// 音が存在する場合は決定音を鳴らす（0番）
 				if (AudioManager.Instance != null)
 				{
-					AudioManager.Instance.PlaySEByIndex(0);
+					AudioManager.Instance.PlaySEByIndex(0); // 決定音（0番）を鳴らす
 				}
 			});
 		}
 	}
 
-	// ★ボタンの移動経路を再定義する関数
+	// ボタンの移動箇所を定める（1Pが非表示になったことで壊れた繋がりを修正）
 	void FixButtonNavigation()
 	{
+		// 4つのボタンが揃っている前提で設定する（1Pは非表示で使わないため、2P～4Pの3つが必要）
 		if (countButtons.Length < 4) return;
 
 		// countButtons[1]=2P, [2]=3P, [3]=4P と想定
@@ -67,23 +66,23 @@ public class PlayerCountMultiHandler : MonoBehaviour
 		// --- 2Pボタンの設定 ---
 		Navigation nav2 = countButtons[1].navigation;
 		nav2.mode = Navigation.Mode.Explicit; // 自動判定をオフにして手動指定
-		nav2.selectOnDown = countButtons[3];  // 下に行ったら4Pへ
-		nav2.selectOnLeft = countButtons[2];  // 左に行ったら3Pへ
+		nav2.selectOnDown = countButtons[3];
+		nav2.selectOnLeft = countButtons[2];
 		countButtons[1].navigation = nav2;
 
 		// --- 3Pボタンの設定 ---
 		Navigation nav3 = countButtons[2].navigation;
 		nav3.mode = Navigation.Mode.Explicit;
-		nav3.selectOnUp = countButtons[1];    // 上に行ったら2Pへ（1Pがいないため）
-		nav3.selectOnRight = countButtons[3]; // 右に行ったら4Pへ
-		nav3.selectOnDown = countButtons[1];  // 下に行っても行き止まりにならないよう2Pへ
+		nav3.selectOnUp = countButtons[1];
+		nav3.selectOnRight = countButtons[3];
+		nav3.selectOnDown = countButtons[1];
 		countButtons[2].navigation = nav3;
 
 		// --- 4Pボタンの設定 ---
 		Navigation nav4 = countButtons[3].navigation;
 		nav4.mode = Navigation.Mode.Explicit;
-		nav4.selectOnUp = countButtons[1];    // 上に行ったら2Pへ
-		nav4.selectOnLeft = countButtons[2];  // 左に行ったら3Pへ
+		nav4.selectOnUp = countButtons[1];
+		nav4.selectOnLeft = countButtons[2];
 		countButtons[3].navigation = nav4;
 	}
 
@@ -101,6 +100,7 @@ public class PlayerCountMultiHandler : MonoBehaviour
 	{
 		GameObject currentSelected = EventSystem.current.currentSelectedGameObject;
 
+		// 選択中のオブジェクトが存在し、かつそれがボタンである場合に処理を行う
 		if (currentSelected != null && cursorRect != null)
 		{
 			// 枠を表示する
@@ -109,6 +109,7 @@ public class PlayerCountMultiHandler : MonoBehaviour
 			// 選択中のボタンのRectTransformを取得
 			RectTransform targetRect = currentSelected.GetComponent<RectTransform>();
 
+			// ターゲットが存在する場合に位置とサイズを合わせる
 			if (targetRect != null)
 			{
 				// 1. 位置を合わせる
@@ -118,6 +119,7 @@ public class PlayerCountMultiHandler : MonoBehaviour
 				cursorRect.sizeDelta = targetRect.sizeDelta + cursorPadding;
 			}
 		}
+		// 選択中のオブジェクトがない場合は枠を隠す
 		else if (cursorRect != null)
 		{
 			// 何も選択されていない時は枠を隠す
@@ -139,9 +141,10 @@ public class PlayerCountMultiHandler : MonoBehaviour
 			countButtons[j].interactable = (j + 1 <= connectedCount);
 		}
 
+		// 現在選択されているオブジェクトを取得
 		GameObject currentSelected = EventSystem.current.currentSelectedGameObject;
 
-		// ★カーソル移動音の処理：選択が変わった瞬間に鳴らす
+		// カーソル移動音の処理：選択が変わった瞬間に鳴らす
 		if (currentSelected != null && currentSelected != lastSelected)
 		{
 			// 最初の一回（nullからの変化）以外で鳴らす
@@ -150,14 +153,16 @@ public class PlayerCountMultiHandler : MonoBehaviour
 				// 移動音（1番）を鳴らす
 				AudioManager.Instance.PlaySEByIndex(1);
 			}
-			lastSelected = currentSelected;
+
+			lastSelected = currentSelected; // 現在の選択を保存
 		}
 
 		// ボタンが選択されているか確認し、選択されている場合はそのボタンが有効かどうかを確認する
 		if (currentSelected != null)
 		{
-			Button btn = currentSelected.GetComponent<Button>();
+			Button btn = currentSelected.GetComponent<Button>();    //ボタンを取得
 
+			// 選択されているオブジェクトがボタンで、かつそのボタンが無効な場合
 			if (btn != null && !btn.interactable)
 			{
 				// 無効なボタン（接続されてない人数）なら2Pボタンへ戻す

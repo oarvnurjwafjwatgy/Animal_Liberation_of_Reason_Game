@@ -34,6 +34,7 @@ public class Animal_Select : MonoBehaviour
 
 
 	// Animal_Select.cs のメンバー変数部分に追加
+	//1p～4p全てに動物の通常モデルとシルエットモデルを割り当てるための配列
 	public static GameObject[] normalModels_1P;    // インデックス0:ライオン, 1:ダチョウ...
 	public static GameObject[] silhouetteModels_1P;
 
@@ -84,8 +85,10 @@ public class Animal_Select : MonoBehaviour
 		// 全ボタン共通で1回だけ探せばOK
 		if (readyImageController == null)
 		{
+			// Resources.FindObjectsOfTypeAll を使ってシーン内の全GameObjectを検索
 			foreach (GameObject obj in Resources.FindObjectsOfTypeAll<GameObject>())
 			{
+				//スタート前の準備完了イラストを探す
 				if (obj.name == "ReadyImage")
 				{
 					readyImageController = obj.GetComponent<ReadyImageController>();
@@ -99,7 +102,8 @@ public class Animal_Select : MonoBehaviour
 		// どのボタンが担当してもいいですが、重複しないように buttonIndex == 0 の時だけ実行
 		if (buttonIndex == 0)
         {
-            for (int i = 0; i < playerChoices.Length; i++)
+			// 参加人数分の配列をループして、全てのプレイヤーの選択をリセット
+			for (int i = 0; i < playerChoices.Length; i++)
             {
                 playerChoices[i] = Character_Status.CharacterType.NONE; // 選択をなしにする
                 playerPositions[i] = 0; // カーソルを左端に戻す
@@ -163,18 +167,18 @@ public class Animal_Select : MonoBehaviour
 					}
 				}
 
-				// キーボード2P移動(デバック用)
-				if (pID == 2)
-				{
-					if (Input.GetKeyDown(KeyCode.RightArrow))
-					{
-						playerPositions[2] = (playerPositions[2] + 1) % 4;
-					}
-					if (Input.GetKeyDown(KeyCode.LeftArrow))
-					{
-						playerPositions[2] = (playerPositions[2] + 3) % 4;
-					}
-				}
+				//// キーボード2P移動(デバック用)
+				//if (pID == 2)
+				//{
+				//	if (Input.GetKeyDown(KeyCode.RightArrow))
+				//	{
+				//		playerPositions[2] = (playerPositions[2] + 1) % 4;
+				//	}
+				//	if (Input.GetKeyDown(KeyCode.LeftArrow))
+				//	{
+				//		playerPositions[2] = (playerPositions[2] + 3) % 4;
+				//	}
+				//}
 			}
 		}
 
@@ -204,13 +208,13 @@ public class Animal_Select : MonoBehaviour
 					CheckAllPlayersReady();     //全員決定済みかチェック
 				}
 
-				//キーボード2P用決定ボタン(デバック用)
-				else if (pID == 2 && Input.GetKeyDown(KeyCode.Return))
-				{
-					if (AudioManager.Instance != null) AudioManager.Instance.PlaySEByIndex(0);
-					SetChoice(2);
-					CheckAllPlayersReady();
-				}
+				////キーボード2P用決定ボタン(デバック用)
+				//else if (pID == 2 && Input.GetKeyDown(KeyCode.Return))
+				//{
+				//	if (AudioManager.Instance != null) AudioManager.Instance.PlaySEByIndex(0);
+				//	SetChoice(2);
+				//	CheckAllPlayersReady();
+				//}
 			}
 			// 【キャンセル判定】そのボタンで決定済みの時だけ
 			else if (isDecidedHere)
@@ -221,12 +225,12 @@ public class Animal_Select : MonoBehaviour
 					AudioManager.Instance.PlaySEByIndex(19);//キャンセル音
 					CancelChoice(pID);      //キャンセル処理
 				}
-				//キーボード2P用キャンセルボタン(デバック用)
-				else if (pID == 2 && Input.GetKeyDown(KeyCode.Backspace))
-				{
-					AudioManager.Instance.PlaySEByIndex(19);//キャンセル音
-					CancelChoice(2);
-				}
+				////キーボード2P用キャンセルボタン(デバック用)
+				//else if (pID == 2 && Input.GetKeyDown(KeyCode.Backspace))
+				//{
+				//	AudioManager.Instance.PlaySEByIndex(19);//キャンセル音
+				//	CancelChoice(2);
+				//}
 			}
 		}
 
@@ -251,6 +255,11 @@ public class Animal_Select : MonoBehaviour
 	{
 		GameObject[] normals = null;		//決定を押すと通常モデル
 		GameObject[] silhouettes = null;    //決定前はシルエットモデル
+
+		/* プレイヤーIDに応じて、対応するモデルの配列を選択
+		   pID1～4はそれぞれ1P～4Pに対応している前提
+		   それぞれ各プレイヤーに全ての動物のモデル状態が割り当てられているので
+		   動物のインデックスを渡して、該当するモデルだけをオンにする*/
 		if (pID == 1)
 		{
 			normals = normalModels_1P;
@@ -330,6 +339,7 @@ public class Animal_Select : MonoBehaviour
 		}
 	}
 
+	//選択した動物の名前をナレーションで流す処理
 	void PlayCharacterVoice(Character_Status.CharacterType type)
 	{
 		if (AudioManager.Instance == null) return;
@@ -354,6 +364,7 @@ public class Animal_Select : MonoBehaviour
 				break;
 		}
 
+		// 有効なインデックスが設定されていれば、ナレーションを再生
 		if (voiceIndex != -1)
 		{
 			// ナレーションなので大きめで再生
@@ -366,7 +377,7 @@ public class Animal_Select : MonoBehaviour
 	{
 		Debug.Log("<color=green>Scene Transition Start.</color>");
 		AudioManager.Instance.PlaySEByIndex(20, 5);         // 決定音（20番）を鳴らす
-															//        コルーチンで待機してからシーンを切り替える
+
 		if (readyImageController != null)
 		{
 			// ズームと移動を制御する

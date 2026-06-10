@@ -30,13 +30,20 @@ public class EndManager : MonoBehaviour
         endFlag = flag;
     }
 
+	//※ここの箇所は川上流輝が担当しました。
+
+	// ゲーム終了後のタイマー更新
 	private void UpdateTimer()
 	{
+		// ゲーム終了フラグが立っていないなら、処理を行わない
 		if (!endFlag) return;
 
-		endWaitTimer += Time.deltaTime;
+		endWaitTimer += Time.deltaTime; // タイマーを更新
+
+		// タイマーが既定時間をすぎた時
 		if (endWaitTimer > endWaitTime)
 		{
+			// タイトルへ戻るボタンを表示
 			if (uiManager != null)
 				uiManager.ShowTitleButtonWithFade();    // タイトルへ戻るボタンをフェードインで表示
 
@@ -45,6 +52,5 @@ public class EndManager : MonoBehaviour
 			// 処理を二度と通らないようにフラグを折る
 			endFlag = false;
 		}
-		// Debug.Log("<color=#80ffff>Timer:" + endWaitTimer + "</color>"); // ログ負荷軽減
 	}
 }

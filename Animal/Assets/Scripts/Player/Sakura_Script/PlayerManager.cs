@@ -5,6 +5,12 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
+/*全体の基礎処理担当者:
+ 古澤 桜
+ 
+*ゲームスタート関連の処理・SEの再生タイミングの調整・勝利演出(とどめの演出も含む)などといった
+一部の担当者:川上 流輝 */
+
 public partial class PlayerManager : MonoBehaviour
 {
     //生成したプレイヤーを管理するリスト
@@ -136,10 +142,9 @@ public partial class PlayerManager : MonoBehaviour
 			p.GetComponent<InputPlayer>().enabled = false;
 		}
 
-		// 2. 紹介演出開始
+		// 2. 演出開始
 		if (uiManager != null) uiManager.ShowIntroductionPanel();
 
-		// --- ★演出用カメラを使ったキャラクター紹介 (Texture方式) ---
 
 		// 演出カメラを有効化
 		if (introCamera != null)
@@ -147,8 +152,8 @@ public partial class PlayerManager : MonoBehaviour
 			introCamera.enabled = true;
 		}
 
-		// ★追加チェック：演出中は、RawImageのアルファ値を確実に1（不透明）にする
-		// uiManager.IntroRawImage.color = new Color(1, 1, 1, 1);                
+		// プレイヤーの数だけ演出カメラを順番に移動させるつもりだったが、
+        // 急ぎ作成したため、動きが完成出来ていません。
 
 		for (int i = 0; i < spawnedPlayers.Count; i++)
 		{
@@ -169,7 +174,7 @@ public partial class PlayerManager : MonoBehaviour
 			introCamera.enabled = false;
 		}
 
-        // 3. カウントダウン（UI表示、SE再生）                
+        // 3. カウントダウン処理（UI表示、SE再生）                
         uiManager.SetCountdownColor(Color.cyan); // 青色にする
 		uiManager.ShowCountdown("ShowYour Instincts?");
 		AudioManager.Instance.PlaySEByIndex(25, 2f);          //全員準備完了のナレーション（25番）
@@ -181,14 +186,13 @@ public partial class PlayerManager : MonoBehaviour
 
         uiManager.SetCountdownColor(Color.yellow); // 黄色にする
 		uiManager.ShowCountdown("2");
-        // AudioManager.Instance.PlaySEByIndex(...);
         yield return new WaitForSeconds(1.0f);
 
         uiManager.SetCountdownColor(Color.magenta); // マゼンタ色にする
 		uiManager.ShowCountdown("1");
-        // AudioManager.Instance.PlaySEByIndex(...);
         yield return new WaitForSeconds(1.0f);
 
+		// GO! のタイミング文字を赤色にする
 		if (uiManager != null)
 		{
             uiManager.SetCountdownColor(Color.red); // 赤色にする
@@ -196,17 +200,18 @@ public partial class PlayerManager : MonoBehaviour
 		}
         yield return new WaitForSeconds(1.0f);
 
-		// 4. キャラクター紹介シーンへカメラを移動する演出
-		// 5. GO! のタイミングでカメラを通常の分割画面に戻す
+
+		// 4. 演出終了後、UIを切り替える
 		if (uiManager != null) uiManager.HideIntroductionPanel(); // 黒画面を消す
         uiManager.HideCountdown(); // カウントダウンを消す
 
-        // 6. 全プレイヤーの入力を有効化
+        // 5. 全プレイヤーの入力を有効化
         foreach (var p in spawnedPlayers)
         {
             p.GetComponent<InputPlayer>().enabled = true;
         }
     }
+
 
     private void SetupPlayer(GameObject playerObj, int pID, GameObject normal, GameObject reason)
     {
@@ -259,14 +264,15 @@ public partial class PlayerManager : MonoBehaviour
 
         playerCount = aliveCount;
 
-        if (GameDataManager.SelectedPlayerCount > 1 && playerCount == 1 && !isGameEnd)
+		// プレイヤーが1人になった瞬間、ゲーム終了の処理を開始
+		if (GameDataManager.SelectedPlayerCount > 1 && playerCount == 1 && !isGameEnd)
         {
             Debug.Log("決着！リザルトシーンへ移動します。");
 
             isGameEnd = true;
             lastPlayer = last_player_id;
 
-            // ★ここで最後の一人のGameObjectを取得できます！
+            // ここで最後の一人のGameObjectを取得できます
             if (survivorStatus != null)
             {
                 GameObject winnerObject = survivorStatus.gameObject;
@@ -288,20 +294,22 @@ public partial class PlayerManager : MonoBehaviour
 		// --- 1. トドメの瞬間：スロー開始 ---
 
 		// 全プレイヤーの入力を無効化して、スロー演出の準備
-		foreach (var p in spawnedPlayers)
+		foreach (var player in spawnedPlayers)
 		{
-			p.GetComponent<InputPlayer>().enabled = false;
+			player.GetComponent<InputPlayer>().enabled = false;
 		}
 		
         //静寂の演出のためにBGMを止める
 		if (AudioManager.Instance != null) AudioManager.Instance.StopBGM();
 
 		Time.timeScale = 0.02f;
-        // ★ビルド対策：物理演算の更新間隔もスローに同期させる
+        // ビルド対策：物理演算の更新間隔もスローに同期させる
         Time.fixedDeltaTime = 0.02f * Time.timeScale;
 
-        AudioManager.Instance.PlaySEByIndex(15,10);
-        Camera[] allCameras = GameObject.FindObjectsOfType<Camera>();
+        AudioManager.Instance.PlaySEByIndex(15,10);     // トドメのSE（15番）を大きめの音量で鳴らす
+		
+        //カメラ関連の演出準備：全カメラの設定を保存しておく
+		Camera[] allCameras = GameObject.FindObjectsOfType<Camera>();
         CameraClearFlags[] originalFlags = new CameraClearFlags[allCameras.Length];
         Color[] originalBgColors = new Color[allCameras.Length];
         Dictionary<Renderer, Material[]> originalMaterials = new Dictionary<Renderer, Material[]>();
@@ -310,17 +318,19 @@ public partial class PlayerManager : MonoBehaviour
         // 一時的に消す地面やステージオブジェクトのリスト
         List<Renderer> hiddenRenderers = new List<Renderer>();
 
-        Shader standardShader = Shader.Find("Unlit/Color");
-        if (standardShader == null)
+        Shader standardShader = Shader.Find("Unlit/Color"); //Unit/Color シェーダーを探す
+		
+        //nullならビルドに入るシェーダーで代用
+		if (standardShader == null)
         {
             // もし Unlit/Color が見つからなければ、絶対ビルドに入るシェーダーで代用
             standardShader = Shader.Find("Sprites/Default");
         }
-        Material blackMat = new Material(standardShader) { color = Color.black };
+        Material blackMat = new Material(standardShader) { color = Color.black };   // 黒いマテリアルを作成
 
 
-        // --- 2. 演出：背景赤、キャラ黒、エフェクトと地面を消す ---
-        for (int i = 0; i < allCameras.Length; i++)
+		// --- 2. 演出：背景赤、キャラ黒、エフェクトと地面を消す ---
+		for (int i = 0; i < allCameras.Length; i++)
         {
             originalFlags[i] = allCameras[i].clearFlags;
             originalBgColors[i] = allCameras[i].backgroundColor;
@@ -337,17 +347,20 @@ public partial class PlayerManager : MonoBehaviour
             bool isPlayer = false;
             foreach (var p in spawnedPlayers)
             {
-                if (p != null && r.transform.IsChildOf(p.transform)) isPlayer = true;
+				// プレイヤーのRendererかどうかを判定するために、プレイヤーオブジェクトの子かどうかをチェック
+				if (p != null && r.transform.IsChildOf(p.transform)) isPlayer = true;
             }
 
-            if (!isPlayer && r.enabled)
+			// プレイヤー関係のRenderer以外で、かつ有効なものを非表示にする
+			if (!isPlayer && r.enabled)
             {
                 r.enabled = false; // 地面や背景を消す！
-                hiddenRenderers.Add(r);
-            }
+                hiddenRenderers.Add(r); // 復活させるときのためにリストに追加
+			}
         }
 
-        foreach (var p in spawnedPlayers)
+		// プレイヤーのキャラをすべて黒くして、エフェクトを停止する
+		foreach (var p in spawnedPlayers)
         {
             if (p == null) continue;
 
@@ -362,7 +375,7 @@ public partial class PlayerManager : MonoBehaviour
             }
 
             // エフェクト停止
-            ParticleSystem[] ps = p.GetComponentsInChildren<ParticleSystem>(); // ★修正: ComponentsInChildren に戻しました
+            ParticleSystem[] ps = p.GetComponentsInChildren<ParticleSystem>(); 
             foreach (var particle in ps)
             {
                 if (particle.isPlaying)
@@ -377,7 +390,7 @@ public partial class PlayerManager : MonoBehaviour
         yield return new WaitForSecondsRealtime(1.5f);
 
         // --- 3. 復活：すべて元通りにする ---
-        // ★ビルド対策：重い復元処理の前に時間を戻す！
+        // ビルド対策：重い復元処理の前に時間を戻す
         Time.timeScale = 1.0f;
         Time.fixedDeltaTime = 0.02f;
 
@@ -389,18 +402,21 @@ public partial class PlayerManager : MonoBehaviour
 			yield return new WaitForSeconds(1.5f);
 		}
 
-        for (int i = 0; i < allCameras.Length; i++)
+		// カメラの設定を元に戻す
+		for (int i = 0; i < allCameras.Length; i++)
         {
             allCameras[i].clearFlags = originalFlags[i];
             allCameras[i].backgroundColor = originalBgColors[i];
         }
 
-        foreach (var kvp in originalMaterials)
+		// プレイヤーのキャラを元のマテリアルに戻す
+		foreach (var kvp in originalMaterials)
         {
             if (kvp.Key != null) kvp.Key.materials = kvp.Value;
         }
 
-        foreach (var particle in pausedParticles)
+		// エフェクトを再生する
+		foreach (var particle in pausedParticles)
         {
             if (particle != null)
             {
@@ -415,18 +431,18 @@ public partial class PlayerManager : MonoBehaviour
             if (r != null) r.enabled = true;
         }
 
-        // --- 4. ポーズ演出 ---
-        // Time.timeScale = 1.0f; // 上に移動したのでここでの設定は保険
-        if (uiManager != null)
+		// --- 4. ポーズ演出 ---
+		// UIを切り替える
+		if (uiManager != null)
         {
             uiManager.ShowVictoryGraphic();
             uiManager.HideAllInGameUI();
         }
-        survivor.GetComponent<InputPlayer>()?.Win();
+        survivor.GetComponent<InputPlayer>()?.Win();    // 勝者のプレイヤーに勝利演出をさせる
 
-        // --- 5. リザルトへ ---
+		// --- 5. リザルトへ ---
+		Character_Status.CharacterType winnerType = survivor.CharaAnim;
 		//勝者エニモは・・・（ナレーション）
-        Character_Status.CharacterType winnerType = survivor.CharaAnim;
 		AudioManager.Instance.PlaySEByIndex(26, 2.0f);
 
         //エニモごとの鳴らすタイミングを変える
@@ -451,7 +467,7 @@ public partial class PlayerManager : MonoBehaviour
 		// 勝者の動物タイプに応じた勝利ボイスを鳴らす
 		if (AudioManager.Instance != null)
 		{
-			PlayWinnerVoice(survivor.CharaAnim);
+			PlayWinnerVoice(survivor.CharaAnim);    //勝った動物の名前をナレーションするSEを鳴らす
 		}
 
 
@@ -491,7 +507,8 @@ public partial class PlayerManager : MonoBehaviour
                 break;
         }
 
-        if (voiceIndex != -1)
+		// 有効なインデックスが設定されていれば、勝利ボイスを鳴らす
+		if (voiceIndex != -1)
         {
 			// 勝利ボイス
 			AudioManager.Instance.PlaySEByIndex(voiceIndex, 2.0f);

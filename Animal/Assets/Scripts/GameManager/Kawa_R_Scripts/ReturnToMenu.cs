@@ -9,12 +9,13 @@ public class ReturnToMenu : MonoBehaviour
 	public string menuSceneName = "PlayerCountSelect";   // 人数選択シーンの名前
 	public float holdDuration = 1.0f;                    // 何秒押し続けるか
 
-	[Header("UI設定（マスク方式）")]
+	[Header("UI設定")]
 	[SerializeField] private GameObject uiRoot;          // Arrow_Root を入れる
 	[SerializeField] private Image fillImage;            // 子要素の「白い画像（Fill_Image）」を入れる
 
 	private float timer = 0f;                            // 押し時間を計るタイマー
 
+	//初期化
 	void Start()
 	{
 		// 初期状態ではUIを非表示にする
@@ -46,6 +47,7 @@ public class ReturnToMenu : MonoBehaviour
 		{
 			timer += Time.deltaTime; // 押している間タイマーを加算
 
+			// 矢印のUIを表示
 			if (uiRoot != null) uiRoot.SetActive(true);
 		}
 		else
@@ -66,13 +68,13 @@ public class ReturnToMenu : MonoBehaviour
 		// 中身のFill画像の FillAmount を更新
 		if (fillImage != null)
 		{
-			fillImage.fillAmount = timer / holdDuration;
+			fillImage.fillAmount = timer / holdDuration;    // タイマーの割合をFillAmountに反映
 		}
 
 		// 指定した時間を超えたら戻る
 		if (timer >= holdDuration)
 		{
-			Return();
+			Return();   // 人数選択画面に戻る処理
 		}
 
 
@@ -82,8 +84,9 @@ public class ReturnToMenu : MonoBehaviour
 			// 次のシーンでの誤作動を防ぐため、データをリセット
 			for (int i = 0; i < Animal_Select.playerChoices.Length; i++)
 			{
-				Animal_Select.playerChoices[i] = Character_Status.CharacterType.NONE;
-				Animal_Select.playerPositions[i] = 0;
+				//以下初期状態にリセットする処理
+				Animal_Select.playerChoices[i] = Character_Status.CharacterType.NONE;   // キャラクター選択をリセット
+				Animal_Select.playerPositions[i] = 0;   // ポジションもリセット
 			}
 
 			// 遷移フラグなどの初期化
@@ -93,7 +96,7 @@ public class ReturnToMenu : MonoBehaviour
 
 			// タイマーをリセットしてからシーン移動
 			timer = 0f;
-			SceneManager.LoadScene(menuSceneName);
+			SceneManager.LoadScene(menuSceneName);  // 指定したシーンに遷移
 		}
 	}
 }

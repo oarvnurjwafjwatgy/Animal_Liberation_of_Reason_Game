@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class AudioManager : MonoBehaviour
 {
@@ -14,20 +13,19 @@ public class AudioManager : MonoBehaviour
 	public AudioClip victoryBGM; // 勝利時
 
 	[Header("SEリスト (0:決定, 1:移動, 2:攻撃...)")]
-	public AudioClip[] seClips;
+	public AudioClip[] seClips; // SEは複数用意して番号で呼び出せるように配列で管理
 
 	void Awake()
 	{
 		// シーンを跨いでもこのオブジェクトを消さない
 		if (Instance == null)
 		{
-			Instance = this;
+			Instance = this;    // 最初に生成されたインスタンスを保存
 			DontDestroyOnLoad(gameObject);
 
 			if (bgmSource != null) bgmSource.volume = 0.1f;
 			if (seSource != null) seSource.volume = 1.0f; // ソース自体の最大値
-														  // 初回の音量強制設定
-			ApplyForceVolume();
+			ApplyForceVolume();	// 初回の音量強制設定
 		}
 		else
 		{
@@ -35,15 +33,17 @@ public class AudioManager : MonoBehaviour
 		}
 	}
 
+	//更新
 	private void Update()
 	{
 		// 再生中に勝手に音量を変えられないよう、毎フレーム監視して固定する
 		ApplyForceVolume();
 	}
 
-	// 音量を強制適用する関数（1.5fはかなりの爆音設定です）
+	// 音量を強制適用する関数
 	private void ApplyForceVolume()
 	{
+		// ここで、BGMは0.1f、SEは1.5fに固定する
 		if (bgmSource != null && bgmSource.volume != 0.1f) bgmSource.volume = 0.1f;
 		if (seSource != null && seSource.volume != 1.5f) seSource.volume = 1.5f;
 	}
@@ -51,6 +51,7 @@ public class AudioManager : MonoBehaviour
 	// --- BGM再生 ---
 	public void PlayBGM(AudioClip clip)
 	{
+		// クリップがnullなら再生しない
 		if (clip == null) return;
 
 		// 「同じ曲」かつ「既に再生中」なら何もしない
@@ -61,6 +62,7 @@ public class AudioManager : MonoBehaviour
 		bgmSource.Play();
 	}
 
+	// --- BGM停止 ---
 	public void StopBGM()
 	{
 		bgmSource.Stop();
@@ -69,13 +71,15 @@ public class AudioManager : MonoBehaviour
 	// --- SE再生（通常：重なりOK） ---
 	public void PlaySE(AudioClip clip)
 	{
+		// クリップがnullなら再生しない
 		if (clip == null || seSource == null) return;
-		seSource.PlayOneShot(clip);
+		seSource.PlayOneShot(clip); // PlayOneShot は重なり再生が可能
 	}
 
 	// --- SE再生（番号指定：重なりOK） ---
 	public void PlaySEByIndex(int index, float volumeScale = 5.0f)
 	{
+		// インデックスが範囲外、またはクリップがnullなら再生しない
 		if (seClips == null || index < 0 || index >= seClips.Length || seClips[index] == null) return;
 
 		// PlayOneShot の第2引数に volumeScale を渡す

@@ -1,9 +1,11 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-//using static UnityEditor.PlayerSettings;
+
+/*※ここの木の実の処理以外は全て、プログラム川上流輝が担当いたしました。*/
 
 public class Character_Status : MonoBehaviour
 {
+	// 各キャラクターの選択フラグ（インスペクターで設定）
 	[Header("選択キャラクター")]
 	[SerializeField] protected bool SelectLion = false;        // ライオン選択フラグ
 	[SerializeField] protected bool SelectOstrich = false;     // ダチョウ選択フラグ

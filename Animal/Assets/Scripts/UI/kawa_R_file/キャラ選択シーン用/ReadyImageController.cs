@@ -1,6 +1,5 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.UI;
 
 // ReadyImageコンポーネントに自動的に追加されるようにする
 [RequireComponent(typeof(RectTransform))]
@@ -18,7 +17,7 @@ public class ReadyImageController : MonoBehaviour
 	// 画面の幅に合わせて移動先を調整するため、Awakeで使用
 	void Awake()
 	{
-		rectTransform = GetComponent<RectTransform>();
+		rectTransform = GetComponent<RectTransform>();  // RectTransformを取得
 
 		// --- 設定値 ---
 		// 画面外の位置
@@ -31,53 +30,57 @@ public class ReadyImageController : MonoBehaviour
 		rectTransform.anchoredPosition = offScreenPosition;
 		rectTransform.localScale = Vector3.one;
 
-		// --- ★修正箇所: fadeImage ではなく fadeCanvasGroup を使用 ---
+		// --- フェード用CanvasGroupの初期設定 ---
 		if (fadeCanvasGroup != null)
 		{
 			fadeCanvasGroup.gameObject.SetActive(false);
 			fadeCanvasGroup.alpha = 0f; // 透明にして隠す
 		}
-		// ---------------------------------------------------------
 	}
 
 	// 全員Readyになった時に呼ぶメソッド
 	public void SlideIn()
 	{
+		// すでにReady状態なら何もしない
 		if (isReady) return;
-		StopAllCoroutines();
-		// 動作時間を少し長くして余裕を持たせることも可能です (0.3f -> 0.4fなど)
-		StartCoroutine(MoveImage(offScreenPosition, targetPosition, 0.4f));
-		isReady = true;
+		StopAllCoroutines();    // もし前の動作が残っていたら止める
+		StartCoroutine(MoveImage(offScreenPosition, targetPosition, 0.4f)); // 画面外から定位置までスライドインする
+		isReady = true; // Ready状態にする
 	}
 
 	// キャンセルされた時に呼ぶメソッド
 	public void SlideOut()
 	{
+		// すでにReady状態でないなら何もしない
 		if (!isReady) return;
-		StopAllCoroutines();
-		StartCoroutine(MoveImage(targetPosition, offScreenPosition, 0.3f));
-		isReady = false;
+		StopAllCoroutines();    // もし前の動作が残っていたら止める
+		StartCoroutine(MoveImage(targetPosition, offScreenPosition, 0.3f)); // 定位置から画面外までスライドアウトする
+		isReady = false;    // Ready状態を解除する
 	}
 
 	// スタートボタンが押された時に呼ぶメソッド
 	public void ZoomAndStart()
 	{
-		StopAllCoroutines();
-		StartCoroutine(ZoomAndFadeOut());
+		StopAllCoroutines();    // もし前の動作が残っていたら止める
+		StartCoroutine(ZoomAndFadeOut());   // ズームしてフェードアウトする
 	}
 
+	// 画像をスムーズに移動させるコルーチン
 	private IEnumerator MoveImage(Vector2 start, Vector2 end, float duration)
 	{
-		float timer = 0f;
+		float timer = 0f;   // タイマーをリセット
+
+		// --- スライド演出 ---
 		while (timer < duration)
 		{
-			timer += Time.deltaTime;
-			rectTransform.anchoredPosition = Vector2.Lerp(start, end, timer / duration);
-			yield return null;
+			timer += Time.deltaTime;    // タイマーを進める
+			rectTransform.anchoredPosition = Vector2.Lerp(start, end, timer / duration);    // 位置を更新する
+			yield return null;  // 次のフレームまで待つ
 		}
-		rectTransform.anchoredPosition = end;
+		rectTransform.anchoredPosition = end;   // 最終的な位置を確実にセットする
 	}
 
+	// 画像をズームしてフェードアウトさせるコルーチン
 	private IEnumerator ZoomAndFadeOut()
 	{
 		float timer = 0f;
@@ -99,6 +102,7 @@ public class ReadyImageController : MonoBehaviour
 		gameObject.SetActive(false); // イラストを非表示に
 
 		// --- 暗転処理 ---
+		// (※暗転まで実装出来なかった。変にコメントアウトして処理が壊れるのを防ぐためこのままにします)
 		if (fadeCanvasGroup != null)
 		{
 			fadeCanvasGroup.gameObject.SetActive(true);
@@ -127,5 +131,5 @@ public class ReadyImageController : MonoBehaviour
 			fadeCanvasGroup.alpha = 1f; // 完全に不透明にする
 			Debug.Log("★暗転処理が完了しました");
 		}
-	} // ★修正箇所: カッコが足りていない場合があるので、ここで閉じる
-} // ReadyImageControllerクラスを閉じるカッコ
+	}
+}
