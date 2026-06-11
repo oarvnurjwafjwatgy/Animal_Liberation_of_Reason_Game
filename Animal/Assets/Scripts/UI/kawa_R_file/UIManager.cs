@@ -269,4 +269,66 @@ public class UIManager : MonoBehaviour
         EventSystem.current.SetSelectedGameObject(firstSelectedButton);
     }
 
+	/********バフ・デバフのアイコンUI**********************************/
+
+	// プレイヤーごとのバフアイコンを管理する辞書(プレイヤーID,バフ管理)
+	private Dictionary<int, Dictionary<Character_Status.BuffType, BuffIcon>>
+	playerActiveBuffs = new Dictionary<int, Dictionary<Character_Status.BuffType, BuffIcon>>();
+
+	[Header("バフUI用画像（UIManager側で管理）")]
+	[SerializeField] private Sprite spdBuffSprite;
+	[SerializeField] private Sprite spdDebuffSprite;
+	[SerializeField] private Sprite atkBuffSprite;
+	[SerializeField] private Sprite atkDebuffSprite;
+	[SerializeField] private Sprite lionBurstSpdSprite;
+
+	// バフアイコンの生成・更新関数
+	public void CreateOrUpdateBuffUI(int pID, Character_Status.BuffType type,
+	float duration, Transform container)
+	{
+		// pID: プレイヤーID,  type: バフの種類,
+		// duration: 残り時間, container: アイコンを配置する親Transform
+		if (container == null) return;
+
+		// プレイヤーのバフ管理がなければ作る
+		if (!playerActiveBuffs.ContainsKey(pID))
+			playerActiveBuffs[pID] = new Dictionary<Character_Status.BuffType, BuffIcon>();
+
+		//適切なスプライトを選択
+		Sprite targetSprite = null;
+		if (type == Character_Status.BuffType.SpeedBuff) targetSprite = spdBuffSprite;
+		if(type ==Character_Status.BuffType.SpeedDebuff) targetSprite = spdDebuffSprite;
+		if(type ==Character_Status.BuffType.AttackBuff) targetSprite = atkBuffSprite;
+		if(type ==Character_Status.BuffType.AttackDebuff) targetSprite = atkDebuffSprite;
+
+		//サイのダッシュの技もスピードバフのアイコンを流用
+		if (type ==Character_Status.BuffType.RhinoDash) targetSprite = spdBuffSprite;
+
+		// まだアイコンがない場合は新規作成/存在する場合は更新
+		if (playerActiveBuffs[pID].ContainsKey(type)
+		&& playerActiveBuffs[pID][type] != null)
+			playerActiveBuffs[pID][type].Setup(targetSprite, duration);
+		else
+		{
+			GameObject go = new GameObject(type.ToString(), typeof(Image), typeof(BuffIcon));
+			go.transform.SetParent(container, false);
+			go.GetComponent<RectTransform>().localScale =new Vector3(1.3f, 1.3f, 1.3f);
+
+			BuffIcon script = go.GetComponent<BuffIcon>();
+			script.Setup(targetSprite, duration);
+			playerActiveBuffs[pID][type] = script;
+		}
+	}
+
+	// バフアイコンの削除関数
+	public void RemoveBuffUI(int pID, Character_Status.BuffType type)
+	{
+		// バフアイコンが存在する場合は削除
+		if (playerActiveBuffs.ContainsKey(pID)&&playerActiveBuffs[pID].ContainsKey(type)
+		&&playerActiveBuffs[pID][type] !=null)
+		{
+			playerActiveBuffs[pID][type].ForceDestroy();
+			playerActiveBuffs[pID].Remove(type);
+		}
+	}
 }

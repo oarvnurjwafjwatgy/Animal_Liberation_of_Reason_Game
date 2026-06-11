@@ -1102,5 +1102,4 @@ public class Character_Status : MonoBehaviour
             }
         }
     }
-
 }
