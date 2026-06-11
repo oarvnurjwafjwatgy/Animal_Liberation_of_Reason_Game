@@ -1,8 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-/*※ここの木の実の処理以外は全て、プログラム川上流輝が担当いたしました。*/
-
 public class Character_Status : MonoBehaviour
 {
 	// 各キャラクターの選択フラグ（インスペクターで設定）
@@ -68,12 +66,7 @@ public class Character_Status : MonoBehaviour
 
 	// バフ・デバフ管理用の列挙型と変数
 	public enum BuffType { SpeedBuff, SpeedDebuff, AttackBuff, AttackDebuff, RhinoDash }
-	//[Header("バフUI用画像")]
-	//[SerializeField] private Sprite spdBuffSprite;
-	//[SerializeField] private Sprite spdDebuffSprite;
-	//[SerializeField] private Sprite atkBuffSprite;
-	//[SerializeField] private Sprite atkDebuffSprite;
-
+	
 	[Header("ライオン専用バフUI")]
 	[SerializeField] private Sprite lionBurstSpdSprite;   // 特性用
 
@@ -96,39 +89,12 @@ public class Character_Status : MonoBehaviour
 	private const float RATEL_CT = 12.0f;    // ラーテルはバランス
                                              // サイは特殊（CTなし）
 
-
-    // 木の実バフデバフ
- //   private float nutsSpeedBuffTimer = 0f;		// スピードアップの時間
- //   private float nutsSpeedBuffPower = 0f;		// スピードアップの強さ
- //   private float nutsSpeedDebuffTimer = 0f;	// スピードダウンの時間
- //   private float nutsSpeedDebuffPower = 0f;	// スピードダウンの強さ
- //   private float nutsAttackBuffTimer = 0f;		// 攻撃力アップの時間
- //   private float nutsAttackBuffPower = 0f;		// 攻撃力アップの強さ
- //   private float nutsAttackDebuffTimer = 0f;	// 攻撃力ダウンの時間
- //   private float nutsAttackDebuffPower = 0f;   // 攻撃力ダウンの強さ
-	//// 木の実バフデバフの定数
- //   private const float nuts_speed_buff_time = 10f;			// スピードアップの効果時間
- //   private const float nuts_speed_buff_power = 0.5f;		// スピードアップの強さ
- //   private const float nuts_speed_debuff_time = 10f;		// スピードダウンの効果時間
- //   private const float nuts_speed_debuff_power = -0.25f;	// スピードダウンの強さ
- //   private const float nuts_attack_buff_time = 10f;		// 攻撃力アップの効果時間
- //   private const float nuts_attack_buff_power = 0.5f;		// 攻撃力アップの強さ
- //   private const float nuts_attack_debuff_time = 10f;		// 攻撃力ダウンの効果時間
- //   private const float nuts_attack_debuff_power = -0.25f;	// 攻撃力ダウンの強さ
- //   private const int nuts_hp_heal_min_rate = 2;			// HPゲージ回復の最小％
- //   private const int nuts_hp_heal_max_rate = 25;			// HPゲージ回復の最大％
- //   private const int nuts_reason_heal_min_rate = 2;		// 理性ゲージ回復の最小％
- //   private const int nuts_reason_heal_max_rate = 25;		// 理性ゲージ回復の最大％
-
     // 実際に計算に使用する倍率（1.0f = 等倍）
     private float currentAtkMult = 1.0f;
 	private float currentDefMult = 1.0f;
 	private float currentSpdMult = 1.0f;
 
 	// 外部参照用のプロパティ（蓄積バフ倍率も掛け合わせる）
-	//public int CurrentAttackPower => (int)(AttackPower * currentAtkMult * lionBurstAtkBoost * lionSkillAtkBoost);
-	//public int CurrentDefensePower => (int)(DefensePower * currentDefMult);
-	//public float CurrentMoveSpeed => MoveSpeed * currentSpdMult * lionBurstSpeedBoost * rhinoDashSpeedBoost;
 	public int CurrentAttackPower => (int)(AttackPower * currentAtkMult * lionBurstAtkBoost
 	* lionSkillAtkBoost * (1f + GetComponent<NutsEffectManager>().CurrentAttackModifier));
 	public int CurrentDefensePower => (int)(DefensePower * currentDefMult);
@@ -326,8 +292,6 @@ public class Character_Status : MonoBehaviour
 		JudgeModeChange();              //毎度切替を判定する
 		CheckAnimatorStateTag();
 
-		//this.CheckNutsEfficacyTime();	// 木の実の効果時間のチェック
-
         // ライオンのバーストバフタイマー管理
         if (CharaAnim == CharacterType.LION && lionBurstTimer > 0)
 		{
@@ -348,39 +312,6 @@ public class Character_Status : MonoBehaviour
 		if (hp_gauge != null) hp_gauge.value = CurrentHP;
 		if (reason_gauge != null) reason_gauge.value = CurrentReason;
 	}
-
-	// バフ・デバフのアイコンを作成・更新する関数
-	//private void CreateOrUpdateBuff(BuffType type, Sprite icon, float duration)
-	//{
-	//	if (buffContainer == null) return;
-
-	//	// すでに同じバフがあるかチェック
-	//	if (activeBuffs.ContainsKey(type) && activeBuffs[type] != null)
-	//	{
-	//		activeBuffs[type].Setup(icon, duration); // 時間上書き
-	//	}
-	//	else
-	//	{
-	//		// 新しく作る
-	//		GameObject go = new GameObject(type.ToString(), typeof(Image), typeof(BuffIcon));
-	//		go.transform.SetParent(buffContainer, false);
-
-	//		go.GetComponent<RectTransform>().localScale = new Vector3(1.3f, 1.3f, 1.3f);// アイコンサイズ調整
-	//		BuffIcon script = go.GetComponent<BuffIcon>();
-	//		script.Setup(icon, duration);
-	//		activeBuffs[type] = script;
-	//	}
-	//}
-
-	// バフ・デバフのアイコンを消す関数
-	//private void RemoveBuff(BuffType type)
-	//{
-	//	if (activeBuffs.ContainsKey(type) && activeBuffs[type] != null)
-	//	{
-	//		activeBuffs[type].ForceDestroy(); // アイコンを消す
-	//		activeBuffs.Remove(type);         // 辞書からも消す
-	//	}
-	//}
 
 	//選択キャラクターによってキャラクタータイプを設定する
 	private void SelectAnimal()
@@ -530,12 +461,9 @@ public class Character_Status : MonoBehaviour
 		// もしキャラクターが既に死亡状態であれば、ダメージ処理を行わない
 		if (CharaState == State.DEAD) return;
 
-
 		// モードごとのダメージ処理分岐
 		if (CharaMode == Mode.ANIMAL)
 		{
-			//int actualDamage = Mathf.Max(damage - CurrentDefensePower, 1);
-
 			// 攻撃力の 20% は防御を無視して必ず通る
 			int actualDamage = Mathf.Max(damage - CurrentDefensePower, (int)(damage * 0.2f));
 			CurrentHP -= actualDamage; // HP減少処理
@@ -735,8 +663,6 @@ public class Character_Status : MonoBehaviour
 		}
 	}
 
-
-
 	// Animatorの現在のステートのTagをチェックし、
 	// 死亡状態であればオブジェクトを非アクティブ化する関数
 	private void CheckAnimatorStateTag()
@@ -757,7 +683,6 @@ public class Character_Status : MonoBehaviour
 				{
 					Debug.Log($"{gameObject.name} はアニメーション" +
 					$"Tag 'Dead' に到達したため、オブジェクトを非アクティブ化します。");
-					//input.SetDeath();
 				}
 			}
 		}
@@ -819,8 +744,6 @@ public class Character_Status : MonoBehaviour
 		if (MyUIManager != null)
 			MyUIManager.CreateOrUpdateBuffUI(playerID, BuffType.AttackBuff, LION_SKILL_DURATION, buffContainer);
 
-		//CreateOrUpdateBuff(BuffType.AttackBuff, atkBuffSprite, LION_SKILL_DURATION);
-
 		// 理性解放中かどうかで倍率を変化（覚醒ならより強く！）
 		if (CharaMode == Mode.SPSIAL_ANIMAL)
 			lionSkillAtkBoost = 1.7f; // 解放中は 1.7倍！
@@ -828,9 +751,6 @@ public class Character_Status : MonoBehaviour
 			lionSkillAtkBoost = 1.3f; // 通常時は 1.3倍
 
 		lionSkillDurationTimer = LION_SKILL_DURATION; // 5秒間持続
-
-		// アニメーション再生などの処理
-		//if (animator != null) animator.SetTrigger("Skill_Roar");
 	}
 
 
@@ -843,7 +763,7 @@ public class Character_Status : MonoBehaviour
 			// 止める前に掃除をする
 			if (MyUIManager != null)
 				MyUIManager.RemoveBuffUI(playerID, BuffType.SpeedBuff);
-			//RemoveBuff(BuffType.SpeedBuff);
+
 			StopCoroutine(rhinoDashCoroutine);
 			rhinoDashSpeedBoost = 1.0f; // 速度を元に戻す
 			isRhinoDashing = false;     // フラグを下ろす
@@ -864,8 +784,6 @@ public class Character_Status : MonoBehaviour
 		if (MyUIManager != null)
 			MyUIManager.CreateOrUpdateBuffUI(playerID, BuffType.SpeedBuff, 999f, buffContainer);
 
-		//CreateOrUpdateBuff(BuffType.SpeedBuff, spdBuffSprite, 999f);
-
 		rhinoDashSpeedBoost = 1.8f; // 突進開始！速度を1.8倍にアップ
 		Debug.Log("<color=orange>サイ：突進スキル発動！猛スピードで理性を消費します</color>");
 
@@ -885,7 +803,6 @@ public class Character_Status : MonoBehaviour
 		// ループを抜けたら、バフを消して速度を元に戻す
 		if (MyUIManager != null)
 			MyUIManager.RemoveBuffUI(playerID, BuffType.SpeedBuff);
-		//RemoveBuff(BuffType.SpeedBuff);
 
 		// 終了処理（ここを通れば必ず速度が元に戻る）
 		rhinoDashSpeedBoost = 1.0f;
@@ -913,7 +830,6 @@ public class Character_Status : MonoBehaviour
 			if (MyUIManager != null)
 				MyUIManager.CreateOrUpdateBuffUI(playerID, BuffType.SpeedBuff, lionBurstDuration, buffContainer);
 
-			//CreateOrUpdateBuff(BuffType.SpeedBuff, lionBurstSpdSprite, lionBurstDuration);
 			Debug.Log($"<color=red>【特性発動】憤怒解放！ {lionBurstDuration}秒間、爆速モード！</color>");
 		}
 		else
@@ -1002,119 +918,4 @@ public class Character_Status : MonoBehaviour
             this.Die();
         }
     }
-
-    // 木の実のスピードのバフ設定
- //   public void SetSpeedBuff()
-	//{
-	//	nutsSpeedBuffTimer = nuts_speed_buff_time;
-	//	nutsSpeedBuffPower = nuts_speed_buff_power;
-	//	CreateOrUpdateBuff(BuffType.SpeedBuff, spdBuffSprite, nuts_speed_buff_time);
-	//	Debug.Log("<color=#80ffff>スピードバフを付与しました</color>");
- //   }
-
- //   // 木の実のスピードのデバフ設定
- //   public void SetSpeedDebuff()
- //   {
- //       nutsSpeedDebuffTimer = nuts_speed_debuff_time;
-	//	nutsSpeedDebuffPower = nuts_speed_debuff_power;
-	//	CreateOrUpdateBuff(BuffType.SpeedDebuff, spdDebuffSprite, nuts_speed_debuff_time);
-	//	Debug.Log("<color=#00ffff>スピードデバフを付与しました</color>");
- //   }
-
- //   // 木の実の攻撃力のバフ設定
- //   public void SetAttackBuff()
- //   {
- //       nutsAttackBuffTimer = nuts_attack_buff_time;
-	//	nutsAttackBuffPower = nuts_attack_buff_power;
-	//	CreateOrUpdateBuff(BuffType.AttackBuff, atkBuffSprite, nuts_attack_buff_time);
-	//	Debug.Log("<color=#ff8080>攻撃力バフを付与しました</color>");
- //   }
-
- //   // 木の実の攻撃力のデバフ設定
- //   public void SetAttackDebuff()
- //   {
- //       nutsAttackDebuffTimer = nuts_attack_debuff_time;
- //       nutsAttackDebuffPower = nuts_attack_debuff_power;
-	//	CreateOrUpdateBuff(BuffType.AttackDebuff, atkDebuffSprite, nuts_attack_debuff_time);
-	//	Debug.Log("<color=#ff0000>攻撃力デバフを付与しました</color>");
- //   }
-
- //   // 木の実のHPゲージの回復
- //   public void SetNutsHpHeal()
- //   {
-	//	// 最大HPのmin%～max%分回復
-	//	float heal = (float)Random.Range(nuts_hp_heal_min_rate, nuts_hp_heal_max_rate + 1) / 100f;
-	//	int heal_hp = (int)((float)MaxHP * heal);
-
- //       // 現在のHP+回復量が、最大値を超えたら最大値HP、その他は足した結果をCurrentHPに入れる
- //       CurrentHP = (CurrentHP + heal_hp > MaxHP) ? MaxHP : CurrentHP + heal_hp;
-
- //       Debug.Log("<color=#ffff80>HPゲージ回復を付与しました</color> : <color=#ffff00>" + (int)(heal * 100f) + "</color>%");
- //   }
-
- //   // 木の実の理性解放ゲージ回復
- //   public void SetNutsReasonHeal()
- //   {
- //       // 最大理性ゲージのmin%～max%分回復
- //       float heal = (float)Random.Range(nuts_reason_heal_min_rate, nuts_reason_heal_max_rate + 1) / 100f;
-	//	int heal_reason = (int)((float)MaxReason * heal);
-
- //       // 現在の理性ゲージ+回復量が、最大値を超えたら最大値理性ゲージ、その他は足した結果をCurrentReasonに入れる
- //       CurrentReason = (CurrentReason + heal_reason > MaxReason) ? MaxReason : CurrentReason + heal_reason;
-
- //       Debug.Log("<color=#ffff80>理性解放ゲージ回復を付与しました</color> : <color=#ffff00>" + (int)(heal * 100f) + "</color>%");
- //   }
-
-	//// 木の実の効果時間のチェック
-	//private void CheckNutsEfficacyTime()
-	//{
-	//	// スピードバフ
-	//	if (nutsSpeedBuffTimer > 0f)
-	//	{
-	//		nutsSpeedBuffTimer -= Time.deltaTime;
-	//		if (nutsSpeedBuffTimer <= 0f)
-	//		{
-	//			// 効果を消す
-	//			nutsSpeedBuffTimer = 0f;
-	//			nutsSpeedBuffPower = 0f;
- //               Debug.Log("<color=#80ff80>スピードバフ削除しました</color>");
- //           }
- //       }
- //       // スピードデバフ
- //       if (nutsSpeedDebuffTimer > 0f)
- //       {
- //           nutsSpeedDebuffTimer -= Time.deltaTime;
- //           if (nutsSpeedDebuffTimer <= 0f)
- //           {
- //               // 効果を消す
- //               nutsSpeedDebuffTimer = 0f;
- //               nutsSpeedDebuffPower = 0f;
- //               Debug.Log("<color=#80ff80>スピードデバフ削除しました</color>");
- //           }
- //       }
- //       // 攻撃力バフ
- //       if (nutsAttackBuffTimer > 0f)
- //       {
- //           nutsAttackBuffTimer -= Time.deltaTime;
- //           if (nutsAttackBuffTimer <= 0f)
- //           {
- //               // 効果を消す
- //               nutsAttackBuffTimer = 0f;
- //               nutsAttackBuffPower = 0f;
- //               Debug.Log("<color=#80ff80>攻撃力バフ削除しました</color>");
- //           }
- //       }
- //       // 攻撃力デバフ
- //       if (nutsAttackDebuffTimer > 0f)
- //       {
- //           nutsAttackDebuffTimer -= Time.deltaTime;
- //           if (nutsAttackDebuffTimer <= 0f)
- //           {
- //               // 効果を消す
- //               nutsAttackDebuffTimer = 0f;
- //               nutsAttackDebuffPower = 0f;
- //               Debug.Log("<color=#80ff80>攻撃力デバフ削除しました</color>");
- //           }
- //       }
- //   }
 }
