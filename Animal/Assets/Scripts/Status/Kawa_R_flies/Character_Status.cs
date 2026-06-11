@@ -77,7 +77,7 @@ public class Character_Status : MonoBehaviour
 	[Header("ライオン専用バフUI")]
 	[SerializeField] private Sprite lionBurstSpdSprite;   // 特性用
 
-	private Transform buffContainer;
+	public Transform buffContainer;
 	private System.Collections.Generic.Dictionary<BuffType, BuffIcon> activeBuffs = new System.Collections.Generic.Dictionary<BuffType, BuffIcon>();
 
 	// ライオン専用のバフ変数
@@ -133,6 +133,8 @@ public class Character_Status : MonoBehaviour
 	private Slider hp_gauge;               //HPゲージUIスライダー参照用変数
 	private Slider reason_gauge;           //HPゲージUIスライダー参照用変数
 	private Animator animator;             //アニメーター参照用変数
+
+	public UIManager MyUIManager { get; private set; } // UIManagerへの参照
 
 	private float timer = 0f;              //タイマー系の変数
 	private float ostrichTimer = 0f;       //ダチョウ回復専用タイマー（爆速化防止用）
@@ -207,6 +209,7 @@ public class Character_Status : MonoBehaviour
 		this.hp_gauge = hpSlider;
 		this.reason_gauge = rsSlider;
 		this.uiPos = barPos;
+		this.MyUIManager = uIManager;
 
 		// 初期値をセット
 		if (hp_gauge != null)
