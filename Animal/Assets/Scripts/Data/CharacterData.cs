@@ -5,7 +5,7 @@ using UnityEngine;
 
 // 動物の情報
 [System.Serializable]
-public struct AnimalParm
+public struct AnimalParam
 {
 	public int maxHP;
 	public int maxReason;
@@ -18,7 +18,7 @@ public struct AnimalParm
 public static class CharacterData
 {
 	//ライオンのパラメータ
-	public static readonly AnimalParm Lion = new AnimalParm
+	public static readonly AnimalParam Lion = new AnimalParam
 	{
 		maxHP = 450,
 		maxReason = 100,
@@ -28,7 +28,7 @@ public static class CharacterData
 	};
 
 	//ダチョウのパラメータ
-	public static readonly AnimalParm Ostrich = new AnimalParm
+	public static readonly AnimalParam Ostrich = new AnimalParam
 	{
 		maxHP = 350,
 		maxReason = 120,
@@ -38,7 +38,7 @@ public static class CharacterData
 	};
 
 	//サイのパラメータ
-	public static readonly AnimalParm Rhinocelos = new AnimalParm
+	public static readonly AnimalParam Rhinocelos = new AnimalParam
 	{
 		maxHP = 400,
 		maxReason = 150,
@@ -48,7 +48,7 @@ public static class CharacterData
 	};
 
 	//ラーテルのパラメータ
-	public static readonly AnimalParm Ratel = new AnimalParm
+	public static readonly AnimalParam Ratel = new AnimalParam
 	{
 		maxHP = 400,
 		maxReason = 100,

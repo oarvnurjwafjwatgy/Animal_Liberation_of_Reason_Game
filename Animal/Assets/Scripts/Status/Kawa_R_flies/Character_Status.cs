@@ -421,7 +421,7 @@ public class Character_Status : MonoBehaviour
 	}
 
 	//別ファイルから読み込んだデータを、実際のステータス変数に代入する処理
-	private void ApplyParam(AnimalParm param)
+	private void ApplyParam(AnimalParam param)
 	{
 		MaxHP = param.maxHP;
 		MaxReason = param.maxReason;
