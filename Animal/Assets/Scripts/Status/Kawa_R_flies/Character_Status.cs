@@ -21,32 +21,6 @@ public class Character_Status : MonoBehaviour
 	[SerializeField] protected int DefensePower = 20;          // キャラクター防御力
 	[SerializeField] protected float MoveSpeed = 5.0f;         // キャラクター移動速度
 
-
-	// --- キャラクター別ベースステータス定数 ---
-	[Header("ライオン ステータス")]
-	private const int LION_HP = 450;
-	private const int LION_ATK = 40;
-	private const int LION_DEF = 15;
-	private const float LION_SPD = 5.5f;
-
-	[Header("ダチョウ ステータス")]
-	private const int OSTRICH_HP = 350;
-	private const int OSTRICH_ATK = 20;
-	private const int OSTRICH_DEF = 13;
-	private const float OSTRICH_SPD = 7.5f;
-
-	[Header("サイ ステータス")]
-	private const int RHINO_HP = 400;
-	private const int RHINO_ATK = 35;
-	private const int RHINO_DEF = 30;
-	private const float RHINO_SPD = 4.5f;
-
-	[Header("ラーテル ステータス")]
-	private const int RATEL_HP = 400;
-	private const int RATEL_ATK = 25;
-	private const int RATEL_DEF = 20;
-	private const float RATEL_SPD = 5.0f;
-
 	// --- 理性解放時の倍率定数 ---
 	private const float LION_REASON_ATK_MULT = 1.6f;
 	private const float RHINO_REASON_DEF_MULT = 1.5f;
@@ -431,24 +405,29 @@ public class Character_Status : MonoBehaviour
 		//選択した動物の基本ステータスを設定する
 		switch (CharaAnim)
 		{
-			//ライオンの基本ステータス
 			case CharacterType.LION:
-				MaxHP = LION_HP; MaxReason = 100; AttackPower = LION_ATK;
-				DefensePower = LION_DEF; MoveSpeed = LION_SPD;
+				ApplyParam(CharacterData.Lion);
 				break;
 			case CharacterType.OSTRICH:
-				MaxHP = OSTRICH_HP; MaxReason = 120; AttackPower = OSTRICH_ATK;
-				DefensePower = OSTRICH_DEF; MoveSpeed = OSTRICH_SPD;
+				ApplyParam(CharacterData.Ostrich);
 				break;
 			case CharacterType.RHINOCELOS:
-				MaxHP = RHINO_HP; MaxReason = 150; AttackPower = RHINO_ATK;
-				DefensePower = RHINO_DEF; MoveSpeed = RHINO_SPD;
+				ApplyParam(CharacterData.Rhinocelos);
 				break;
 			case CharacterType.RATEL:
-				MaxHP = RATEL_HP; MaxReason = 100; AttackPower = RATEL_ATK;
-				DefensePower = RATEL_DEF; MoveSpeed = RATEL_SPD;
+				ApplyParam(CharacterData.Ratel);
 				break;
 		}
+	}
+
+	//別ファイルから読み込んだデータを、実際のステータス変数に代入する処理
+	private void ApplyParam(AnimalParm param)
+	{
+		MaxHP = param.maxHP;
+		MaxReason = param.maxReason;
+		AttackPower = param.attackPower;
+		DefensePower = param.defensePower;
+		MoveSpeed = param.moveSpeed;
 	}
 
 	//モード切替発動によってチェンジする判定
