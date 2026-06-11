@@ -7206,6 +7206,11 @@ MonoBehaviour:
   countdownText: {fileID: 1516707595}
   introductionPanel: {fileID: 1429973864}
   inGameUIGroup: {fileID: 6918197559806758397}
+  spdBuffSprite: {fileID: 21300000, guid: 3b097218e786440459ea038737c7d5d8, type: 3}
+  spdDebuffSprite: {fileID: 21300000, guid: aaea7b4477b74b94cb2933eeed2f28c3, type: 3}
+  atkBuffSprite: {fileID: 21300000, guid: 3d7680f6f4fa1ed43b1eb828504f625c, type: 3}
+  atkDebuffSprite: {fileID: 21300000, guid: 8b11aa58dc1012f4e97bca06de2f1093, type: 3}
+  lionBurstSpdSprite: {fileID: 21300000, guid: 4575a38dfc3bf5e458dafc8911524e5d, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

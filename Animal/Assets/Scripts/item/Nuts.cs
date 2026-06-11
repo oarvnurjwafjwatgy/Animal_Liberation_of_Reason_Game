@@ -52,16 +52,54 @@ public class Nuts : MonoBehaviour
             int effect_num = 0;
 
             Character_Status other_chara_status = other.gameObject.GetComponent<Character_Status>();
-            if (other_chara_status != null)
+            NutsEffectManager nutsManager =other.gameObject.GetComponent<NutsEffectManager>();
+
+            if (other_chara_status != null && nutsManager != null)
+            {
                 switch (random_efficacy)
-                { 
-                    case NUTS_EFFICACY.SPEED_BUFF:      other_chara_status.SetSpeedBuff();      effect_num = 2; break;
-                    case NUTS_EFFICACY.SPEED_DEBUFF:    other_chara_status.SetSpeedDebuff();    effect_num = 3; break;
-                    case NUTS_EFFICACY.ATTACK_BUFF:     other_chara_status.SetAttackBuff();     effect_num = 2; break;
-                    case NUTS_EFFICACY.ATTACK_DEBUFF:   other_chara_status.SetAttackDebuff();   effect_num = 3; break;
-                    case NUTS_EFFICACY.HP_HEAL:         other_chara_status.SetNutsHpHeal();     effect_num = 2; break;
-                    case NUTS_EFFICACY.REASON_HEAL:     other_chara_status.SetNutsReasonHeal(); effect_num = 2; break;
+                {
+                    //case NUTS_EFFICACY.SPEED_BUFF: other_chara_status.SetSpeedBuff(); effect_num = 2; break;
+                    //case NUTS_EFFICACY.SPEED_DEBUFF: other_chara_status.SetSpeedDebuff(); effect_num = 3; break;
+                    //case NUTS_EFFICACY.ATTACK_BUFF: other_chara_status.SetAttackBuff(); effect_num = 2; break;
+                    //case NUTS_EFFICACY.ATTACK_DEBUFF: other_chara_status.SetAttackDebuff(); effect_num = 3; break;
+                    //case NUTS_EFFICACY.HP_HEAL: other_chara_status.SetNutsHpHeal(); effect_num = 2; break;
+                    //case NUTS_EFFICACY.REASON_HEAL: other_chara_status.SetNutsReasonHeal(); effect_num = 2; break;
+                    case NUTS_EFFICACY.SPEED_BUFF:
+                        nutsManager.TriggerBuff(Character_Status.BuffType.SpeedBuff); effect_num = 2;
+                        break;
+                    case NUTS_EFFICACY.SPEED_DEBUFF:
+                        nutsManager.TriggerBuff(Character_Status.BuffType.SpeedDebuff); effect_num = 3;
+                        break;
+                    case NUTS_EFFICACY.ATTACK_BUFF:
+                        nutsManager.TriggerBuff(Character_Status.BuffType.AttackBuff); effect_num = 2;
+                        break;
+                    case NUTS_EFFICACY.ATTACK_DEBUFF:
+                        nutsManager.TriggerBuff(Character_Status.BuffType.AttackDebuff); effect_num = 3;
+                        break;
+
+                    // 回復系は NutsData の確率（%）を使って、既存のNotDied関数で数値を上書きする
+                    case NUTS_EFFICACY.HP_HEAL:
+                        float hpHealPercent = (float)UnityEngine.Random.Range
+                        (NutsData.HpHealRate.x, NutsData.HpHealRate.y + 1) / 100f;
+                        
+                        int currentHP = other_chara_status.GetCurrentHP();
+                        int nextHP = currentHP + (int)(currentHP * hpHealPercent);
+                        other_chara_status.NotDied(nextHP, other_chara_status.GetResonPoint());
+                        Debug.Log($"<color=#ffff80>HPゲージ回復を付与しました</color>");
+                        effect_num = 2;
+                        break;
+
+                    case NUTS_EFFICACY.REASON_HEAL:
+                        float reasonHealPercent = (float)UnityEngine.Random.Range
+                        (NutsData.ReasonHealRate.x, NutsData.ReasonHealRate.y + 1) / 100f;
+                        
+                        int currentReason = other_chara_status.GetResonPoint();
+                        int nextReason = currentReason + (int)(currentReason * reasonHealPercent);
+                        other_chara_status.NotDied(other_chara_status.GetCurrentHP(), nextReason);
+                        Debug.Log($"<color=#ffff80>理性解放ゲージ回復を付与しました</color>");
+                        effect_num = 2; break;
                 }
+            }
             
             // エフェクト生成
             Vector3 offset = new Vector3(other.gameObject.transform.position.x - 0.7f, other.gameObject.transform.position.y, other.gameObject.transform.position.z - 1.0f);

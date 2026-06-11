@@ -161,6 +161,7 @@ GameObject:
   - component: {fileID: 4608043506247753298}
   - component: {fileID: 8604957528455422006}
   - component: {fileID: 6962822520268341190}
+  - component: {fileID: 4731550766254866515}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player1
@@ -411,6 +412,7 @@ MonoBehaviour:
   atkBuffSprite: {fileID: 21300000, guid: 3d7680f6f4fa1ed43b1eb828504f625c, type: 3}
   atkDebuffSprite: {fileID: 21300000, guid: aaea7b4477b74b94cb2933eeed2f28c3, type: 3}
   lionBurstSpdSprite: {fileID: 21300000, guid: 4575a38dfc3bf5e458dafc8911524e5d, type: 3}
+  buffContainer: {fileID: 0}
   CharaAnim: 0
 --- !u!114 &8604957528455422006
 MonoBehaviour:
@@ -437,6 +439,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   layerName: Ghost
+--- !u!114 &4731550766254866515
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1839733414962546177}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e24cafff76baf9b4bb7326eb7dc24eb4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3098200699786619238
 GameObject:
   m_ObjectHideFlags: 0
