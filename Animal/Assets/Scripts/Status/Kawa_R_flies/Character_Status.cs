@@ -19,16 +19,6 @@ public class Character_Status : MonoBehaviour
 	[SerializeField] protected int DefensePower = 20;          // キャラクター防御力
 	[SerializeField] protected float MoveSpeed = 5.0f;         // キャラクター移動速度
 
-	// --- 理性解放時の倍率定数 ---
-	private const float LION_REASON_ATK_MULT = 1.6f;
-	private const float RHINO_REASON_DEF_MULT = 1.5f;
-	private const float OSTRICH_REASON_SPD_MULT = 1.5f;
-	private const float DEFAULT_MULT = 1.3f;                // 基本的な上昇幅
-
-	// --- 理性ゲージの減少・回復率定数 ---
-	private const float REASON_DECREASE_RATE = 0.02f;       // 最大理性ゲージから2%分
-	private const float REASON_HEAL_RATE = 0.01f;           // 通常時、最大理性の1%分回復
-
 	[Header("理性ゲージ解放時の減少設定")]
 	[SerializeField] protected int Decrease_in_reason_time = 1;     // 理性ゲージ減少ダメージ
 
@@ -48,13 +38,6 @@ public class Character_Status : MonoBehaviour
 	[Header("毎時体力回復能力(ダチョウ)")]
 	[SerializeField] protected int Heal_hp_rate = 1;               // 体力回復割合量(ダチョウ固有)
 
-
-
-	[Header("理性解放状態ステータス")]
-	[SerializeField] protected int ReasonHP = 200;                  // キャラクター理性解放時最大HP
-	[SerializeField] protected int ReasonAttackPower = 50;          // キャラクター理性解放時攻撃力
-	[SerializeField] protected int ReasonDefensePower = 60;         // キャラクター理性解放時防御力
-	[SerializeField] protected float ReasonMoveSpeed = 1.0f;        // キャラクター移動速度
 
 	[Header("プレイヤー識別番号(1~4)")]
 	public int playerID;
@@ -114,8 +97,6 @@ public class Character_Status : MonoBehaviour
 	public int CurrentHP { get; protected set; }    // キャラクター現在HP(外部読み取り可、内部変更可)
 	public int CurrentReason { get; protected set; }    // キャラクター現在理性HP(外部読み取り可、内部変更可)
 
-	InputPlayer input;
-
 	private PlayerManager playerManager;        // プレイヤーマネージャーオブジェクト
 
 	/**********状態*******************/
@@ -170,7 +151,6 @@ public class Character_Status : MonoBehaviour
 		GetMoveSpeed();                  // 移動速度取得
 
 		animator = GetComponent<Animator>();
-		input = GetComponent<InputPlayer>();
 		playerManager = GameObject.Find("PlayerManager").GetComponent<PlayerManager>();
 	}
 
@@ -419,39 +399,23 @@ public class Character_Status : MonoBehaviour
 			return;
 		}
 
-		// 理性解放時の倍率設定
+		// 現在選択されている動物のデータを取得して倍率を適用
+		AnimalParam currentParam = GetCurrentAnimalParam();
+		currentAtkMult = currentParam.reasonAtkMult;
+		currentDefMult = currentParam.reasonDefMult;
+		currentSpdMult = currentParam.reasonSpdMult;
+	}
+
+	// 現在の動物のパラメーターを返す関数
+	private AnimalParam GetCurrentAnimalParam()
+	{
 		switch (CharaAnim)
 		{
-			//ライオンの理性解放時の倍率設定は攻撃力1.6倍、その他1.3倍（攻撃特化）
-			case CharacterType.LION:
-				currentAtkMult = LION_REASON_ATK_MULT;
-				currentDefMult = DEFAULT_MULT;
-				currentSpdMult = DEFAULT_MULT;
-				break;
-
-			//ダチョウの理性解放時の倍率設定は移動速度1.5倍、その他1.3倍（速度特化）
-			case CharacterType.OSTRICH: // ダチョウ：速度特化
-				currentAtkMult = DEFAULT_MULT;
-				currentSpdMult = OSTRICH_REASON_SPD_MULT;
-				currentDefMult = DEFAULT_MULT;
-				break;
-
-			//サイの理性解放時の倍率設定は防御力1.8倍、その他1.3倍（防御特化）
-			case CharacterType.RHINOCELOS: // サイ：防御特化
-				currentAtkMult = DEFAULT_MULT;
-				currentSpdMult = DEFAULT_MULT;
-				currentDefMult = RHINO_REASON_DEF_MULT;
-				break;
-
-			//ラーテルの理性解放時の倍率設定は全ステータス1.3倍（バランス型）
-			case CharacterType.RATEL:
-				currentAtkMult = DEFAULT_MULT;
-				currentSpdMult = DEFAULT_MULT;
-				currentDefMult = DEFAULT_MULT;
-				break;
-			default:
-				currentAtkMult = 1.0f; currentSpdMult = 1.0f; currentDefMult = 1.0f;
-				break;
+			case CharacterType.LION:		return CharacterData.Lion;
+			case CharacterType.OSTRICH:		return CharacterData.Ostrich;
+			case CharacterType.RHINOCELOS:	return CharacterData.Rhinocelos;
+			case CharacterType.RATEL:		return CharacterData.Ratel;
+			default:						return default;
 		}
 	}
 
@@ -632,29 +596,26 @@ public class Character_Status : MonoBehaviour
 		if (MaxReason != CurrentReason)
 		{
 			// 最大理性の1%を計算。最低でも1は回復させる
-			int healAmount = Mathf.Max((int)(MaxReason * REASON_HEAL_RATE), 1);
-
+			int healAmount = Mathf.Max((int)(MaxReason * CharacterData.REASON_HEAL_RATE), 1);
 			CurrentReason += healAmount;
 
 			// 最大値を超えないように制限
 			if (CurrentReason > MaxReason) CurrentReason = MaxReason;
-
-			Debug.Log("現在の理性ポイント:" + CurrentReason);
 		}
 	}
 
-	//スペシャルエニモーモード理性ゲージ減少処理関数
+	//理性解放状態時:理性ゲージ減少処理関数
 	protected virtual void ReasonDecrease()
 	{
 		//もし理性が0より大きいなら理性ゲージを減少させる
 		if (CurrentReason > 0)
 		{
 			//最大理性ポイントに減少率をかけて減少量を計算し、最低でも1は減少するようにする
-			int decreaseAmount = Mathf.Max((int)(MaxReason * REASON_DECREASE_RATE), 1);
-			CurrentReason -= decreaseAmount;                // 理性ゲージ減少処理
+			int decreaseAmount = Mathf.Max((int)(MaxReason * CharacterData.REASON_DECREASE_RATE), 1);
+			CurrentReason -= decreaseAmount;	// 理性ゲージ減少処理
 			Debug.Log($"{CharaAnim}の理性減少中: 残り{CurrentReason} (毎秒{decreaseAmount}減)");
 		}
-		//もし理性が0以下なら理性ゲージを0にして死亡処理を行う
+		//0以下なら理性ゲージを0・死亡処理を行う
 		else
 		{
 			CurrentReason = 0;

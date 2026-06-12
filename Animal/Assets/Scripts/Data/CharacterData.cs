@@ -20,7 +20,7 @@ public struct AnimalParam
 	public float reasonSpdMult;
 }
 
-//動物ごとのパラメーター
+//動物ごとのパラメーター&理性解放の倍率
 public static class CharacterData
 {
 	/*共通の定数*/
