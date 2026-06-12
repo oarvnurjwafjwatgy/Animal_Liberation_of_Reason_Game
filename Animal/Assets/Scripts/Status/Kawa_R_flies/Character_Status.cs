@@ -19,10 +19,6 @@ public class Character_Status : MonoBehaviour
 	[SerializeField] protected int DefensePower = 20;          // キャラクター防御力
 	[SerializeField] protected float MoveSpeed = 5.0f;         // キャラクター移動速度
 
-	[Header("理性ゲージ解放時の減少設定")]
-	[SerializeField] protected int Decrease_in_reason_time = 1;     // 理性ゲージ減少ダメージ
-
-
 	[Header("キャラクターごとの固有特性設定一覧")]
 	[Header("ライオン特性：蓄積ダメージ設定")]
 	private Image lionRageFill;                                    // 外周ゲージを制御するための変数
@@ -50,11 +46,7 @@ public class Character_Status : MonoBehaviour
 	// バフ・デバフ管理用の列挙型と変数
 	public enum BuffType { SpeedBuff, SpeedDebuff, AttackBuff, AttackDebuff, RhinoDash }
 	
-	[Header("ライオン専用バフUI")]
-	[SerializeField] private Sprite lionBurstSpdSprite;   // 特性用
-
 	public Transform buffContainer;
-	private System.Collections.Generic.Dictionary<BuffType, BuffIcon> activeBuffs = new System.Collections.Generic.Dictionary<BuffType, BuffIcon>();
 
 	// ライオン専用のバフ変数
 	private float lionSkillAtkBoost = 1.0f;
@@ -220,16 +212,6 @@ public class Character_Status : MonoBehaviour
 		{
 			hp_gauge.value = CurrentHP;
 			reason_gauge.value = CurrentReason;
-		}
-
-		if (Input.GetKeyDown(KeyCode.P))
-		{
-			TakeDamage(40);
-		}
-
-		if (Input.GetKeyDown(KeyCode.O))
-		{
-			GetModeChange();
 		}
 
 		// --- 共通クールタイムのカウントダウン ---
@@ -455,9 +437,6 @@ public class Character_Status : MonoBehaviour
 			Debug.Log($"<color=yellow>【被弾】 元ダメ:{damage} -> 防御後:" +
 			$"{actualDamage} (現在の防御力:{CurrentDefensePower})</color>");
 		}
-
-		if (hp_gauge != null) hp_gauge.value = CurrentHP; // HPゲージの現在値を更新
-		if (reason_gauge != null) reason_gauge.value = CurrentReason; // 理性ゲージの現在値を更新
 
 		UpdateUI(); // UIの更新関数呼び出し
 
@@ -773,7 +752,6 @@ public class Character_Status : MonoBehaviour
 	}
 
 
-
 	//ライオンの固有特性処理関数
 	void UniqueSkill_Lion()
 	{
@@ -820,18 +798,18 @@ public class Character_Status : MonoBehaviour
 			{
 				/*ダチョウの固有スキルは体力を
 				時間経過によって回復する*/
-				int ostrich_heal = MaxHP * Heal_hp_rate;
+				int ostrich_heal = MaxHP * Heal_hp_rate / 100;
 
 				//共通タイマー(timer)ではなく専用タイマーを使用し爆速化を防止
 				ostrichTimer += Time.deltaTime;
-				Debug.Log("ダチョウ特性チェック中");
+
 				// タイマーが1秒以上経過したら体力回復処理を行う
 				if (ostrichTimer >= 1f)
 				{
 					// HP回復処理
 					if (MaxHP != CurrentHP)
 					{
-						CurrentHP += MaxHP * Heal_hp_rate / 100;
+						CurrentHP += ostrich_heal;
 						if (CurrentHP > MaxHP) CurrentHP = MaxHP; //最大値を超えないように
 						Debug.Log("ダチョウの固有スキルで回復中:" + CurrentHP);
 					}
@@ -839,11 +817,8 @@ public class Character_Status : MonoBehaviour
 				}
 			}
 		}
-		else
-		{
-			//0なら死亡処理関数呼び出し
-			Die();
-		}
+		//0なら死亡処理関数呼び出し
+		else Die();
 	}
 
 
@@ -855,7 +830,6 @@ public class Character_Status : MonoBehaviour
 
 		// 死亡処理関数呼び出し
 		this.Die();
-
 	}
 
 	//ラーテルの固有スキル処理関数
