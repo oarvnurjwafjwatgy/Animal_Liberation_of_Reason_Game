@@ -12,7 +12,7 @@ public class Character_Status : MonoBehaviour
 
 	/******ステータス変数*************/
 	[Header("基本ステータス")]
-	[SerializeField] protected int MaxHP = 400;                // キャラクター最大HP
+	[SerializeField] public    int MaxHP = 400;                // キャラクター最大HP
 	[SerializeField] protected int MaxReason = 500;            // キャラクター理性最大HP
 	[SerializeField] protected int ReasonPoint = 100;          // 理性ゲージ
 	[SerializeField] protected int AttackPower = 10;           // キャラクター攻撃力
@@ -31,8 +31,8 @@ public class Character_Status : MonoBehaviour
 	private float lionBurstAtkBoost = 1.0f;
 	private float lionBurstTimer = 0f;                             // バフの持続時間用
 
-	[Header("毎時体力回復能力(ダチョウ)")]
-	[SerializeField] protected int Heal_hp_rate = 1;               // 体力回復割合量(ダチョウ固有)
+	//[Header("毎時体力回復能力(ダチョウ)")]
+	//[SerializeField] protected int Heal_hp_rate = 1;               // 体力回復割合量(ダチョウ固有)
 
 
 	[Header("プレイヤー識別番号(1~4)")]
@@ -115,7 +115,7 @@ public class Character_Status : MonoBehaviour
 	private PlayerManager playerManager;        // プレイヤーマネージャーオブジェクト
 
 	/**********状態*******************/
-	enum State
+	public enum State
 	{
 		IDLE,       // 待機状態
 		MOVE,       // 移動状態
@@ -140,7 +140,7 @@ public class Character_Status : MonoBehaviour
 		RATEL,          // ラーテル
 	}
 
-	State CharaState;                                   // キャラクター状態変数
+	protected State CharaState;                                   // キャラクター状態変数
 	protected Mode CharaMode;                                     // キャラクターモード変数
 	public CharacterType CharaAnim;                     // キャラクタータイプ変数
 	public bool IsDead => CharaState == State.DEAD;     // 死亡状態かどうかを外部から判定できるプロパティ
@@ -157,12 +157,14 @@ public class Character_Status : MonoBehaviour
 		switch (CharaAnim)
 		{
 			case CharacterType.LION:
-				// 自分自身（Player本体）に Character_Lion をペタッと貼る
-				gameObject.AddComponent<Character_Lion>();
+				gameObject.AddComponent<Character_Lion>();  //ライオンのスクリプトを貼り付け
+				break;
+			case CharacterType.OSTRICH:
+				gameObject.AddComponent<Character_Ostrich>();   //ダチョウ用
 				break;
 		}
 
-				SetBaseStatusByAnimal();        // 選択した動物に応じて基本ステータスを設定する関数呼び出し
+		SetBaseStatusByAnimal();        // 選択した動物に応じて基本ステータスを設定する関数呼び出し
 		CurrentHP = MaxHP;              // 現在HPに最大HPを代入
 		CurrentReason = MaxReason;      // 現在理性ポイントに最大理性ポイントを代入
 
@@ -393,10 +395,10 @@ public class Character_Status : MonoBehaviour
 				}
 
 				// ダチョウの固有特性（体力回復）も同時に呼び出す
-				if (CharaAnim == CharacterType.OSTRICH)
-				{
-					UniqueSkill_Ostrich();
-				}
+				//if (CharaAnim == CharacterType.OSTRICH)
+				//{
+				//	//UniqueSkill_Ostrich();
+				//}
 				break;
 		}
 	}
@@ -516,10 +518,13 @@ public class Character_Status : MonoBehaviour
         CurrentHP = hp;
 		CurrentReason = reason;
     }
-    public Mode GetMode()
-	{
-		return CharaMode;
-	}
+
+	//モード
+    public Mode GetMode(){ return CharaMode; }
+
+	// 現在のステート状態をreturnで返す
+	public State GetState() { return CharaState; }
+
 
 	//モードが切り替え時に呼び出す関数
 	public void GetModeChange()
@@ -664,23 +669,23 @@ public class Character_Status : MonoBehaviour
 	}
 
 	//キャラの特有の特性関数
-	protected virtual void Characteristic()
-	{
-		switch (CharaAnim)
-		{
-			case CharacterType.LION:
-				UniqueSkill_Lion();
-				break;
-			//ダチョウの固有特性(常時体力回復)
-			case CharacterType.OSTRICH:
-				UniqueSkill_Ostrich();
-				break;
-			case CharacterType.RHINOCELOS:
-				break;
-			case CharacterType.RATEL:
-				break;
-		}
-	}
+	//protected virtual void Characteristic()
+	//{
+	//	switch (CharaAnim)
+	//	{
+	//		case CharacterType.LION:
+	//			UniqueSkill_Lion();
+	//			break;
+	//		//ダチョウの固有特性(常時体力回復)
+	//		case CharacterType.OSTRICH:
+	//			//UniqueSkill_Ostrich();
+	//			break;
+	//		case CharacterType.RHINOCELOS:
+	//			break;
+	//		case CharacterType.RATEL:
+	//			break;
+	//	}
+	//}
 
 	// キャラ特有のスキル実行
 	//public virtual void Skill()
@@ -734,6 +739,15 @@ public class Character_Status : MonoBehaviour
 
 			skillComponent.Skill();
 		}
+	}
+
+	//回復処理
+	public void HealHP(int amount)
+	{
+		CurrentHP += amount;
+
+		if (CurrentHP > MaxHP)
+			CurrentHP = MaxHP;
 	}
 
 	//ライオンの固有スキル処理関数
@@ -844,41 +858,41 @@ public class Character_Status : MonoBehaviour
 	}
 
 	///ダチョウの固有特性(常時体力回復)
-	void UniqueSkill_Ostrich()
-	{
-		//もし死亡状態なら処理を行わない
-		if (CharaState == State.DEAD) return;
+	//void UniqueSkill_Ostrich()
+	//{
+	//	//もし死亡状態なら処理を行わない
+	//	if (CharaState == State.DEAD) return;
 
-		//0でないなら体力回復処理
-		if (CurrentHP > 0)
-		{
-			//理性開放してるなら体力回復処理
-			if (CharaMode == Mode.SPSIAL_ANIMAL)
-			{
-				/*ダチョウの固有スキルは体力を
-				時間経過によって回復する*/
-				int ostrich_heal = MaxHP * Heal_hp_rate / 100;
+	//	//0でないなら体力回復処理
+	//	if (CurrentHP > 0)
+	//	{
+	//		//理性開放してるなら体力回復処理
+	//		if (CharaMode == Mode.SPSIAL_ANIMAL)
+	//		{
+	//			/*ダチョウの固有スキルは体力を
+	//			時間経過によって回復する*/
+	//			int ostrich_heal = MaxHP * Heal_hp_rate / 100;
 
-				//共通タイマー(timer)ではなく専用タイマーを使用し爆速化を防止
-				ostrichTimer += Time.deltaTime;
+	//			//共通タイマー(timer)ではなく専用タイマーを使用し爆速化を防止
+	//			ostrichTimer += Time.deltaTime;
 
-				// タイマーが1秒以上経過したら体力回復処理を行う
-				if (ostrichTimer >= 1f)
-				{
-					// HP回復処理
-					if (MaxHP != CurrentHP)
-					{
-						CurrentHP += ostrich_heal;
-						if (CurrentHP > MaxHP) CurrentHP = MaxHP; //最大値を超えないように
-						Debug.Log("ダチョウの固有スキルで回復中:" + CurrentHP);
-					}
-					ostrichTimer = 0f;
-				}
-			}
-		}
-		//0なら死亡処理関数呼び出し
-		else Die();
-	}
+	//			// タイマーが1秒以上経過したら体力回復処理を行う
+	//			if (ostrichTimer >= 1f)
+	//			{
+	//				// HP回復処理
+	//				if (MaxHP != CurrentHP)
+	//				{
+	//					CurrentHP += ostrich_heal;
+	//					if (CurrentHP > MaxHP) CurrentHP = MaxHP; //最大値を超えないように
+	//					Debug.Log("ダチョウの固有スキルで回復中:" + CurrentHP);
+	//				}
+	//				ostrichTimer = 0f;
+	//			}
+	//		}
+	//	}
+	//	//0なら死亡処理関数呼び出し
+	//	else Die();
+	//}
 
 
 	// 奈落に落ちていった時に呼ばれる
