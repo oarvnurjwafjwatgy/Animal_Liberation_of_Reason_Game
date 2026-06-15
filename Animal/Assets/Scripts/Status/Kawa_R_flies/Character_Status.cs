@@ -38,10 +38,10 @@ public class Character_Status : MonoBehaviour
 	[Header("プレイヤー識別番号(1~4)")]
 	public int playerID;
 
-	//スキル関連
-	[Header("共通スキル設定")]
-	[SerializeField] protected float skillCooldownTimer = 0f; // 現在のCT
-	[SerializeField] protected float skillCTMax = 10f;        // スキルの最大CT
+	////スキル関連
+	//[Header("共通スキル設定")]
+	//[SerializeField] protected float skillCooldownTimer = 0f; // 現在のCT
+	//[SerializeField] protected float skillCTMax = 10f;        // スキルの最大CT
 
 	// バフ・デバフ管理用の列挙型と変数
 	public enum BuffType { SpeedBuff, SpeedDebuff, AttackBuff, AttackDebuff, RhinoDash }
@@ -49,9 +49,9 @@ public class Character_Status : MonoBehaviour
 	public Transform buffContainer;
 
 	// ライオン専用のバフ変数
-	private float lionSkillAtkBoost = 1.0f;
-	private float lionSkillDurationTimer = 0f;
-	private const float LION_SKILL_DURATION = 5.0f; // バフ持続時間
+	//private float lionSkillAtkBoost = 1.0f;
+	//private float lionSkillDurationTimer = 0f;
+	//private const float LION_SKILL_DURATION = 5.0f; // バフ持続時間
 
 	// サイの突進状態管理用フラグ
 	private bool isRhinoDashing = false; // 突進中かどうか
@@ -70,15 +70,38 @@ public class Character_Status : MonoBehaviour
 	private float currentSpdMult = 1.0f;
 
 	// 外部参照用のプロパティ（蓄積バフ倍率も掛け合わせる）
-	public int CurrentAttackPower => (int)(AttackPower * currentAtkMult * lionBurstAtkBoost
-	* lionSkillAtkBoost * (1f + GetComponent<NutsEffectManager>().CurrentAttackModifier));
-	public int CurrentDefensePower => (int)(DefensePower * currentDefMult);
-	public float CurrentMoveSpeed => MoveSpeed * currentSpdMult * lionBurstSpeedBoost
-	* rhinoDashSpeedBoost * (1f + GetComponent<NutsEffectManager>().CurrentSpeedModifier);
+	//public virtual int CurrentAttackPower => (int)(AttackPower * currentAtkMult * lionBurstAtkBoost
+	//* lionSkillAtkBoost * (1f + GetComponent<NutsEffectManager>().CurrentAttackModifier));
+	//public virtual int CurrentDefensePower => (int)(DefensePower * currentDefMult);
+	//public virtual float CurrentMoveSpeed => MoveSpeed * currentSpdMult * lionBurstSpeedBoost
+	//* rhinoDashSpeedBoost * (1f + GetComponent<NutsEffectManager>().CurrentSpeedModifier);
 
-	private Slider hp_gauge;               //HPゲージUIスライダー参照用変数
-	private Slider reason_gauge;           //HPゲージUIスライダー参照用変数
-	private Animator animator;             //アニメーター参照用変数
+
+	public virtual int CurrentAttackPower
+	{
+		get
+		{
+			float animalBuff = 1.0f;
+
+			// 自分についているスキル親クラスを取得（例:中身がライオンならライオンの倍率も含める）
+			Animal_Skill_TraitBase skillComponent = GetComponent<Animal_Skill_TraitBase>();
+			if (skillComponent != null)
+				animalBuff = skillComponent.CurrentAtkBoost;
+
+			return (int)(AttackPower * currentAtkMult * animalBuff * (1f + GetComponent<NutsEffectManager>().CurrentAttackModifier));
+		}
+	}
+
+	public virtual int CurrentDefensePower => (int)(DefensePower * currentDefMult);
+
+	public virtual float CurrentMoveSpeed =>
+		MoveSpeed * currentSpdMult * rhinoDashSpeedBoost * (1f + GetComponent<NutsEffectManager>().CurrentSpeedModifier);
+
+
+	private Slider hp_gauge;					//HPゲージUIスライダー参照用変数
+	private Slider reason_gauge;				//HPゲージUIスライダー参照用変数
+	private Animator animator;                  //アニメーター参照用変数
+	private Animal_Skill_TraitBase animl_skill;	//スキルに参照
 
 	public UIManager MyUIManager { get; private set; } // UIManagerへの参照
 
@@ -118,7 +141,7 @@ public class Character_Status : MonoBehaviour
 	}
 
 	State CharaState;                                   // キャラクター状態変数
-	Mode CharaMode;                                     // キャラクターモード変数
+	protected Mode CharaMode;                                     // キャラクターモード変数
 	public CharacterType CharaAnim;                     // キャラクタータイプ変数
 	public bool IsDead => CharaState == State.DEAD;     // 死亡状態かどうかを外部から判定できるプロパティ
 														// 初期化
@@ -131,7 +154,15 @@ public class Character_Status : MonoBehaviour
 			CharaAnim = Animal_Select.playerChoices[playerID];
 		}
 
-		SetBaseStatusByAnimal();        // 選択した動物に応じて基本ステータスを設定する関数呼び出し
+		switch (CharaAnim)
+		{
+			case CharacterType.LION:
+				// 自分自身（Player本体）に Character_Lion をペタッと貼る
+				gameObject.AddComponent<Character_Lion>();
+				break;
+		}
+
+				SetBaseStatusByAnimal();        // 選択した動物に応じて基本ステータスを設定する関数呼び出し
 		CurrentHP = MaxHP;              // 現在HPに最大HPを代入
 		CurrentReason = MaxReason;      // 現在理性ポイントに最大理性ポイントを代入
 
@@ -143,11 +174,12 @@ public class Character_Status : MonoBehaviour
 		GetMoveSpeed();                  // 移動速度取得
 
 		animator = GetComponent<Animator>();
+		animl_skill = GetComponent<Animal_Skill_TraitBase>();
 		playerManager = GameObject.Find("PlayerManager").GetComponent<PlayerManager>();
 	}
 
 	// Hpゲージと理性ゲージのUIコンポーネントを外部からセットする関数
-	public void SetUIComponents(Slider hpSlider, Slider rsSlider, UIManager uIManager, Transform barPos)
+	public virtual void SetUIComponents(Slider hpSlider, Slider rsSlider, UIManager uIManager, Transform barPos)
 	{
 		this.hp_gauge = hpSlider;
 		this.reason_gauge = rsSlider;
@@ -215,21 +247,21 @@ public class Character_Status : MonoBehaviour
 		}
 
 		// --- 共通クールタイムのカウントダウン ---
-		if (skillCooldownTimer > 0)
-		{
-			skillCooldownTimer -= Time.deltaTime;
-		}
+		//if (skillCooldownTimer > 0)
+		//{
+		//	skillCooldownTimer -= Time.deltaTime;
+		//}
 
 		// --- ライオンの咆哮バフ時間のカウントダウン ---
-		if (CharaAnim == CharacterType.LION && lionSkillDurationTimer > 0)
-		{
-			lionSkillDurationTimer -= Time.deltaTime;
-			if (lionSkillDurationTimer <= 0)
-			{
-				lionSkillAtkBoost = 1.0f; // 時間切れで攻撃力倍率を等倍に戻す
-				Debug.Log("<color=white>ライオン：咆哮の効果が終了した</color>");
-			}
-		}
+		//if (CharaAnim == CharacterType.LION && lionSkillDurationTimer > 0)
+		//{
+		//	lionSkillDurationTimer -= Time.deltaTime;
+		//	if (lionSkillDurationTimer <= 0)
+		//	{
+		//		lionSkillAtkBoost = 1.0f; // 時間切れで攻撃力倍率を等倍に戻す
+		//		Debug.Log("<color=white>ライオン：咆哮の効果が終了した</color>");
+		//	}
+		//}
 
 		// ライオンの専用UIの更新
 		if (CharaAnim == CharacterType.LION && lionRageFill != null)
@@ -499,11 +531,14 @@ public class Character_Status : MonoBehaviour
 				SetMultiplierByAnimal(true);        // 倍率設定関数呼び出し
 
 				//ライオンなら
-				if (CharaAnim == CharacterType.LION)
-				{
-					//ライオンの特性関数呼び出し（蓄積ダメージに応じてさらに強くなる）
-					Characteristic();
-				}
+				//if (CharaAnim == CharacterType.LION)
+				//{
+				//	//ライオンの特性関数呼び出し（蓄積ダメージに応じてさらに強くなる）
+				//	Characteristic();
+				//}
+
+				Animal_Skill_TraitBase skillComponent = GetComponent<Animal_Skill_TraitBase>();
+				if (animl_skill != null) skillComponent.Characteristic();
 
 				// --- デバッグログ：上昇前後の比較を表示 ---
 				Debug.Log($"<color=red>【理性解放】 {CharaAnim}</color>\n" +
@@ -648,50 +683,74 @@ public class Character_Status : MonoBehaviour
 	}
 
 	// キャラ特有のスキル実行
+	//public virtual void Skill()
+	//{
+	//	//// 死亡時、またはCT中は発動不可（サイ以外）
+	//	//if (CharaState == State.DEAD || (skillCooldownTimer > 0 && CharaAnim != CharacterType.RHINOCELOS))
+	//	//	return;
+
+	//	//switch (CharaAnim)
+	//	//{
+	//	//	case CharacterType.LION:
+	//	//		//Skill_Lion();
+	//	//		//skillCooldownTimer = LION_CT; // ライオン用のCTをセット
+	//	//		break;
+
+	//	//	case CharacterType.OSTRICH:
+	//	//		// Skill_Ostrich(); // ダチョウのスキル
+	//	//		skillCooldownTimer = OSTRICH_CT;
+	//	//		break;
+
+	//	//	case CharacterType.RHINOCELOS:
+	//	//		Skill_Rhinocelos(); // サイは CT セットなし（理性が続く限り）
+	//	//		break;
+
+	//	//	case CharacterType.RATEL:
+	//	//		UniqueSkill_Ratel();
+	//	//		skillCooldownTimer = RATEL_CT;
+	//	//		break;
+	//	//}
+
+	//	Debug.Log($"本体のSkillが呼ばれました。現在の状態: {CharaState}");
+
+	//	if (CharaState == State.DEAD) return;
+	//	Animal_Skill_TraitBase skillComponent = GetComponent<Animal_Skill_TraitBase>();
+
+	//	if (skillComponent != null)
+	//		skillComponent.Skill();
+	//}
+
 	public virtual void Skill()
 	{
-		// 死亡時、またはCT中は発動不可（サイ以外）
-		if (CharaState == State.DEAD || (skillCooldownTimer > 0 && CharaAnim != CharacterType.RHINOCELOS))
-			return;
+		Debug.Log("本体Skill");
 
-		switch (CharaAnim)
+		Animal_Skill_TraitBase skillComponent =
+			GetComponent<Animal_Skill_TraitBase>();
+
+		if (skillComponent != null)
 		{
-			case CharacterType.LION:
-				Skill_Lion();
-				skillCooldownTimer = LION_CT; // ライオン用のCTをセット
-				break;
+			Debug.Log("skillComponent発見");
+			Debug.Log(skillComponent.GetType().Name);
 
-			case CharacterType.OSTRICH:
-				// Skill_Ostrich(); // ダチョウのスキル
-				skillCooldownTimer = OSTRICH_CT;
-				break;
-
-			case CharacterType.RHINOCELOS:
-				Skill_Rhinocelos(); // サイは CT セットなし（理性が続く限り）
-				break;
-
-			case CharacterType.RATEL:
-				UniqueSkill_Ratel();
-				skillCooldownTimer = RATEL_CT;
-				break;
+			skillComponent.Skill();
 		}
 	}
 
 	//ライオンの固有スキル処理関数
-	void Skill_Lion()
-	{
-		// もし既に咆哮が発動中なら、再発動はせずに終了
-		if (MyUIManager != null)
-			MyUIManager.CreateOrUpdateBuffUI(playerID, BuffType.AttackBuff, LION_SKILL_DURATION, buffContainer);
+	//void Skill_Lion()
+	//{
+	//	// もし既に咆哮が発動中なら、再発動はせずに終了
+	//	if (MyUIManager != null)
+	//		MyUIManager.CreateOrUpdateBuffUI(playerID, BuffType.AttackBuff, LION_SKILL_DURATION, buffContainer);
 
-		// 理性解放中かどうかで倍率を変化（覚醒ならより強く！）
-		if (CharaMode == Mode.SPSIAL_ANIMAL)
-			lionSkillAtkBoost = 1.7f; // 解放中は 1.7倍！
-		else
-			lionSkillAtkBoost = 1.3f; // 通常時は 1.3倍
+	//	// 理性解放中かどうかで倍率を変化（覚醒ならより強く！）
+	//	if (CharaMode == Mode.SPSIAL_ANIMAL)
+	//		lionSkillAtkBoost = 1.7f; // 解放中は 1.7倍！
+	//	else
+	//		lionSkillAtkBoost = 1.3f; // 通常時は 1.3倍
 
-		lionSkillDurationTimer = LION_SKILL_DURATION; // 5秒間持続
-	}
+	//	lionSkillDurationTimer = LION_SKILL_DURATION; // 5秒間持続
+	//}
 
 
 	//サイの固有スキル処理関数
