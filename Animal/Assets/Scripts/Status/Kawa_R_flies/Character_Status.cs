@@ -31,27 +31,14 @@ public class Character_Status : MonoBehaviour
 	private float lionBurstAtkBoost = 1.0f;
 	private float lionBurstTimer = 0f;                             // バフの持続時間用
 
-	//[Header("毎時体力回復能力(ダチョウ)")]
-	//[SerializeField] protected int Heal_hp_rate = 1;               // 体力回復割合量(ダチョウ固有)
-
 
 	[Header("プレイヤー識別番号(1~4)")]
 	public int playerID;
-
-	////スキル関連
-	//[Header("共通スキル設定")]
-	//[SerializeField] protected float skillCooldownTimer = 0f; // 現在のCT
-	//[SerializeField] protected float skillCTMax = 10f;        // スキルの最大CT
 
 	// バフ・デバフ管理用の列挙型と変数
 	public enum BuffType { SpeedBuff, SpeedDebuff, AttackBuff, AttackDebuff, RhinoDash }
 	
 	public Transform buffContainer;
-
-	// ライオン専用のバフ変数
-	//private float lionSkillAtkBoost = 1.0f;
-	//private float lionSkillDurationTimer = 0f;
-	//private const float LION_SKILL_DURATION = 5.0f; // バフ持続時間
 
 	// サイの突進状態管理用フラグ
 	private bool isRhinoDashing = false; // 突進中かどうか
@@ -59,7 +46,6 @@ public class Character_Status : MonoBehaviour
 	private float rhinoDashSpeedBoost = 1.0f;
 
 	// --- キャラクター別スキルクールタイム(CT)定数 ---
-	private const float LION_CT = 15.0f;     // ライオンは爆発力が高いので長め
 	private const float OSTRICH_CT = 8.0f;   // ダチョウは機動力活かしで短め
 	private const float RATEL_CT = 12.0f;    // ラーテルはバランス
                                              // サイは特殊（CTなし）
@@ -106,8 +92,6 @@ public class Character_Status : MonoBehaviour
 	public UIManager MyUIManager { get; private set; } // UIManagerへの参照
 
 	private float timer = 0f;              //タイマー系の変数
-	private float ostrichTimer = 0f;       //ダチョウ回復専用タイマー（爆速化防止用）
-
 
 	public int CurrentHP { get; protected set; }    // キャラクター現在HP(外部読み取り可、内部変更可)
 	public int CurrentReason { get; protected set; }    // キャラクター現在理性HP(外部読み取り可、内部変更可)
@@ -144,20 +128,20 @@ public class Character_Status : MonoBehaviour
 	protected Mode CharaMode;                                     // キャラクターモード変数
 	public CharacterType CharaAnim;                     // キャラクタータイプ変数
 	public bool IsDead => CharaState == State.DEAD;     // 死亡状態かどうかを外部から判定できるプロパティ
-														// 初期化
+
+	// 初期化
 	private void Start()
 	{
 		//どの動物かを確定させる
 		SelectAnimal();
 		if (playerID > 0)
-		{
 			CharaAnim = Animal_Select.playerChoices[playerID];
-		}
 
+		//選んだ動物に合わせて動物ごとの専用スクリプトを張り付ける
 		switch (CharaAnim)
 		{
 			case CharacterType.LION:
-				gameObject.AddComponent<Character_Lion>();  //ライオンのスクリプトを貼り付け
+				gameObject.AddComponent<Character_Lion>();  //ライオン用
 				break;
 			case CharacterType.OSTRICH:
 				gameObject.AddComponent<Character_Ostrich>();   //ダチョウ用
@@ -224,9 +208,7 @@ public class Character_Status : MonoBehaviour
 
 		// 1. 選択状況を強制更新
 		if (playerID > 0)
-		{
 			CharaAnim = Animal_Select.playerChoices[playerID];
-		}
 
 		// 2. ステータスを再確定
 		SetBaseStatusByAnimal();
@@ -247,23 +229,6 @@ public class Character_Status : MonoBehaviour
 			hp_gauge.value = CurrentHP;
 			reason_gauge.value = CurrentReason;
 		}
-
-		// --- 共通クールタイムのカウントダウン ---
-		//if (skillCooldownTimer > 0)
-		//{
-		//	skillCooldownTimer -= Time.deltaTime;
-		//}
-
-		// --- ライオンの咆哮バフ時間のカウントダウン ---
-		//if (CharaAnim == CharacterType.LION && lionSkillDurationTimer > 0)
-		//{
-		//	lionSkillDurationTimer -= Time.deltaTime;
-		//	if (lionSkillDurationTimer <= 0)
-		//	{
-		//		lionSkillAtkBoost = 1.0f; // 時間切れで攻撃力倍率を等倍に戻す
-		//		Debug.Log("<color=white>ライオン：咆哮の効果が終了した</color>");
-		//	}
-		//}
 
 		// ライオンの専用UIの更新
 		if (CharaAnim == CharacterType.LION && lionRageFill != null)
@@ -289,17 +254,17 @@ public class Character_Status : MonoBehaviour
 		CheckAnimatorStateTag();
 
         // ライオンのバーストバフタイマー管理
-        if (CharaAnim == CharacterType.LION && lionBurstTimer > 0)
-		{
-			lionBurstTimer -= Time.deltaTime;
-			if (lionBurstTimer <= 0)
-			{
-				// 時間切れでバフをリセット
-				lionBurstSpeedBoost = 1.0f;
-				lionBurstAtkBoost = 1.0f;
-				Debug.Log("<color=white>ライオン：憤怒のバフが終了した</color>");
-			}
-		}
+  //      if (CharaAnim == CharacterType.LION && lionBurstTimer > 0)
+		//{
+		//	lionBurstTimer -= Time.deltaTime;
+		//	if (lionBurstTimer <= 0)
+		//	{
+		//		// 時間切れでバフをリセット
+		//		lionBurstSpeedBoost = 1.0f;
+		//		lionBurstAtkBoost = 1.0f;
+		//		Debug.Log("<color=white>ライオン：憤怒のバフが終了した</color>");
+		//	}
+		//}
 	}
 
 	// UI更新用の共通関数
@@ -393,12 +358,6 @@ public class Character_Status : MonoBehaviour
 					ReasonDecrease();
 					timer = 0f;
 				}
-
-				// ダチョウの固有特性（体力回復）も同時に呼び出す
-				//if (CharaAnim == CharacterType.OSTRICH)
-				//{
-				//	//UniqueSkill_Ostrich();
-				//}
 				break;
 		}
 	}
@@ -668,25 +627,6 @@ public class Character_Status : MonoBehaviour
 		}
 	}
 
-	//キャラの特有の特性関数
-	//protected virtual void Characteristic()
-	//{
-	//	switch (CharaAnim)
-	//	{
-	//		case CharacterType.LION:
-	//			UniqueSkill_Lion();
-	//			break;
-	//		//ダチョウの固有特性(常時体力回復)
-	//		case CharacterType.OSTRICH:
-	//			//UniqueSkill_Ostrich();
-	//			break;
-	//		case CharacterType.RHINOCELOS:
-	//			break;
-	//		case CharacterType.RATEL:
-	//			break;
-	//	}
-	//}
-
 	// キャラ特有のスキル実行
 	//public virtual void Skill()
 	//{
@@ -749,23 +689,6 @@ public class Character_Status : MonoBehaviour
 		if (CurrentHP > MaxHP)
 			CurrentHP = MaxHP;
 	}
-
-	//ライオンの固有スキル処理関数
-	//void Skill_Lion()
-	//{
-	//	// もし既に咆哮が発動中なら、再発動はせずに終了
-	//	if (MyUIManager != null)
-	//		MyUIManager.CreateOrUpdateBuffUI(playerID, BuffType.AttackBuff, LION_SKILL_DURATION, buffContainer);
-
-	//	// 理性解放中かどうかで倍率を変化（覚醒ならより強く！）
-	//	if (CharaMode == Mode.SPSIAL_ANIMAL)
-	//		lionSkillAtkBoost = 1.7f; // 解放中は 1.7倍！
-	//	else
-	//		lionSkillAtkBoost = 1.3f; // 通常時は 1.3倍
-
-	//	lionSkillDurationTimer = LION_SKILL_DURATION; // 5秒間持続
-	//}
-
 
 	//サイの固有スキル処理関数
 	void Skill_Rhinocelos()
@@ -856,44 +779,6 @@ public class Character_Status : MonoBehaviour
 		// 特性成否に関わらず、一度解放したら蓄積はリセット（「溜め」の戦略性を出すため）
 		accumulatedDamage = 0;
 	}
-
-	///ダチョウの固有特性(常時体力回復)
-	//void UniqueSkill_Ostrich()
-	//{
-	//	//もし死亡状態なら処理を行わない
-	//	if (CharaState == State.DEAD) return;
-
-	//	//0でないなら体力回復処理
-	//	if (CurrentHP > 0)
-	//	{
-	//		//理性開放してるなら体力回復処理
-	//		if (CharaMode == Mode.SPSIAL_ANIMAL)
-	//		{
-	//			/*ダチョウの固有スキルは体力を
-	//			時間経過によって回復する*/
-	//			int ostrich_heal = MaxHP * Heal_hp_rate / 100;
-
-	//			//共通タイマー(timer)ではなく専用タイマーを使用し爆速化を防止
-	//			ostrichTimer += Time.deltaTime;
-
-	//			// タイマーが1秒以上経過したら体力回復処理を行う
-	//			if (ostrichTimer >= 1f)
-	//			{
-	//				// HP回復処理
-	//				if (MaxHP != CurrentHP)
-	//				{
-	//					CurrentHP += ostrich_heal;
-	//					if (CurrentHP > MaxHP) CurrentHP = MaxHP; //最大値を超えないように
-	//					Debug.Log("ダチョウの固有スキルで回復中:" + CurrentHP);
-	//				}
-	//				ostrichTimer = 0f;
-	//			}
-	//		}
-	//	}
-	//	//0なら死亡処理関数呼び出し
-	//	else Die();
-	//}
-
 
 	// 奈落に落ちていった時に呼ばれる
 	public void DieAbyss()

@@ -25,7 +25,7 @@ public class Animal_Skill_TraitBase : MonoBehaviour
 	// 共通更新
 	protected virtual void Update()
 	{
-		if (skillCooldownTimer > 0) skillCooldownTimer -= Time.deltaTime;	//CoolTime
+		if (skillCooldownTimer > 0) skillCooldownTimer -= Time.deltaTime;	//共通クールタイム
 	}
 
 	// 固有特性用（ virtual で子クラスに上書きさせる ）
