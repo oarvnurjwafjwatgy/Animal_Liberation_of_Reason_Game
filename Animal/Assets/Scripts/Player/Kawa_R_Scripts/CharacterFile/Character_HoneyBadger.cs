@@ -1,27 +1,17 @@
 using UnityEngine;
 
-public class Character_HoneyBadger : Character_Status
+public class Character_HoneyBadger : Animal_Skill_TraitBase
 {
 	// ラーテル専用：くいしばり特性のフラグ
 	private bool hasTriggeredGuts = false;
 
-	//受けた時の処理(継承)&ラーテルの特性処理
-	public override void TakeDamage(int damage)
+	public bool CanUseGats(){ return hasTriggeredGuts; }
+
+	//ラーテルの特性関数
+	public void TriggerGuts()
 	{
-		base.TakeDamage(damage);    //普通にダメージを減らす
-
-		//もしこのダメージでHPが0以下になり、まだ特性を使っていないなら発動
-		if (CurrentHP <= 0 && !hasTriggeredGuts)
-		{
-			hasTriggeredGuts = true; // 特性使用済みにする
-
-			CurrentHP = 1; // HPを1で耐える
-			Debug.Log("<color=red>【ラーテル特性発動】致命傷をHP1で耐えた！</color>");
-		}
-
-		// そのまま強制的に「理性解放（SPECIAL_ANIMAL）状態」へ移行する
-		CharaMode = Mode.SPSIAL_ANIMAL;
-		Debug.Log("<color=purple>ラーテル：強制理性解放！</color>");
+		status.SetHP(1);    //体力を1で耐えさせる
+		Debug.Log("<color=red>【ラーテル特性発動】致命傷をHP1で耐えた！</color>");
 	}
 
 	//スキル発動処理(継承)

@@ -99,11 +99,7 @@ public class Character_Status : MonoBehaviour
 	}
 
 	/**********モード*******************/
-	public enum Mode
-	{
-		ANIMAL,         // エニモー
-		SPSIAL_ANIMAL   // スペシャルエニモー
-	}
+	public enum Mode { ANIMAL, SPSIAL_ANIMAL }   // 通常&理性解放
 
 	/**********キャラクタータイプ*******************/
 	public enum CharacterType
@@ -123,25 +119,13 @@ public class Character_Status : MonoBehaviour
 	// 初期化
 	private void Start()
 	{
-		//どの動物かを確定させる
-		//SelectAnimal();
 		if (playerID > 0)
 			CharaAnim = Animal_Select.playerChoices[playerID];
 
-		//選んだ動物に合わせて動物ごとの専用スクリプトを張り付ける
-		switch (CharaAnim)
-		{
-			case CharacterType.LION:
-				gameObject.AddComponent<Character_Lion>();  //ライオン用
-				break;
-			case CharacterType.OSTRICH:
-				gameObject.AddComponent<Character_Ostrich>();   //ダチョウ用
-				break;
-		}
-
+		SetAnimalScripts(CharaAnim);    //選んだ動物に合わせて動物ごとの専用スクリプトを張り付ける
 		SetBaseStatusByAnimal();        // 選択した動物に応じて基本ステータスを設定する関数呼び出し
-		CurrentHP = MaxHP;              // 現在HPに最大HPを代入
-		CurrentReason = MaxReason;      // 現在理性ポイントに最大理性ポイントを代入
+		SetHP(MaxHP);                   // 現在HPに最大HPを代入
+		SetReason(MaxReason);           // 現在理性ポイントに最大理性ポイントを代入
 
 		CharaState = State.IDLE;        // 初期状態を待機状態に設定
 		CharaMode = Mode.ANIMAL;        // 初期モードをエニモーに設定
@@ -192,19 +176,31 @@ public class Character_Status : MonoBehaviour
 	public void ReInitialize(int id)
 	{
 		this.playerID = id;
+		if (playerID > 0) CharaAnim = Animal_Select.playerChoices[playerID];// 選択状況を強制更新
 
-		// 1. 選択状況を強制更新
-		if (playerID > 0)
-			CharaAnim = Animal_Select.playerChoices[playerID];
-
-		// 2. ステータスを再確定
-		SetBaseStatusByAnimal();
-
-		// 3. 現在値を満タンに
-		CurrentHP = MaxHP;
-		CurrentReason = MaxReason;
-
+		SetBaseStatusByAnimal();// ステータスを再確定
+		SetHP(MaxHP);           // 現在値を満タンにする
+		SetReason(MaxReason);
 		Debug.Log($"Player{id} を {CharaAnim} として再初期化しました。HP:{MaxHP}");
+	}
+
+	// 選ばられた動物に合わせて適正のスクリプトをセットする
+	public void SetAnimalScripts(CharacterType animaltype)
+	{
+		switch (animaltype)
+		{
+			case CharacterType.LION:
+				gameObject.AddComponent<Character_Lion>();  //ライオン用
+				break;
+			case CharacterType.OSTRICH:
+				gameObject.AddComponent<Character_Ostrich>();   //ダチョウ用
+				break;
+			case CharacterType.RHINOCELOS:
+				break;
+			case CharacterType.RATEL:
+				gameObject.AddComponent<Character_HoneyBadger>();   //ラーテル
+				break;
+		}
 	}
 
 	//更新
@@ -399,12 +395,7 @@ public class Character_Status : MonoBehaviour
 		UpdateUI(); // UIの更新関数呼び出し
 
 		// 死亡判定
-		if (CurrentHP <= 0 || CurrentReason <= 0)
-		{
-			CurrentHP = 0;
-			CurrentReason = 0;
-			Die();  // 死亡処理関数呼び出し
-		}
+		if (CurrentHP <= 0 || CurrentReason <= 0) { Die(); }
 	}
 
 	//現在HP取得関数
@@ -412,19 +403,16 @@ public class Character_Status : MonoBehaviour
 	//{
 	//	return CurrentHP;
 	//}
-
-	//防御力取得関数
-	public int GetDefensePower()
-	{
-		return DefensePower;
-	}
-
 	//移動速度取得関数
 	//public float GetMoveSpeed()
 	//{
 	//    return MoveSpeed;
 	//}
 
+	//防御力取得関数
+	public int GetDefensePower(){ return DefensePower; }
+
+	//主に体力・理性ゲージの回復に使用する上限付の関数
 	public void NotDied(int hp, int reason)
 	{
 		CurrentHP = Mathf.Clamp(hp, 0, MaxHP);
@@ -437,6 +425,10 @@ public class Character_Status : MonoBehaviour
 	// 現在のステート状態をreturnで返す
 	public State GetState() { return CharaState; }
 
+	//現在の体力を引数から代入させる関数
+	public void SetHP(int hp) { CurrentHP = hp; }
+	//上記同様に理性ゲージも同じく代入させる関数
+	public void SetReason(int reason) { CurrentReason = reason; }
 
 	//モードが切り替え時に呼び出す関数
 	public void GetModeChange()
@@ -480,8 +472,6 @@ public class Character_Status : MonoBehaviour
 		}
 	}
 
-
-
 	//死亡処理関数
 	protected virtual void Die()
 	{
@@ -492,12 +482,9 @@ public class Character_Status : MonoBehaviour
 			rhinoDashCoroutine = null;
 		}
 
-		//もし理性解放中に死亡したなら現在HPを0に設定する
-		if (CharaMode == Mode.SPSIAL_ANIMAL)
-			CurrentHP = 0;
-		else if (CharaMode == Mode.ANIMAL)
-			CurrentReason = 0;
-
+		//もし理性解放中に死亡したなら現在HP/通常なら理性を0に設定する
+		if (CharaMode == Mode.SPSIAL_ANIMAL) SetHP(0);
+		else if (CharaMode == Mode.ANIMAL) SetReason(0);
 
 		if (hp_gauge != null) hp_gauge.value = 0;
 		if (reason_gauge != null) reason_gauge.value = 0;
@@ -512,23 +499,19 @@ public class Character_Status : MonoBehaviour
 
 		Debug.Log($"{gameObject.name} が死亡したため、UIを非表示にしました。");
 
-		if (CharaState != State.DEAD)
-			playerManager.SetDiePlayerList(playerID);
+		if (CharaState != State.DEAD) playerManager.SetDiePlayerList(playerID);
 
 		CharaState = State.DEAD; // 状態を死亡状態に変更
 	}
 
-	//エニモー状態時、理性ゲージを回復
+	//エニモー状態(通常)時、理性ゲージを回復
 	protected virtual void ReasonHeal()
 	{
 		if (MaxReason != CurrentReason)
 		{
 			// 最大理性の1%を計算。最低でも1は回復させる
 			int healAmount = Mathf.Max((int)(MaxReason * CharacterData.REASON_HEAL_RATE), 1);
-			CurrentReason += healAmount;
-
-			// 最大値を超えないように制限
-			if (CurrentReason > MaxReason) CurrentReason = MaxReason;
+			HealReason(healAmount);
 		}
 	}
 
@@ -576,7 +559,6 @@ public class Character_Status : MonoBehaviour
 			}
 		}
 	}
-
 	// キャラ特有のスキル実行
 	//public virtual void Skill()
 	//{
@@ -627,7 +609,6 @@ public class Character_Status : MonoBehaviour
 		{
 			Debug.Log("skillComponent発見");
 			Debug.Log(skillComponent.GetType().Name);
-
 			skillComponent.Skill();
 		}
 	}
@@ -636,9 +617,12 @@ public class Character_Status : MonoBehaviour
 	public void HealHP(int amount)
 	{
 		CurrentHP += amount;
-
-		if (CurrentHP > MaxHP)
-			CurrentHP = MaxHP;
+		if (CurrentHP > MaxHP) SetHP(MaxHP);
+	}
+	public void HealReason(int amount)
+	{
+		CurrentReason += amount;
+		if (CurrentReason > MaxReason) SetReason(MaxReason);
 	}
 
 	//サイの固有スキル処理関数
@@ -698,6 +682,17 @@ public class Character_Status : MonoBehaviour
 		Debug.Log("<color=white>サイ：突進終了。速度が戻りました</color>");
 	}
 
+	// 奈落に落ちていった時に呼ばれる
+	public void DieAbyss() { this.Die(); }
+
+	// 範囲外に出た時に呼ばれる
+	public void OutOfRangeDamage()
+	{
+		CurrentHP -= (int)((float)MaxHP * 0.05);
+
+		// 死亡判定
+		if (CurrentHP <= 0) this.Die();
+	}
 
 	//ライオンの固有特性処理関数
 	void UniqueSkill_Lion()
@@ -731,35 +726,9 @@ public class Character_Status : MonoBehaviour
 		accumulatedDamage = 0;
 	}
 
-	// 奈落に落ちていった時に呼ばれる
-	public void DieAbyss()
-	{
-		CurrentHP = 0;
-		CurrentReason = 0;
-
-		// 死亡処理関数呼び出し
-		this.Die();
-	}
-
 	//ラーテルの固有スキル処理関数
 	void UniqueSkill_Ratel()
 	{
 		Debug.Log("ラーテルの固有スキル発動中");
-	}
-
-	// 範囲外に出た時に呼ばれる
-	public void OutOfRangeDamage()
-	{
-		CurrentHP -= (int)((float)MaxHP * 0.05);
-
-		// 死亡判定
-		if (CurrentHP <= 0)
-		{
-			CurrentHP = 0;
-			CurrentReason = 0;
-
-			// 死亡処理関数呼び出し
-			this.Die();
-		}
 	}
 }
