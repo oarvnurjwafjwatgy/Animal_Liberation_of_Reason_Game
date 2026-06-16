@@ -3,21 +3,12 @@ using UnityEngine.UI;
 
 public class Character_Status : MonoBehaviour
 {
-	// 各キャラクターの選択フラグ（インスペクターで設定）
-	[Header("選択キャラクター")]
-	[SerializeField] protected bool SelectLion = false;        // ライオン選択フラグ
-	[SerializeField] protected bool SelectOstrich = false;     // ダチョウ選択フラグ
-	[SerializeField] protected bool SelectRhinocelos = false;  // サイ選択フラグ
-	[SerializeField] protected bool SelectRatel = false;       // ラーテル選択フラグ
-
-	/******ステータス変数*************/
-	[Header("基本ステータス")]
-	[SerializeField] public    int MaxHP = 400;                // キャラクター最大HP
-	[SerializeField] protected int MaxReason = 500;            // キャラクター理性最大HP
-	[SerializeField] protected int ReasonPoint = 100;          // 理性ゲージ
-	[SerializeField] protected int AttackPower = 10;           // キャラクター攻撃力
-	[SerializeField] protected int DefensePower = 20;          // キャラクター防御力
-	[SerializeField] protected float MoveSpeed = 5.0f;         // キャラクター移動速度
+	// ステータス
+	public int MaxHP { get; private set; }
+	public int MaxReason { get; private set; }
+	public int AttackPower { get; private set; }
+	public int DefensePower { get; private set; }
+	public float MoveSpeed { get; private set; }
 
 	[Header("キャラクターごとの固有特性設定一覧")]
 	[Header("ライオン特性：蓄積ダメージ設定")]
@@ -37,7 +28,7 @@ public class Character_Status : MonoBehaviour
 
 	// バフ・デバフ管理用の列挙型と変数
 	public enum BuffType { SpeedBuff, SpeedDebuff, AttackBuff, AttackDebuff, RhinoDash }
-	
+
 	public Transform buffContainer;
 
 	// サイの突進状態管理用フラグ
@@ -48,10 +39,10 @@ public class Character_Status : MonoBehaviour
 	// --- キャラクター別スキルクールタイム(CT)定数 ---
 	private const float OSTRICH_CT = 8.0f;   // ダチョウは機動力活かしで短め
 	private const float RATEL_CT = 12.0f;    // ラーテルはバランス
-                                             // サイは特殊（CTなし）
+											 // サイは特殊（CTなし）
 
-    // 実際に計算に使用する倍率（1.0f = 等倍）
-    private float currentAtkMult = 1.0f;
+	// 実際に計算に使用する倍率（1.0f = 等倍）
+	private float currentAtkMult = 1.0f;
 	private float currentDefMult = 1.0f;
 	private float currentSpdMult = 1.0f;
 
@@ -84,10 +75,10 @@ public class Character_Status : MonoBehaviour
 		MoveSpeed * currentSpdMult * rhinoDashSpeedBoost * (1f + GetComponent<NutsEffectManager>().CurrentSpeedModifier);
 
 
-	private Slider hp_gauge;					//HPゲージUIスライダー参照用変数
-	private Slider reason_gauge;				//HPゲージUIスライダー参照用変数
+	private Slider hp_gauge;                    //HPゲージUIスライダー参照用変数
+	private Slider reason_gauge;                //HPゲージUIスライダー参照用変数
 	private Animator animator;                  //アニメーター参照用変数
-	private Animal_Skill_TraitBase animl_skill;	//スキルに参照
+	private Animal_Skill_TraitBase animl_skill; //スキルに参照
 
 	public UIManager MyUIManager { get; private set; } // UIManagerへの参照
 
@@ -133,7 +124,7 @@ public class Character_Status : MonoBehaviour
 	private void Start()
 	{
 		//どの動物かを確定させる
-		SelectAnimal();
+		//SelectAnimal();
 		if (playerID > 0)
 			CharaAnim = Animal_Select.playerChoices[playerID];
 
@@ -154,10 +145,6 @@ public class Character_Status : MonoBehaviour
 
 		CharaState = State.IDLE;        // 初期状態を待機状態に設定
 		CharaMode = Mode.ANIMAL;        // 初期モードをエニモーに設定
-		GetResonPoint();                // 理性ゲージ取得
-		GetAttackPower();                // 攻撃力取得
-		GetDefensePower();              // 防御力取得
-		GetMoveSpeed();                  // 移動速度取得
 
 		animator = GetComponent<Animator>();
 		animl_skill = GetComponent<Animal_Skill_TraitBase>();
@@ -253,8 +240,8 @@ public class Character_Status : MonoBehaviour
 		JudgeModeChange();              //毎度切替を判定する
 		CheckAnimatorStateTag();
 
-        // ライオンのバーストバフタイマー管理
-  //      if (CharaAnim == CharacterType.LION && lionBurstTimer > 0)
+		// ライオンのバーストバフタイマー管理
+		//      if (CharaAnim == CharacterType.LION && lionBurstTimer > 0)
 		//{
 		//	lionBurstTimer -= Time.deltaTime;
 		//	if (lionBurstTimer <= 0)
@@ -274,31 +261,6 @@ public class Character_Status : MonoBehaviour
 		if (reason_gauge != null) reason_gauge.value = CurrentReason;
 	}
 
-	//選択キャラクターによってキャラクタータイプを設定する
-	private void SelectAnimal()
-	{
-		if (SelectLion)
-		{
-			CharaAnim = CharacterType.LION;
-		}
-		else if (SelectOstrich)
-		{
-			CharaAnim = CharacterType.OSTRICH;
-		}
-		else if (SelectRhinocelos)
-		{
-			CharaAnim = CharacterType.RHINOCELOS;
-		}
-		else if (SelectRatel)
-		{
-			CharaAnim = CharacterType.RATEL;
-		}
-		else
-		{
-			CharaAnim = CharacterType.NONE;
-		}
-	}
-
 	// --- 動物ごとのベース値を決める関数 ---
 	private void SetBaseStatusByAnimal()
 	{
@@ -316,6 +278,9 @@ public class Character_Status : MonoBehaviour
 				break;
 			case CharacterType.RATEL:
 				ApplyParam(CharacterData.Ratel);
+				break;
+			default:
+				Debug.LogError("動物が選択されていません");
 				break;
 		}
 	}
@@ -386,11 +351,11 @@ public class Character_Status : MonoBehaviour
 	{
 		switch (CharaAnim)
 		{
-			case CharacterType.LION:		return CharacterData.Lion;
-			case CharacterType.OSTRICH:		return CharacterData.Ostrich;
-			case CharacterType.RHINOCELOS:	return CharacterData.Rhinocelos;
-			case CharacterType.RATEL:		return CharacterData.Ratel;
-			default:						return default;
+			case CharacterType.LION: return CharacterData.Lion;
+			case CharacterType.OSTRICH: return CharacterData.Ostrich;
+			case CharacterType.RHINOCELOS: return CharacterData.Rhinocelos;
+			case CharacterType.RATEL: return CharacterData.Ratel;
+			default: return default;
 		}
 	}
 
@@ -443,43 +408,31 @@ public class Character_Status : MonoBehaviour
 	}
 
 	//現在HP取得関数
-	public int GetCurrentHP()
-	{
-		return CurrentHP;
-	}
-
-	//理性ゲージ取得関数
-	public int GetResonPoint()
-	{
-		return ReasonPoint;
-	}
-
-	//攻撃力取得関数
-	public int GetAttackPower()
-	{
-		return AttackPower;
-	}
+	//public int GetCurrentHP()
+	//{
+	//	return CurrentHP;
+	//}
 
 	//防御力取得関数
 	public int GetDefensePower()
 	{
 		return DefensePower;
-    }
+	}
 
-    //移動速度取得関数
-    public float GetMoveSpeed()
-    {
-        return MoveSpeed;
-    }
+	//移動速度取得関数
+	//public float GetMoveSpeed()
+	//{
+	//    return MoveSpeed;
+	//}
 
-	public void NotDied(int hp,int reason)
-    {
-        CurrentHP = hp;
-		CurrentReason = reason;
-    }
+	public void NotDied(int hp, int reason)
+	{
+		CurrentHP = Mathf.Clamp(hp, 0, MaxHP);
+		CurrentReason = Mathf.Clamp(reason, 0, MaxReason);
+	}
 
 	//モード
-    public Mode GetMode(){ return CharaMode; }
+	public Mode GetMode() { return CharaMode; }
 
 	// 現在のステート状態をreturnで返す
 	public State GetState() { return CharaState; }
@@ -541,13 +494,10 @@ public class Character_Status : MonoBehaviour
 
 		//もし理性解放中に死亡したなら現在HPを0に設定する
 		if (CharaMode == Mode.SPSIAL_ANIMAL)
-		{
-			CurrentHP = 0;  // 現在HPを0に設定
-		}
+			CurrentHP = 0;
 		else if (CharaMode == Mode.ANIMAL)
-		{
-			CurrentReason = 0;  // 現在理性ポイントを0に設定
-		}
+			CurrentReason = 0;
+
 
 		if (hp_gauge != null) hp_gauge.value = 0;
 		if (reason_gauge != null) reason_gauge.value = 0;
@@ -590,7 +540,7 @@ public class Character_Status : MonoBehaviour
 		{
 			//最大理性ポイントに減少率をかけて減少量を計算し、最低でも1は減少するようにする
 			int decreaseAmount = Mathf.Max((int)(MaxReason * CharacterData.REASON_DECREASE_RATE), 1);
-			CurrentReason -= decreaseAmount;	// 理性ゲージ減少処理
+			CurrentReason -= decreaseAmount;    // 理性ゲージ減少処理
 			Debug.Log($"{CharaAnim}の理性減少中: 残り{CurrentReason} (毎秒{decreaseAmount}減)");
 		}
 		//0以下なら理性ゲージを0・死亡処理を行う
@@ -642,7 +592,7 @@ public class Character_Status : MonoBehaviour
 	//	//		break;
 
 	//	//	case CharacterType.OSTRICH:
-	//	//		// Skill_Ostrich(); // ダチョウのスキル
+	//			 Skill_Ostrich(); // ダチョウのスキル
 	//	//		skillCooldownTimer = OSTRICH_CT;
 	//	//		break;
 
@@ -665,6 +615,7 @@ public class Character_Status : MonoBehaviour
 	//		skillComponent.Skill();
 	//}
 
+	// スキル実行
 	public virtual void Skill()
 	{
 		Debug.Log("本体Skill");
@@ -801,14 +752,14 @@ public class Character_Status : MonoBehaviour
 	{
 		CurrentHP -= (int)((float)MaxHP * 0.05);
 
-        // 死亡判定
-        if (CurrentHP <= 0)
-        {
-            CurrentHP = 0;
-            CurrentReason = 0;
+		// 死亡判定
+		if (CurrentHP <= 0)
+		{
+			CurrentHP = 0;
+			CurrentReason = 0;
 
-            // 死亡処理関数呼び出し
-            this.Die();
-        }
-    }
+			// 死亡処理関数呼び出し
+			this.Die();
+		}
+	}
 }

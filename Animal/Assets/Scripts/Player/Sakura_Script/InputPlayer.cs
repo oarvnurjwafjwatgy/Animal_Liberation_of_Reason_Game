@@ -186,7 +186,7 @@ public class InputPlayer : MonoBehaviour
         if (character_Status.CharaAnim == Character_Status.CharacterType.RATEL &&
             animator.GetInteger("RatelSkill") == 1)
         {
-            if (character_Status.GetCurrentHP() < ratelSkillStartHP)
+            if (character_Status.CurrentHP < ratelSkillStartHP)
             {
                 Debug.Log("ダメージを受けたのでラーテルのスキルを解除します");
                 animator.SetInteger("RatelSkill", 2);
@@ -691,7 +691,7 @@ public class InputPlayer : MonoBehaviour
                     ratelSkillStartTime = Time.time; // 開始時間を記録
                     AudioManager.Instance.PlaySEByIndex(5,1.5f);
                     MoveFlag = false;
-                    ratelSkillStartHP = character_Status.GetCurrentHP();
+                    ratelSkillStartHP = character_Status.CurrentHP;
                 }
                 break;
 

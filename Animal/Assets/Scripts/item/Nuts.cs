@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Nuts : MonoBehaviour
 {
@@ -82,9 +79,9 @@ public class Nuts : MonoBehaviour
                         float hpHealPercent = (float)UnityEngine.Random.Range
                         (NutsData.HpHealRate.x, NutsData.HpHealRate.y + 1) / 100f;
                         
-                        int currentHP = other_chara_status.GetCurrentHP();
+                        int currentHP = other_chara_status.CurrentHP;
                         int nextHP = currentHP + (int)(currentHP * hpHealPercent);
-                        other_chara_status.NotDied(nextHP, other_chara_status.GetResonPoint());
+                        other_chara_status.NotDied(nextHP, other_chara_status.CurrentReason);
                         Debug.Log($"<color=#ffff80>HPゲージ回復を付与しました</color>");
                         effect_num = 2;
                         break;
@@ -93,9 +90,9 @@ public class Nuts : MonoBehaviour
                         float reasonHealPercent = (float)UnityEngine.Random.Range
                         (NutsData.ReasonHealRate.x, NutsData.ReasonHealRate.y + 1) / 100f;
                         
-                        int currentReason = other_chara_status.GetResonPoint();
+                        int currentReason = other_chara_status.CurrentReason;
                         int nextReason = currentReason + (int)(currentReason * reasonHealPercent);
-                        other_chara_status.NotDied(other_chara_status.GetCurrentHP(), nextReason);
+                        other_chara_status.NotDied(other_chara_status.CurrentHP, nextReason);
                         Debug.Log($"<color=#ffff80>理性解放ゲージ回復を付与しました</color>");
                         effect_num = 2; break;
                 }
