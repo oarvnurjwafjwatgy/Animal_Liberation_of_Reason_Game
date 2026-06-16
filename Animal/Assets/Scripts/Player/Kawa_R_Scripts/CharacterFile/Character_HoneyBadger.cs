@@ -4,25 +4,30 @@ public class Character_HoneyBadger : Animal_Skill_TraitBase
 {
 	// ラーテル専用：くいしばり特性のフラグ
 	private bool hasTriggeredGuts = false;
-
-	public bool CanUseGats(){ return hasTriggeredGuts; }
-
-	//ラーテルの特性関数
-	public void TriggerGuts()
-	{
-		status.SetHP(1);    //体力を1で耐えさせる
-		Debug.Log("<color=red>【ラーテル特性発動】致命傷をHP1で耐えた！</color>");
-	}
+	private const float RATEL_CT = 12.0f;    // ラーテルのスキルCoolTime
 
 	//スキル発動処理(継承)
 	public override void Skill()
 	{
 		base.Skill(); // 共通の死亡チェックなどを実行
 
-		//if (skillCooldownTimer > 0) return; // CT中なら発動不可
-		Debug.Log("<color=green>ラーテル：固有スキルが発動した（現在はCT設定のみ）</color>");
+		if (skillCooldownTimer > 0) return; // CT中なら発動不可
+		AnimalDebugLog("yellow", "スキル発動");
+		SetSkillCooldownTimer(RATEL_CT);
+	}
 
-		// ラーテル専用のCT（例: 10秒）を設定
-		//skillCooldownTimer = 10.0f;
+	// ラーテルの特性
+	public override bool OnFatalDamage()
+	{
+		if (hasTriggeredGuts) return false;
+		hasTriggeredGuts = true;
+		status.SetHP(1);
+		status.GetModeChange();		// 強制的に理性解放へと変化
+		AnimalDebugLog("red", "特性発動:致命傷をHP1で耐えた");
+		
+		//モデルを変更するためにInputPlayerに参照
+		InputPlayer player = GetComponent<InputPlayer>();
+		if (player != null) player.Enhancement();
+		return true;
 	}
 }

@@ -50,9 +50,9 @@ public static class CharacterData
 		//’Êí
 		maxHP = 350,
 		maxReason = 120,
-		attackPower = 20,
+		attackPower = 50,//20
 		defensePower = 13,
-		moveSpeed = 7.5f,
+		moveSpeed = 20.5f,//7.5f
 
 		//—«‰ğ•ú‚Ì”{—¦
 		reasonAtkMult = DEFAULT_MULT,

@@ -13,6 +13,7 @@ public class Character_Lion : Animal_Skill_TraitBase
 
 	public override float CurrentAtkBoost => lionSkillAtkBoost;
 
+	//更新
 	protected override void Update()
 	{
 		base.Update(); // 親クラスの共通CTカウントダウン（skillCooldownTimer）を実行
@@ -23,8 +24,8 @@ public class Character_Lion : Animal_Skill_TraitBase
 			lionSkillDurationTimer -= Time.deltaTime;
 			if (lionSkillDurationTimer <= 0)
 			{
-				lionSkillAtkBoost = 1.0f;
-				Debug.Log("<color=white>ライオン：咆哮の効果が終了した</color>");
+				SetLionAtkBoost(1.0f);
+				AnimalDebugLog("white", "咆哮の効果が終了した");
 			}
 		}
 	}
@@ -32,7 +33,7 @@ public class Character_Lion : Animal_Skill_TraitBase
 	// ライオンの専用スキル処理
 	public override void Skill()
 	{
-		Debug.Log("スキル発動");
+		AnimalDebugLog("yellow", "スキル発動");
 
 		if (skillCooldownTimer > 0) return;
 
@@ -49,11 +50,14 @@ public class Character_Lion : Animal_Skill_TraitBase
 
 		// モードチェック
 		if (status != null && status.GetMode() == Character_Status.Mode.SPSIAL_ANIMAL)
-			lionSkillAtkBoost = 1.7f; // 解放中は1.7倍
+			SetLionAtkBoost(1.7f); // 解放中は1.7倍
 		else
-			lionSkillAtkBoost = 1.3f; // 通常時は1.3倍
+			SetLionAtkBoost(1.3f); // 通常時は1.3倍
 
 		lionSkillDurationTimer = LION_SKILL_DURATION; // 5秒間持続
-		skillCooldownTimer = LION_CT;
+		SetSkillCooldownTimer(LION_CT);
 	}
+
+	// ライオンがスキルを使用時に攻撃値が変化する
+	private void SetLionAtkBoost(float boost_amount){ lionSkillAtkBoost =  boost_amount; }
 }

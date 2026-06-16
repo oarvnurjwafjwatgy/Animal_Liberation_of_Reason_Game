@@ -37,8 +37,7 @@ public class Character_Status : MonoBehaviour
 	private float rhinoDashSpeedBoost = 1.0f;
 
 	// --- キャラクター別スキルクールタイム(CT)定数 ---
-	private const float OSTRICH_CT = 8.0f;   // ダチョウは機動力活かしで短め
-	private const float RATEL_CT = 12.0f;    // ラーテルはバランス
+	
 											 // サイは特殊（CTなし）
 
 	// 実際に計算に使用する倍率（1.0f = 等倍）
@@ -394,7 +393,13 @@ public class Character_Status : MonoBehaviour
 
 		UpdateUI(); // UIの更新関数呼び出し
 
-		// 死亡判定
+		//死亡直前の特性チェック
+		if (CurrentHP <= 0)
+		{
+			Animal_Skill_TraitBase trait = GetComponent<Animal_Skill_TraitBase>();
+			if (trait != null && trait.OnFatalDamage()) { return; }
+		}
+		// 最終死亡判定
 		if (CurrentHP <= 0 || CurrentReason <= 0) { Die(); }
 	}
 

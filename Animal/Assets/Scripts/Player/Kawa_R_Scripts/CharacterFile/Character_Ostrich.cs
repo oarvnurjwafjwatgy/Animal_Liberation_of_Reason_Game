@@ -14,8 +14,8 @@ public class Character_Ostrich : Animal_Skill_TraitBase
 		base.Skill();   //共通の死亡チェックを実行
 
 		if (skillCooldownTimer > 0) return; //CT中なら発動不可
-		Debug.Log("<color=green>ダチョウ：固有スキルが発動した（現在はCT設定のみ）</color>");
-		skillCooldownTimer = OSTRICH_CT; // ダチョウ用のCTをセット
+		AnimalDebugLog("yellow", "固有スキルが発動した");
+		SetSkillCooldownTimer(OSTRICH_CT);
 	}
 
 	protected override void Update()
@@ -42,7 +42,7 @@ public class Character_Ostrich : Animal_Skill_TraitBase
 				if (status.MaxHP != status.CurrentHP)
 				{
 					status.HealHP(ostrich_heal);    //CharacterStatusの回復関数にて反映
-					Debug.Log("ダチョウの固有特性で回復中(Test): " + status.CurrentHP);
+					AnimalDebugLog("green", "固有特性で回復中:" + status.CurrentHP);
 				}
 				ostrichTimer = 0f;
 			}
