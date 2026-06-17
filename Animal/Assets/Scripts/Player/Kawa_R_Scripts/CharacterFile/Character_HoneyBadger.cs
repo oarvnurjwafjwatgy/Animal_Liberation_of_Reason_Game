@@ -21,10 +21,11 @@ public class Character_HoneyBadger : Animal_Skill_TraitBase
 	{
 		if (hasTriggeredGuts) return false;
 		hasTriggeredGuts = true;
-		status.SetHP(1);
-		status.GetModeChange();		// 強制的に理性解放へと変化
-		AnimalDebugLog("red", "特性発動:致命傷をHP1で耐えた");
-		
+		status.SetHP((int)(status.MaxHP * 0.25f));  //最大HP25％まで回復
+		status.HealReason(status.MaxReason);        //理性ゲージは最大まで回復
+		status.GetModeChange();                     // 強制的に理性解放へと変化
+		AnimalDebugLog("red", " 特性発動:致命傷を耐え理性解放");
+
 		//モデルを変更するためにInputPlayerに参照
 		InputPlayer player = GetComponent<InputPlayer>();
 		if (player != null) player.Enhancement();

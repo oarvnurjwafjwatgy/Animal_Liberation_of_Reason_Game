@@ -509,37 +509,6 @@ public class Character_Status : MonoBehaviour
 		CharaState = State.DEAD; // 状態を死亡状態に変更
 	}
 
-	//エニモー状態(通常)時、理性ゲージを回復
-	protected virtual void ReasonHeal()
-	{
-		if (MaxReason != CurrentReason)
-		{
-			// 最大理性の1%を計算。最低でも1は回復させる
-			int healAmount = Mathf.Max((int)(MaxReason * CharacterData.REASON_HEAL_RATE), 1);
-			HealReason(healAmount);
-		}
-	}
-
-	//理性解放状態時:理性ゲージ減少処理関数
-	protected virtual void ReasonDecrease()
-	{
-		//もし理性が0より大きいなら理性ゲージを減少させる
-		if (CurrentReason > 0)
-		{
-			//最大理性ポイントに減少率をかけて減少量を計算し、最低でも1は減少するようにする
-			int decreaseAmount = Mathf.Max((int)(MaxReason * CharacterData.REASON_DECREASE_RATE), 1);
-			CurrentReason -= decreaseAmount;    // 理性ゲージ減少処理
-			Debug.Log($"{CharaAnim}の理性減少中: 残り{CurrentReason} (毎秒{decreaseAmount}減)");
-		}
-		//0以下なら理性ゲージを0・死亡処理を行う
-		else
-		{
-			CurrentReason = 0;
-			animator.SetBool("Reason_Dead", true);
-			Die();
-		}
-	}
-
 	// Animatorの現在のステートのTagをチェックし、
 	// 死亡状態であればオブジェクトを非アクティブ化する関数
 	private void CheckAnimatorStateTag()
@@ -618,7 +587,8 @@ public class Character_Status : MonoBehaviour
 		}
 	}
 
-	//回復処理
+	/*******回復処理*********/
+	//指定した値分の回復
 	public void HealHP(int amount)
 	{
 		CurrentHP += amount;
@@ -629,6 +599,37 @@ public class Character_Status : MonoBehaviour
 		CurrentReason += amount;
 		if (CurrentReason > MaxReason) SetReason(MaxReason);
 	}
+
+	//通常時は理性ゲージを回復(割合時間経過回復)
+	protected virtual void ReasonHeal()
+	{
+		if (MaxReason != CurrentReason)
+		{
+			// 最大理性の1%を計算。最低でも1は回復させる
+			int healAmount = Mathf.Max((int)(MaxReason * CharacterData.REASON_HEAL_RATE), 1);
+			HealReason(healAmount);
+		}
+	}
+
+	//理性解放状態時:理性ゲージ減少処理関数
+	protected virtual void ReasonDecrease()
+	{
+		//もし理性が0より大きいなら理性ゲージを減少させる
+		if (CurrentReason > 0)
+		{
+			//最大理性ポイントに減少率をかけて減少量を計算し、最低でも1は減少するようにする
+			int decreaseAmount = Mathf.Max((int)(MaxReason * CharacterData.REASON_DECREASE_RATE), 1);
+			CurrentReason -= decreaseAmount;    // 理性ゲージ減少処理
+			Debug.Log($"{CharaAnim}の理性減少中: 残り{CurrentReason} (毎秒{decreaseAmount}減)");
+		}
+		//0以下なら理性ゲージを0・死亡処理を行う
+		else
+		{
+			animator.SetBool("Reason_Dead", true);
+			Die();
+		}
+	}
+
 
 	//サイの固有スキル処理関数
 	void Skill_Rhinocelos()
