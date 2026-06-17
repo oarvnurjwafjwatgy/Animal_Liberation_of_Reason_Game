@@ -373,17 +373,15 @@ public class InputPlayer : MonoBehaviour
 
     private void OnAttack(InputAction.CallbackContext context)
     {
-        if (LiveFlag == true)
+        if (LiveFlag)
         {
-
             if (IsAnySkillActive())
             {
-                Debug.Log("スキル発動中は通常攻撃を出せません");
-                return;
+                Debug.Log("スキル発動中は通常攻撃を出せません"); return;
             }
 
-            // ラーテルの場合、アニメーションパラメータが0（Idle）なら強制的にMoveFlagを戻す
-            if (character_Status.CharaAnim == Character_Status.CharacterType.RATEL)
+			// ラーテルの場合、アニメーションパラメータが0（Idle）なら強制的にMoveFlagを戻す
+			if (character_Status.CharaAnim == Character_Status.CharacterType.RATEL)
             {
                 if (animator.GetInteger("RatelSkill") == 0)
                 {
@@ -452,11 +450,17 @@ public class InputPlayer : MonoBehaviour
                     Vector3 LIforward = activeModel.transform.forward;
 
                     // 2. この形なら add_pos.x を変えると「常にキャラの右/左」に動きます！
-                    Position = new Vector3(
-                        effectPosition.x + (LIright.x * 0) + (LIup.x * 0.43f) + (LIforward.x * 0),
-                        effectPosition.y + (LIright.y * 0) + (LIup.y * 0.43f) + (LIforward.y * 0),
-                        effectPosition.z + (LIright.z * 0) + (LIup.z * 0.43f) + (LIforward.z * 0)
-                    );
+                    //Position = new Vector3(
+                    //    effectPosition.x + (LIright.x * 0) + (LIup.x * 0.43f) + (LIforward.x * 0),
+                    //    effectPosition.y + (LIright.y * 0) + (LIup.y * 0.43f) + (LIforward.y * 0),
+                    //    effectPosition.z + (LIright.z * 0) + (LIup.z * 0.43f) + (LIforward.z * 0)
+                    //);
+                    Position = GetOffsetPosition(
+                    activeModel,
+                    effectPosition,
+                    0f,
+                    0.43f,
+                    0f);
 
                     Quaternion = activeModel.transform.rotation * Quaternion.Euler(0, 0, 0);
                     Scale = new Vector3(0.4f, 0.4f, 0.4f);
@@ -466,26 +470,30 @@ public class InputPlayer : MonoBehaviour
                 case Character_Status.CharacterType.OSTRICH:
 
                     AudioManager.Instance.PlaySEByIndex(3, 1.5f);
-
                     // 1. モデルの「右・上・前」の方向ベクトルを取得
-                    Vector3 right = activeModel.transform.right;
-                    Vector3 up = activeModel.transform.up;
-                    Vector3 forward = activeModel.transform.forward;
+                    //Vector3 right = activeModel.transform.right;
+                    //Vector3 up = activeModel.transform.up;
+                    //Vector3 forward = activeModel.transform.forward;
 
-                    // 2. この形なら add_pos.x を変えると「常にキャラの右/左」に動きます！
-                    Position = new Vector3(
-                        effectPosition.x + (right.x * -0.5f) + (up.x * 0) + (forward.x * 0),
-                        effectPosition.y + (right.y * -0.5f) + (up.y * 0) + (forward.y * 0),
-                        effectPosition.z + (right.z * -0.5f) + (up.z * 0) + (forward.z * 0)
-                    );
+                    //// 2. この形なら add_pos.x を変えると「常にキャラの右/左」に動きます！
+                    //Position = new Vector3(
+                    //    effectPosition.x + (right.x * -0.5f) + (up.x * 0) + (forward.x * 0),
+                    //    effectPosition.y + (right.y * -0.5f) + (up.y * 0) + (forward.y * 0),
+                    //    effectPosition.z + (right.z * -0.5f) + (up.z * 0) + (forward.z * 0)
+                    //);
+
+                    Position = GetOffsetPosition(
+                    activeModel,
+                    effectPosition,
+                    -0.5f,
+                    0f,
+                    0f);
 
                     Quaternion = activeModel.transform.rotation * Quaternion.Euler(20f, 0, 0);
                     Scale = new Vector3(0.3f, 0.3f, 0.3f);
-
                     break;
 
                 //Vector3 offset = new Vector3(other.gameObject.transform.position.x - 0.7f, other.gameObject.transform.position.y, other.gameObject.transform.position.z - 1.0f);
-
 
                 case Character_Status.CharacterType.RHINOCELOS:
                     AudioManager.Instance.PlaySEByIndex(4, 1.5f);
@@ -496,11 +504,12 @@ public class InputPlayer : MonoBehaviour
                     Vector3 RHforward = activeModel.transform.forward;
 
                     // 2. この形なら add_pos.x を変えると「常にキャラの右/左」に動きます！
-                    Position = new Vector3(
-                        effectPosition.x + (RHright.x * 0) + (RHup.x * 0) + (RHforward.x * 0),
-                        effectPosition.y + (RHright.y * 0) + (RHup.y * 0) + (RHforward.y * 0),
-                        effectPosition.z + (RHright.z * 0) + (RHup.z * 0) + (RHforward.z * 0)
-                    );
+                    //Position = new Vector3(
+                    //    effectPosition.x + (RHright.x * 0) + (RHup.x * 0) + (RHforward.x * 0),
+                    //    effectPosition.y + (RHright.y * 0) + (RHup.y * 0) + (RHforward.y * 0),
+                    //    effectPosition.z + (RHright.z * 0) + (RHup.z * 0) + (RHforward.z * 0)
+                    //);
+                    Position = effectPosition;
 
                     Quaternion = activeModel.transform.rotation * Quaternion.Euler(0, 0, 0);
                     Scale = new Vector3(0.3f, 0.3f, 0.3f);
@@ -516,11 +525,17 @@ public class InputPlayer : MonoBehaviour
                     Vector3 RAforward = activeModel.transform.forward;
 
                     // 2. この形なら add_pos.x を変えると「常にキャラの右/左」に動きます！
-                    Position = new Vector3(
-                        effectPosition.x + (RAright.x * 0.6f) + (RAup.x * 0.5f) + (RAforward.x * 0),
-                        effectPosition.y + (RAright.y * 0.6f) + (RAup.y * 0.5f) + (RAforward.y * 0),
-                        effectPosition.z + (RAright.z * 0.6f) + (RAup.z * 0.5f) + (RAforward.z * 0)
-                    );
+                    //Position = new Vector3(
+                    //    effectPosition.x + (RAright.x * 0.6f) + (RAup.x * 0.5f) + (RAforward.x * 0),
+                    //    effectPosition.y + (RAright.y * 0.6f) + (RAup.y * 0.5f) + (RAforward.y * 0),
+                    //    effectPosition.z + (RAright.z * 0.6f) + (RAup.z * 0.5f) + (RAforward.z * 0)
+                    //);
+                    Position = GetOffsetPosition(
+                    activeModel,
+                    effectPosition,
+                    0.6f,
+                    0.5f,
+                    0f);
 
                     Quaternion = activeModel.transform.rotation * Quaternion.Euler(0, 0, 30);
                     Scale = new Vector3(0.8f, 0.8f, 0.8f);
@@ -529,8 +544,6 @@ public class InputPlayer : MonoBehaviour
                     Quaternion = activeModel.transform.rotation * Quaternion.Euler(0, 0, -30);
 
                     break;
-
-
             }
 
             if (character_Status.CharaAnim != Character_Status.CharacterType.LION)
@@ -553,7 +566,21 @@ public class InputPlayer : MonoBehaviour
             if (deathFlag) return;
         }
     }
-    private void OnModeChange(InputAction.CallbackContext context)
+
+	private Vector3 GetOffsetPosition(
+	GameObject model,
+	Vector3 basePos,
+	float right,
+	float up,
+	float forward)
+	{
+		return basePos
+			+ model.transform.right * right
+			+ model.transform.up * up
+			+ model.transform.forward * forward;
+	}
+
+	private void OnModeChange(InputAction.CallbackContext context)
     {
         if (LiveFlag == true)
         {
@@ -602,65 +629,42 @@ public class InputPlayer : MonoBehaviour
 
 	private void OnSkill(InputAction.CallbackContext context)
     {
-        if (LiveFlag == false) return;
-        Character_Status.CharacterType currentType = character_Status.CharaAnim;
-
-        GameObject activeModel = GetActiveModel();
+        if (!LiveFlag) return;
+       // Character_Status.CharacterType currentType = character_Status.CharaAnim;
+        //GameObject activeModel = GetActiveModel();
+		var currentType = character_Status.CharaAnim;
+		var activeModel = GetActiveModel();
+		var effectPosition = GetEffectSpawnPosition(activeModel);
 
 		// サイだけ先に処理
 		if (currentType == Character_Status.CharacterType.RHINOCELOS)
 		{
 			Debug.Log("サイスキル入口");
-
-			//HandleRhinoSkill(activeModel, effectPosition);
-
+			HandleRhinoSkill(activeModel, effectPosition);
 			character_Status.Skill();
-
 			return;
 		}
 
-		// --- 1. クールタイムの取得 (攻撃と同じやり方) ---
-		float skillCooldown = 0.0f;
+        float skillCooldown = GetSkillCooldown(currentType);    //各動物ごとにCTをセット
 
-        // インスペクターの設定（animalSettings）から取得を試みる
-        var settings = animalSettings.Find(s => s.type == currentType);
-        if (settings.type == currentType) // 見つかった場合
-        {
-            skillCooldown = settings.skillCooldown;
-        }
-        else // 万が一リストに設定がない場合のデフォルト値
-        {
-            switch (currentType)
-            {
-                case Character_Status.CharacterType.LION: skillCooldown = 5.0f; break;
-                case Character_Status.CharacterType.OSTRICH: skillCooldown = 2.0f; break;
-                case Character_Status.CharacterType.RHINOCELOS: skillCooldown = 3.0f; break;
-                case Character_Status.CharacterType.RATEL: skillCooldown = 2.0f; break;
-            }
-        }
-
-        // --- 2. クールタイムの判定 (攻撃と同じやり方) ---
-        if (Time.time - lastSkillTime < skillCooldown)
+		// --- 2. クールタイムの判定 (攻撃と同じやり方) ---
+		if (Time.time - lastSkillTime < skillCooldown)
         {
             Debug.Log($"{currentType} のスキルはまだ使えません。残り: {skillCooldown - (Time.time - lastSkillTime):F2}秒");
             return;
         }
 
         // --- 3. スキル発動成功！時間の更新 ---
-        lastSkillTime = Time.time;
+        //lastSkillTime = Time.time;
 
         // 共通参照の取得
         //GameObject activeModel = GetActiveModel();
-        Vector3 effectPosition = GetEffectSpawnPosition(activeModel);
+        //Vector3 effectPosition = GetEffectSpawnPosition(activeModel);
 
         switch (currentType)
         {
-            case Character_Status.CharacterType.RHINOCELOS:
-                HandleRhinoSkill(activeModel, effectPosition);
-                break;
-
             case Character_Status.CharacterType.RATEL:
-                int currentRatelSkill = animator.GetInteger("RatelSkill");
+                var currentRatelSkill = animator.GetInteger("RatelSkill");
                 if (currentRatelSkill == 1) // 溜め中 -> 攻撃
                 {
                     if (Time.time - ratelSkillStartTime < 1.0f) return;
@@ -684,10 +688,9 @@ public class InputPlayer : MonoBehaviour
                 break;
 
             case Character_Status.CharacterType.LION:
-
-
-                animator.SetTrigger("Skill");
-                AudioManager.Instance.PlaySEByIndex(6, 1.5f);
+                PlaySkillTrigger(6);
+                //animator.SetTrigger("Skill");
+                //AudioManager.Instance.PlaySEByIndex(6, 1.5f);
                 Effect_Manager.PlayEffect(normalObject.name, 1, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1), this.transform);
                 Effect_Manager.PlayEffect(normalObject.name, 2, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1), this.transform);
                 Effect_Manager.PlayEffect(normalObject.name, 3, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1), this.transform, true);
@@ -697,10 +700,11 @@ public class InputPlayer : MonoBehaviour
 
             case Character_Status.CharacterType.OSTRICH:
                 // ...ダチョウの処理（変更なし
+                //AudioManager.Instance.PlaySEByIndex(7, 1.5f);
+                //animator.SetTrigger("Skill");
+                PlaySkillTrigger(7);
                 AttackCollider();
-                AudioManager.Instance.PlaySEByIndex(7, 1.5f);
                 Effect_Manager.PlayEffect(normalObject.name, 1, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1), this.transform);
-                animator.SetTrigger("Skill");
 
                 break;
         }
@@ -709,7 +713,30 @@ public class InputPlayer : MonoBehaviour
         character_Status.Skill();
     }
 
-    private void HandleLionSkill() { }
+    // 動物ごとによって通常攻撃のCT決定
+    private float GetSkillCooldown(Character_Status.CharacterType type)
+    {
+        var settings = animalSettings.Find(s => s.type == type);
+        if (settings.type == type) return settings.skillCooldown;
+        switch (type)   //動物ごとの通常攻撃CT
+        {
+            case Character_Status.CharacterType.LION: return 5f;
+            case Character_Status.CharacterType.OSTRICH: return 2f;
+            case Character_Status.CharacterType.RHINOCELOS: return 3f;
+            case Character_Status.CharacterType.RATEL: return 2f;
+            default: return 1f;
+        }
+    }
+
+    // ライオンやダチョウの重複処理を統一させる＆SE決定
+    private void PlaySkillTrigger(int seIndex)
+    {
+        animator.SetTrigger("Skill");
+        AudioManager.Instance.PlaySEByIndex(seIndex, 1.5f);
+    }
+
+
+	private void HandleLionSkill() { }
     private void HandleOstrichSkill() { }
     private void HandleRhinoSkill(
     GameObject activeModel,

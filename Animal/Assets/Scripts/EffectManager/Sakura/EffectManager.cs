@@ -26,17 +26,27 @@ public class EffectManager : MonoBehaviour
     /// <param name="animalName">動物の名前（"Common", "Lion", "Ostrich", "Rhino", "Ratel"）</param>
     /// <param name="id">その動物内でのエフェクト番号</param>
     /// <param name="position">出す場所</param>
-    public void PlayEffect(string animalName, int id, Vector3 position, Quaternion rotation, Vector3 scale,Transform parent = null, bool roop = false)
+    
+    public void PlayEffect(
+    string animalName,
+    int id,
+    Vector3 position,
+    Quaternion rotation,
+    Vector3 scale,
+    Transform parent = null,
+    bool roop = false)
     {
         GameObject[] targetArray = null;
+        animalName = animalName.Replace("(Clone)", "");
+        animalName = animalName.ToLower();
 
         switch (animalName)
         {
-            case "Common": targetArray = Common_EffectPrefabs; break;
-            case "Lion(Clone)": targetArray = Lion_EffectPrefabs; break;
-            case "Ostrich(Clone)": targetArray = Ostrich_EffectPrefabs; break;
-            case "Rhinoceros(Clone)": targetArray = Rhinoceros_EffectPrefabs; break;
-            case "Ratel(Clone)": targetArray = Ratel_EffectPrefabs; break;
+            case "common": targetArray = Common_EffectPrefabs; break;
+            case "lion": targetArray = Lion_EffectPrefabs; break;
+            case "ostrich": targetArray = Ostrich_EffectPrefabs; break;
+            case "rhinoceros": targetArray = Rhinoceros_EffectPrefabs; break;
+            case "ratel": targetArray = Ratel_EffectPrefabs; break;
             default:
                 Debug.LogError($"EffectManager: {animalName} という名前のリストは見つかりません。");
                 return;
@@ -49,25 +59,16 @@ public class EffectManager : MonoBehaviour
                 GameObject instance = Instantiate(targetArray[id], position, rotation, parent);
                 instance.transform.localScale = scale;
 
-                if (roop == false)
+                //ループしない:2秒後削除
+                if (!roop) { Destroy(instance, 2.0f); }
+                //ループする:同じ親にエフェクトが出てたら先に消す
+                else if (parent != null)
                 {
-                    // ループしない場合は2秒後に削除
-                    Destroy(instance, 2.0f);
-                }
-                else
-                {
-                    // ループする場合：もし既に同じ親にエフェクトが出ていたら先に消す
-                    if (parent != null)
-                    {
-                        StopLoopEffect(parent);
-                        activeLoopEffects[parent] = instance;
-                    }
+                    StopLoopEffect(parent);
+                    activeLoopEffects[parent] = instance;
                 }
             }
-            else
-            {
-                Debug.LogWarning($"EffectManager: {animalName} の ID {id} が空っぽです！");
-            }
+            else Debug.LogWarning($"EffectManager: {animalName} の ID {id} が空っぽです！");
         }
     }
 
@@ -75,10 +76,7 @@ public class EffectManager : MonoBehaviour
     {
         if (parent != null && activeLoopEffects.ContainsKey(parent))
         {
-            if (activeLoopEffects[parent] != null)
-            {
-                Destroy(activeLoopEffects[parent]);
-            }
+            if (activeLoopEffects[parent] != null) Destroy(activeLoopEffects[parent]);
             activeLoopEffects.Remove(parent);
         }
     }
