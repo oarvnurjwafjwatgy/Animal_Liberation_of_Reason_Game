@@ -432,11 +432,10 @@ public class InputPlayer : MonoBehaviour
             lastAttackTime = Time.time;
             // ----------------------------
 
-
             MoveFlag = false;
 
             // 現在のモデル（通常か強化か）を取得
-            GameObject activeModel = (character_Status.GetMode() == Character_Status.Mode.SPSIAL_ANIMAL) ? reasonObject : normalObject;
+            GameObject activeModel = GetActiveModel();
 
             // 【新機能】動物ごとの最適座標を計算して取得
             Vector3 effectPosition = GetEffectSpawnPosition(activeModel);
@@ -556,9 +555,6 @@ public class InputPlayer : MonoBehaviour
     }
     private void OnModeChange(InputAction.CallbackContext context)
     {
-       
-
-
         if (LiveFlag == true)
         {
             if (IsAnySkillActive() || IsAnyAttackActive())
@@ -580,8 +576,6 @@ public class InputPlayer : MonoBehaviour
                 case Character_Status.CharacterType.RHINOCELOS: AudioManager.Instance.PlaySEByIndex(10, 1.5f); break;
                 case Character_Status.CharacterType.RATEL: AudioManager.Instance.PlaySEByIndex(11, 1.5f); break;
             }
-
-
             character_Status.GetModeChange();
             Enhancement();
 
@@ -598,14 +592,35 @@ public class InputPlayer : MonoBehaviour
         Debug.Log("カメラリセット");
     }
 
-    private void OnSkill(InputAction.CallbackContext context)
+    private GameObject GetActiveModel()
+    {
+        return character_Status.GetMode()
+        == Character_Status.Mode.SPSIAL_ANIMAL
+        ? reasonObject
+        : normalObject;
+    }
+
+	private void OnSkill(InputAction.CallbackContext context)
     {
         if (LiveFlag == false) return;
-
         Character_Status.CharacterType currentType = character_Status.CharaAnim;
 
-        // --- 1. クールタイムの取得 (攻撃と同じやり方) ---
-        float skillCooldown = 0.0f;
+        GameObject activeModel = GetActiveModel();
+
+		// サイだけ先に処理
+		if (currentType == Character_Status.CharacterType.RHINOCELOS)
+		{
+			Debug.Log("サイスキル入口");
+
+			//HandleRhinoSkill(activeModel, effectPosition);
+
+			character_Status.Skill();
+
+			return;
+		}
+
+		// --- 1. クールタイムの取得 (攻撃と同じやり方) ---
+		float skillCooldown = 0.0f;
 
         // インスペクターの設定（animalSettings）から取得を試みる
         var settings = animalSettings.Find(s => s.type == currentType);
@@ -635,40 +650,13 @@ public class InputPlayer : MonoBehaviour
         lastSkillTime = Time.time;
 
         // 共通参照の取得
-        GameObject activeModel = (character_Status.GetMode() == Character_Status.Mode.SPSIAL_ANIMAL) ? reasonObject : normalObject;
+        //GameObject activeModel = GetActiveModel();
         Vector3 effectPosition = GetEffectSpawnPosition(activeModel);
 
         switch (currentType)
         {
             case Character_Status.CharacterType.RHINOCELOS:
-                bool isRhinocerosActive = animator.GetBool("RhinocerosSkill");
-                if (isRhinocerosActive)
-                {
-                    // ★【修正】1秒経過していない場合は、ここで return して解除処理をさせない
-                    if (Time.time - rhinocerosSkillStartTime < 1.0f)
-                    {
-                        Debug.Log("サイ：まだ突進開始から1秒経っていないため解除できません！");
-                        return;
-                    }
-
-                    // 1秒経過していたら解除
-                    animator.SetBool("RhinocerosSkill", false);
-                    MoveFlag = true;
-                    Effect_Manager.StopLoopEffect(this.transform);
-                    rb.velocity = new Vector3(0, rb.velocity.y, 0);
-                    Debug.Log("サイ：スキル解除");
-                }
-                else
-                {
-                    // スキル開始
-                    animator.SetBool("RhinocerosSkill", true);
-                    skillDirection = activeModel.transform.forward;
-                    MoveFlag = false;
-                    rhinocerosSkillStartTime = Time.time; // 開始時間を記録
-                    AudioManager.Instance.PlaySEByIndex(14, 1.5f);
-                    Effect_Manager.PlayEffect(normalObject.name, 1, effectPosition + new Vector3(0, -0.2f, 0), activeModel.transform.rotation, Vector3.one, this.transform, true);
-                    AttackCollider();
-                }
+                HandleRhinoSkill(activeModel, effectPosition);
                 break;
 
             case Character_Status.CharacterType.RATEL:
@@ -676,7 +664,7 @@ public class InputPlayer : MonoBehaviour
                 if (currentRatelSkill == 1) // 溜め中 -> 攻撃
                 {
                     if (Time.time - ratelSkillStartTime < 1.0f) return;
-                    AudioManager.Instance.PlaySEByIndex(5,1.5f);
+                    AudioManager.Instance.PlaySEByIndex(5, 1.5f);
                     animator.SetInteger("RatelSkill", 2);
                     // ★ 攻撃アニメーションが終わる頃に、すべてのフラグを「0」に戻す
                     StartCoroutine(ResetRatelSkillState(0.8f));
@@ -689,7 +677,7 @@ public class InputPlayer : MonoBehaviour
                     Effect_Manager.PlayEffect(normalObject.name, 1, effectPosition, activeModel.transform.rotation, Vector3.one, this.transform);
                     animator.SetInteger("RatelSkill", 1);
                     ratelSkillStartTime = Time.time; // 開始時間を記録
-                    AudioManager.Instance.PlaySEByIndex(5,1.5f);
+                    AudioManager.Instance.PlaySEByIndex(5, 1.5f);
                     MoveFlag = false;
                     ratelSkillStartHP = character_Status.CurrentHP;
                 }
@@ -699,7 +687,7 @@ public class InputPlayer : MonoBehaviour
 
 
                 animator.SetTrigger("Skill");
-                AudioManager.Instance.PlaySEByIndex(6,1.5f);
+                AudioManager.Instance.PlaySEByIndex(6, 1.5f);
                 Effect_Manager.PlayEffect(normalObject.name, 1, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1), this.transform);
                 Effect_Manager.PlayEffect(normalObject.name, 2, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1), this.transform);
                 Effect_Manager.PlayEffect(normalObject.name, 3, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1), this.transform, true);
@@ -710,7 +698,7 @@ public class InputPlayer : MonoBehaviour
             case Character_Status.CharacterType.OSTRICH:
                 // ...ダチョウの処理（変更なし
                 AttackCollider();
-                AudioManager.Instance.PlaySEByIndex(7,1.5f);
+                AudioManager.Instance.PlaySEByIndex(7, 1.5f);
                 Effect_Manager.PlayEffect(normalObject.name, 1, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1), this.transform);
                 animator.SetTrigger("Skill");
 
@@ -720,6 +708,47 @@ public class InputPlayer : MonoBehaviour
         lastSkillTime = Time.time;
         character_Status.Skill();
     }
+
+    private void HandleLionSkill() { }
+    private void HandleOstrichSkill() { }
+    private void HandleRhinoSkill(
+    GameObject activeModel,
+    Vector3 effectPosition)
+    {
+        bool isRhinocerosActive = animator.GetBool("RhinocerosSkill");
+
+        if (isRhinocerosActive)
+        {
+            if (Time.time - rhinocerosSkillStartTime < 1.0f) return;
+            animator.SetBool("RhinocerosSkill", false);
+            MoveFlag = true;
+            Effect_Manager.StopLoopEffect(transform);
+            rb.velocity = new Vector3(0, rb.velocity.y, 0);
+            Debug.Log("サイ：スキル解除");
+        }
+        else
+        {
+            animator.SetBool("RhinocerosSkill", true);
+            skillDirection = activeModel.transform.forward;
+            MoveFlag = false;
+            rhinocerosSkillStartTime = Time.time;
+            AudioManager.Instance.PlaySEByIndex(14, 1.5f);
+
+            Effect_Manager.PlayEffect(
+                normalObject.name,
+                1,
+                effectPosition + new Vector3(0, -0.2f, 0),
+                activeModel.transform.rotation,
+                Vector3.one,
+                transform,
+                true);
+
+            AttackCollider();
+        }
+    }
+
+	private void HandleRatelSkill() { }
+
 
 
     private IEnumerator ResetRatelSkillState(float delay)
@@ -804,8 +833,8 @@ public class InputPlayer : MonoBehaviour
     // アニメーションで攻撃の当たり判定を出す
     public Vector3 AttackCollider()
     {
-        // 1. 現在アクティブなモデル（通常時か強化時か）を取得する
-        GameObject activeModel = (character_Status.GetMode() == Character_Status.Mode.SPSIAL_ANIMAL) ? reasonObject : normalObject;
+        // 現在アクティブなモデルを取得する
+        GameObject activeModel = GetActiveModel();
 
         // 2. 出現位置の計算
         // activeModel.transform.forward : モデルが向いている正面方向

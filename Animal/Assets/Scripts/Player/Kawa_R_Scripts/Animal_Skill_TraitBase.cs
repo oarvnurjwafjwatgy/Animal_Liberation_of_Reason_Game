@@ -16,6 +16,8 @@ public class Animal_Skill_TraitBase : MonoBehaviour
 
 	public virtual float CurrentAtkBoost => 1.0f;
 
+	public virtual float CurrentSpeedBoost => 1.0f;
+
 	protected virtual void Start()
 	{
 		// 同じオブジェクト（Player本体）についているステータスを取得しておく
@@ -36,11 +38,17 @@ public class Animal_Skill_TraitBase : MonoBehaviour
 	// 固有スキル用（ virtual で子クラスに上書きさせる ）
 	public virtual void Skill() { }
 
-	// 
+	// 特殊な特性発動に使用する関数
 	public virtual bool OnFatalDamage() { return false; }
 
 	// クールタイムをセットする関数
 	public virtual void SetSkillCooldownTimer(float timer) { skillCooldownTimer = timer; }
+
+	// CharacterStatusのReducedReasoning関数の処理を呼び出す。
+	protected void ReducedReasoning(int amount) { status.ReducedReasoning(amount); }
+
+	// CharacterStatusにある死亡処理を呼ぶ
+	protected virtual void Die() { status.ForceDie(); }
 
 	//動物のデバック用関数
 	protected virtual void AnimalDebugLog(

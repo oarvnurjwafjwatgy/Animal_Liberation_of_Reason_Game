@@ -1,20 +1,16 @@
 using UnityEngine;
 
-public class Character_Rhinocelos : Character_Status
+public class Character_Rhinocelos : Animal_Skill_TraitBase
 {
 	// サイの突進状態管理用変数
-	private bool isRhinoDashing = false;
 	private Coroutine rhinoDashCoroutine;
+	private bool isRhinoDashing = false;
 	private float rhinoDashSpeedBoost = 1.0f;
-
-	//親クラスの計算式を上書きして、サイが突進している時だけ速度を掛け算する
-	public override float CurrentMoveSpeed => base.CurrentMoveSpeed * rhinoDashSpeedBoost;
+	public override float CurrentSpeedBoost { get { return rhinoDashSpeedBoost; } }
 
 	//固有スキル(継承)
 	public override void Skill()
 	{
-		base.Skill();//共通チェック
-
 		if (rhinoDashCoroutine != null) { StopDash(); return; }
 
 		// 実行中でなければ、コルーチンを開始して猛スピードで走る
@@ -27,22 +23,20 @@ public class Character_Rhinocelos : Character_Status
 		isRhinoDashing = true;
 
 		//スキル発動中に速度上昇バフのアイコンを表示
-		if (MyUIManager != null)
-			MyUIManager.CreateOrUpdateBuffUI(playerID, BuffType.SpeedBuff, 999f, buffContainer);
+		if (status.MyUIManager != null)
+			status.MyUIManager.CreateOrUpdateBuffUI(status.playerID,
+			Character_Status.BuffType.SpeedBuff, 999f, status.buffContainer);
 
 		rhinoDashSpeedBoost = 1.8f; // 突進開始.速度を1.8倍にアップ
-		Debug.Log("<color=orange>サイ：突進スキル発動！猛スピードで理性を消費します</color>");
+		AnimalDebugLog("orange", "突進スキル発動！猛スピードで理性を消費します");
 
-		while (CurrentReason > 0 && isRhinoDashing)
+		while (status.CurrentReason > 0 && isRhinoDashing)
 		{
 			yield return new WaitForSeconds(0.1f);
-			CurrentReason -= 1; // 理性を削る
-
-			// もし理性が尽きたり死亡したらループを抜ける
-			if (CurrentReason <= 0 || IsDead) break;
+			ReducedReasoning(1); // 理性を削る
+			if (status.CurrentReason <= 0 || status.IsDead) { Die(); yield break; }// 理性が尽きたり死亡したらループ抜け
 		}
-		// ループを抜けたら終了処理
-		StopDash();
+		StopDash();// ループを抜けたら終了処理
 	}
 
 	// 突進を安全に止めるためのサイ専用の関数
@@ -55,12 +49,12 @@ public class Character_Rhinocelos : Character_Status
 		}
 
 		//UIの削除
-		if (MyUIManager != null)
-			MyUIManager.RemoveBuffUI(playerID, BuffType.SpeedBuff);
+		if (status.MyUIManager != null)
+			status.MyUIManager.RemoveBuffUI(status.playerID, Character_Status.BuffType.SpeedBuff);
 
 		rhinoDashSpeedBoost = 1.0f; // 速度を元に戻す
 		isRhinoDashing = false;
-		Debug.Log("<color=white>サイ：突進終了。速度が戻りました</color>");
+		AnimalDebugLog("white", "突進終了。速度が戻りました");
 	}
 
 	//もし突進中に倒れたら、強制的に突進を止めるルールを上書き追加

@@ -52,7 +52,7 @@ public class Character_Status : MonoBehaviour
 	//public virtual float CurrentMoveSpeed => MoveSpeed * currentSpdMult * lionBurstSpeedBoost
 	//* rhinoDashSpeedBoost * (1f + GetComponent<NutsEffectManager>().CurrentSpeedModifier);
 
-
+	// 攻撃の値
 	public virtual int CurrentAttackPower
 	{
 		get
@@ -61,18 +61,34 @@ public class Character_Status : MonoBehaviour
 
 			// 自分についているスキル親クラスを取得（例:中身がライオンならライオンの倍率も含める）
 			Animal_Skill_TraitBase skillComponent = GetComponent<Animal_Skill_TraitBase>();
-			if (skillComponent != null)
-				animalBuff = skillComponent.CurrentAtkBoost;
+			if (skillComponent != null) animalBuff = skillComponent.CurrentAtkBoost;
 
 			return (int)(AttackPower * currentAtkMult * animalBuff * (1f + GetComponent<NutsEffectManager>().CurrentAttackModifier));
 		}
 	}
 
+	// 防御の値
 	public virtual int CurrentDefensePower => (int)(DefensePower * currentDefMult);
 
-	public virtual float CurrentMoveSpeed =>
-		MoveSpeed * currentSpdMult * rhinoDashSpeedBoost * (1f + GetComponent<NutsEffectManager>().CurrentSpeedModifier);
+	//public virtual float CurrentMoveSpeed =>
+	//	MoveSpeed * currentSpdMult * rhinoDashSpeedBoost * (1f + GetComponent<NutsEffectManager>().CurrentSpeedModifier);
 
+	// 速度の値
+	public virtual float CurrentMoveSpeed
+	{
+		get
+		{
+			Animal_Skill_TraitBase skill = GetComponent<Animal_Skill_TraitBase>();
+			float skillSpeed = 1.0f;
+
+			if (skill != null) skillSpeed = skill.CurrentSpeedBoost;
+
+			return MoveSpeed
+				* currentSpdMult
+				* skillSpeed
+				* (1f + GetComponent<NutsEffectManager>().CurrentSpeedModifier);
+		}
+	}
 
 	private Slider hp_gauge;                    //HPゲージUIスライダー参照用変数
 	private Slider reason_gauge;                //HPゲージUIスライダー参照用変数
@@ -188,17 +204,10 @@ public class Character_Status : MonoBehaviour
 	{
 		switch (animaltype)
 		{
-			case CharacterType.LION:
-				gameObject.AddComponent<Character_Lion>();  //ライオン用
-				break;
-			case CharacterType.OSTRICH:
-				gameObject.AddComponent<Character_Ostrich>();   //ダチョウ用
-				break;
-			case CharacterType.RHINOCELOS:
-				break;
-			case CharacterType.RATEL:
-				gameObject.AddComponent<Character_HoneyBadger>();   //ラーテル
-				break;
+			case CharacterType.LION: gameObject.AddComponent<Character_Lion>(); break;
+			case CharacterType.OSTRICH: gameObject.AddComponent<Character_Ostrich>();break;
+			case CharacterType.RHINOCELOS: gameObject.AddComponent<Character_Rhinocelos>(); break;
+			case CharacterType.RATEL: gameObject.AddComponent<Character_HoneyBadger>();break;
 		}
 	}
 
@@ -481,11 +490,11 @@ public class Character_Status : MonoBehaviour
 	protected virtual void Die()
 	{
 		// サイの突進を強制停止
-		if (rhinoDashCoroutine != null)
-		{
-			StopCoroutine(rhinoDashCoroutine);
-			rhinoDashCoroutine = null;
-		}
+		//if (rhinoDashCoroutine != null)
+		//{
+		//	StopCoroutine(rhinoDashCoroutine);
+		//	rhinoDashCoroutine = null;
+		//}
 
 		//もし理性解放中に死亡したなら現在HP/通常なら理性を0に設定する
 		if (CharaMode == Mode.SPSIAL_ANIMAL) SetHP(0);
@@ -619,7 +628,7 @@ public class Character_Status : MonoBehaviour
 		{
 			//最大理性ポイントに減少率をかけて減少量を計算し、最低でも1は減少するようにする
 			int decreaseAmount = Mathf.Max((int)(MaxReason * CharacterData.REASON_DECREASE_RATE), 1);
-			CurrentReason -= decreaseAmount;    // 理性ゲージ減少処理
+			ReducedReasoning(decreaseAmount);    // 理性ゲージ減少処理
 			Debug.Log($"{CharaAnim}の理性減少中: 残り{CurrentReason} (毎秒{decreaseAmount}減)");
 		}
 		//0以下なら理性ゲージを0・死亡処理を行う
@@ -629,64 +638,69 @@ public class Character_Status : MonoBehaviour
 			Die();
 		}
 	}
+	
+	// 現在の理性ゲージに引数分引く
+	public void ReducedReasoning(int amount) { CurrentReason -= amount; }
 
+	//外部から呼び出すための関数
+	public void ForceDie() { Die(); }
 
 	//サイの固有スキル処理関数
-	void Skill_Rhinocelos()
-	{
-		// もし既に実行中なら、止める
-		if (rhinoDashCoroutine != null)
-		{
-			// 止める前に掃除をする
-			if (MyUIManager != null)
-				MyUIManager.RemoveBuffUI(playerID, BuffType.SpeedBuff);
+	//void Skill_Rhinocelos()
+	//{
+	//	// もし既に実行中なら、止める
+	//	if (rhinoDashCoroutine != null)
+	//	{
+	//		// 止める前に掃除をする
+	//		if (MyUIManager != null)
+	//			MyUIManager.RemoveBuffUI(playerID, BuffType.SpeedBuff);
 
-			StopCoroutine(rhinoDashCoroutine);
-			rhinoDashSpeedBoost = 1.0f; // 速度を元に戻す
-			isRhinoDashing = false;     // フラグを下ろす
-			rhinoDashCoroutine = null;  // 参照を消す
-			Debug.Log("<color=white>サイ：突進を中止しました</color>");
-			return;
-		}
+	//		StopCoroutine(rhinoDashCoroutine);
+	//		rhinoDashSpeedBoost = 1.0f; // 速度を元に戻す
+	//		isRhinoDashing = false;     // フラグを下ろす
+	//		rhinoDashCoroutine = null;  // 参照を消す
+	//		Debug.Log("<color=white>サイ：突進を中止しました</color>");
+	//		return;
+	//	}
 
-		// 実行中でなければ、コルーチンを開始してループ処理を開始
-		rhinoDashCoroutine = StartCoroutine(RhinoDashLoop());
-	}
+	//	// 実行中でなければ、コルーチンを開始してループ処理を開始
+	//	rhinoDashCoroutine = StartCoroutine(RhinoDashLoop());
+	//}
 
-	// 突進中の「継続処理」をここに完結させる
-	private System.Collections.IEnumerator RhinoDashLoop()
-	{
-		isRhinoDashing = true;
+	//// 突進中の「継続処理」をここに完結させる
+	//private System.Collections.IEnumerator RhinoDashLoop()
+	//{
+	//	isRhinoDashing = true;
 
-		if (MyUIManager != null)
-			MyUIManager.CreateOrUpdateBuffUI(playerID, BuffType.SpeedBuff, 999f, buffContainer);
+	//	if (MyUIManager != null)
+	//		MyUIManager.CreateOrUpdateBuffUI(playerID, BuffType.SpeedBuff, 999f, buffContainer);
 
-		rhinoDashSpeedBoost = 1.8f; // 突進開始！速度を1.8倍にアップ
-		Debug.Log("<color=orange>サイ：突進スキル発動！猛スピードで理性を消費します</color>");
+	//	rhinoDashSpeedBoost = 1.8f; // 突進開始！速度を1.8倍にアップ
+	//	Debug.Log("<color=orange>サイ：突進スキル発動！猛スピードで理性を消費します</color>");
 
-		while (CurrentReason > 0 && isRhinoDashing)
-		{
-			yield return new WaitForSeconds(0.1f);
-			CurrentReason -= 1;
+	//	while (CurrentReason > 0 && isRhinoDashing)
+	//	{
+	//		yield return new WaitForSeconds(0.1f);
+	//		CurrentReason -= 1;
 
-			UpdateUI();
-			TakeDamage(0);
+	//		UpdateUI();
+	//		TakeDamage(0);
 
-			if (CurrentReason <= 0 || CurrentHP <= 0)
-			{
-				break;// 理性が尽きた場合などはループを抜ける
-			}
-		}
-		// ループを抜けたら、バフを消して速度を元に戻す
-		if (MyUIManager != null)
-			MyUIManager.RemoveBuffUI(playerID, BuffType.SpeedBuff);
+	//		if (CurrentReason <= 0 || CurrentHP <= 0)
+	//		{
+	//			break;// 理性が尽きた場合などはループを抜ける
+	//		}
+	//	}
+	//	// ループを抜けたら、バフを消して速度を元に戻す
+	//	if (MyUIManager != null)
+	//		MyUIManager.RemoveBuffUI(playerID, BuffType.SpeedBuff);
 
-		// 終了処理（ここを通れば必ず速度が元に戻る）
-		rhinoDashSpeedBoost = 1.0f;
-		rhinoDashCoroutine = null;
-		isRhinoDashing = false;
-		Debug.Log("<color=white>サイ：突進終了。速度が戻りました</color>");
-	}
+	//	// 終了処理（ここを通れば必ず速度が元に戻る）
+	//	rhinoDashSpeedBoost = 1.0f;
+	//	rhinoDashCoroutine = null;
+	//	isRhinoDashing = false;
+	//	Debug.Log("<color=white>サイ：突進終了。速度が戻りました</color>");
+	//}
 
 	// 奈落に落ちていった時に呼ばれる
 	public void DieAbyss() { this.Die(); }
@@ -730,11 +744,5 @@ public class Character_Status : MonoBehaviour
 
 		// 特性成否に関わらず、一度解放したら蓄積はリセット（「溜め」の戦略性を出すため）
 		accumulatedDamage = 0;
-	}
-
-	//ラーテルの固有スキル処理関数
-	void UniqueSkill_Ratel()
-	{
-		Debug.Log("ラーテルの固有スキル発動中");
 	}
 }
