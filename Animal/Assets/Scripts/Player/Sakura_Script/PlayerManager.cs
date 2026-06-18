@@ -136,73 +136,50 @@ public partial class PlayerManager : MonoBehaviour
     // 戦闘開始の演出を行うコルーチン
     IEnumerator BattleStartSequence()
     {
-		// 1. 全プレイヤーの入力を一時的に無効化
-		foreach (var p in spawnedPlayers)
-		{
-			p.GetComponent<InputPlayer>().enabled = false;
-		}
+        // 1. 全プレイヤーの入力を一時的に無効化
+        foreach (var p in spawnedPlayers)
+        {
+            p.GetComponent<InputPlayer>().enabled = false;
+        }
 
-		// 2. 演出開始
-		if (uiManager != null) uiManager.ShowIntroductionPanel();
+        // 2. 演出開始
+        if (uiManager != null) uiManager.ShowIntroductionPanel();
 
+        // 演出カメラを有効化
+        if (introCamera != null) introCamera.enabled = true;
 
-		// 演出カメラを有効化
-		if (introCamera != null)
-		{
-			introCamera.enabled = true;
-		}
+        for (int i = 0; i < spawnedPlayers.Count; i++)
+        {
+            if (i < introCameraPositions.Count && introCameraPositions[i] != null)
+            {
+                // 演出カメラを定位置に移動
+                introCamera.transform.position = introCameraPositions[i].position;
+                introCamera.transform.rotation = introCameraPositions[i].rotation;
 
-		// プレイヤーの数だけ演出カメラを順番に移動させるつもりだったが、
-        // 急ぎ作成したため、動きが完成出来ていません。
+                Debug.Log($"演出カメラ移動: プレイヤー{i + 1}");
+                yield return new WaitForSeconds(2.0f); // 1人あたり2秒表示
+            }
+        }
 
-		for (int i = 0; i < spawnedPlayers.Count; i++)
-		{
-			if (i < introCameraPositions.Count && introCameraPositions[i] != null)
-			{
-				// 演出カメラを定位置に移動
-				introCamera.transform.position = introCameraPositions[i].position;
-				introCamera.transform.rotation = introCameraPositions[i].rotation;
-
-				Debug.Log($"演出カメラ移動: プレイヤー{i + 1}");
-				yield return new WaitForSeconds(2.0f); // 1人あたり2秒表示
-			}
-		}
-
-		// 演出カメラをオフにする
-		if (introCamera != null)
-		{
-			introCamera.enabled = false;
-		}
+        // 演出カメラをオフにする
+        if (introCamera != null) introCamera.enabled = false;
 
         // 3. カウントダウン処理（UI表示、SE再生）                
-        uiManager.SetCountdownColor(Color.cyan); // 青色にする
-		uiManager.ShowCountdown("ShowYour Instincts?");
-		AudioManager.Instance.PlaySEByIndex(25, 2f);          //全員準備完了のナレーション（25番）
+        SetCountDownPreparation("ShowYour Instincts?", Color.cyan, 25, 2f);  //全員準備完了のナレーション（25番）
         yield return new WaitForSeconds(2.0f);
-        uiManager.SetCountdownColor(Color.green); // 緑色にする
-		uiManager.ShowCountdown("3");
-        AudioManager.Instance.PlaySEByIndex(16); // カウントダウン音を鳴らす
-		yield return new WaitForSeconds(1.0f);
-
-        uiManager.SetCountdownColor(Color.yellow); // 黄色にする
-		uiManager.ShowCountdown("2");
+        SetCountDownPreparation("3", Color.green, 16); // カウントダウン音を鳴らす
+        yield return new WaitForSeconds(1.0f);
+        SetCountDownPreparation("2", Color.yellow);
+        yield return new WaitForSeconds(1.0f);
+        SetCountDownPreparation("1", Color.magenta);
         yield return new WaitForSeconds(1.0f);
 
-        uiManager.SetCountdownColor(Color.magenta); // マゼンタ色にする
-		uiManager.ShowCountdown("1");
+        // GO! のタイミング文字を赤色にする
+        if (uiManager != null) SetCountDownPreparation("GO!", Color.red);
         yield return new WaitForSeconds(1.0f);
 
-		// GO! のタイミング文字を赤色にする
-		if (uiManager != null)
-		{
-            uiManager.SetCountdownColor(Color.red); // 赤色にする
-			uiManager.ShowCountdown("GO!");
-		}
-        yield return new WaitForSeconds(1.0f);
-
-
-		// 4. 演出終了後、UIを切り替える
-		if (uiManager != null) uiManager.HideIntroductionPanel(); // 黒画面を消す
+        // 4. 演出終了後、UIを切り替える
+        if (uiManager != null) uiManager.HideIntroductionPanel(); // 黒画面を消す
         uiManager.HideCountdown(); // カウントダウンを消す
 
         // 5. 全プレイヤーの入力を有効化
@@ -212,6 +189,13 @@ public partial class PlayerManager : MonoBehaviour
         }
     }
 
+    //カウントダウンに使用する設定(seNumber:27は無音)
+    private void SetCountDownPreparation(string contents, Color color, int seNumber =27, float seVol = 5f)
+    {
+        uiManager.SetCountdownColor(color);
+        uiManager.ShowCountdown(contents);
+        AudioManager.Instance.PlaySEByIndex(seNumber, seVol);
+    }
 
     private void SetupPlayer(GameObject playerObj, int pID, GameObject normal, GameObject reason)
     {
@@ -283,33 +267,30 @@ public partial class PlayerManager : MonoBehaviour
         }
     }
 
-    public void SetDiePlayerList(int player_id)
-    {
-        diedPlayer.Add(player_id);
-    }
+    public void SetDiePlayerList(int player_id){ diedPlayer.Add(player_id); }
 
     //決着からリザルト表示までの一連の演出を行うコルーチン
     private IEnumerator VictorySequenceRoutine(Character_Status survivor)
     {
-		// --- 1. トドメの瞬間：スロー開始 ---
+        // --- 1. トドメの瞬間：スロー開始 ---
 
-		// 全プレイヤーの入力を無効化して、スロー演出の準備
-		foreach (var player in spawnedPlayers)
-		{
-			player.GetComponent<InputPlayer>().enabled = false;
-		}
-		
+        // 全プレイヤーの入力を無効化して、スロー演出の準備
+        foreach (var player in spawnedPlayers)
+        {
+            player.GetComponent<InputPlayer>().enabled = false;
+        }
+
         //静寂の演出のためにBGMを止める
-		if (AudioManager.Instance != null) AudioManager.Instance.StopBGM();
+        if (AudioManager.Instance != null) AudioManager.Instance.StopBGM();
 
-		Time.timeScale = 0.02f;
+        Time.timeScale = 0.02f;
         // ビルド対策：物理演算の更新間隔もスローに同期させる
         Time.fixedDeltaTime = 0.02f * Time.timeScale;
 
-        AudioManager.Instance.PlaySEByIndex(15,10);     // トドメのSE（15番）を大きめの音量で鳴らす
-		
+        AudioManager.Instance.PlaySEByIndex(15, 10);     // トドメのSE（15番）を大きめの音量で鳴らす
+
         //カメラ関連の演出準備：全カメラの設定を保存しておく
-		Camera[] allCameras = GameObject.FindObjectsOfType<Camera>();
+        Camera[] allCameras = GameObject.FindObjectsOfType<Camera>();
         CameraClearFlags[] originalFlags = new CameraClearFlags[allCameras.Length];
         Color[] originalBgColors = new Color[allCameras.Length];
         Dictionary<Renderer, Material[]> originalMaterials = new Dictionary<Renderer, Material[]>();
@@ -319,9 +300,9 @@ public partial class PlayerManager : MonoBehaviour
         List<Renderer> hiddenRenderers = new List<Renderer>();
 
         Shader standardShader = Shader.Find("Unlit/Color"); //Unit/Color シェーダーを探す
-		
+
         //nullならビルドに入るシェーダーで代用
-		if (standardShader == null)
+        if (standardShader == null)
         {
             // もし Unlit/Color が見つからなければ、絶対ビルドに入るシェーダーで代用
             standardShader = Shader.Find("Sprites/Default");
@@ -329,8 +310,8 @@ public partial class PlayerManager : MonoBehaviour
         Material blackMat = new Material(standardShader) { color = Color.black };   // 黒いマテリアルを作成
 
 
-		// --- 2. 演出：背景赤、キャラ黒、エフェクトと地面を消す ---
-		for (int i = 0; i < allCameras.Length; i++)
+        // --- 2. 演出：背景赤、キャラ黒、エフェクトと地面を消す ---
+        for (int i = 0; i < allCameras.Length; i++)
         {
             originalFlags[i] = allCameras[i].clearFlags;
             originalBgColors[i] = allCameras[i].backgroundColor;
@@ -347,20 +328,20 @@ public partial class PlayerManager : MonoBehaviour
             bool isPlayer = false;
             foreach (var p in spawnedPlayers)
             {
-				// プレイヤーのRendererかどうかを判定するために、プレイヤーオブジェクトの子かどうかをチェック
-				if (p != null && r.transform.IsChildOf(p.transform)) isPlayer = true;
+                // プレイヤーのRendererかどうかを判定するために、プレイヤーオブジェクトの子かどうかをチェック
+                if (p != null && r.transform.IsChildOf(p.transform)) isPlayer = true;
             }
 
-			// プレイヤー関係のRenderer以外で、かつ有効なものを非表示にする
-			if (!isPlayer && r.enabled)
+            // プレイヤー関係のRenderer以外で、かつ有効なものを非表示にする
+            if (!isPlayer && r.enabled)
             {
                 r.enabled = false; // 地面や背景を消す！
                 hiddenRenderers.Add(r); // 復活させるときのためにリストに追加
-			}
+            }
         }
 
-		// プレイヤーのキャラをすべて黒くして、エフェクトを停止する
-		foreach (var p in spawnedPlayers)
+        // プレイヤーのキャラをすべて黒くして、エフェクトを停止する
+        foreach (var p in spawnedPlayers)
         {
             if (p == null) continue;
 
@@ -375,14 +356,20 @@ public partial class PlayerManager : MonoBehaviour
             }
 
             // エフェクト停止
-            ParticleSystem[] ps = p.GetComponentsInChildren<ParticleSystem>(); 
+            ParticleSystem[] ps = p.GetComponentsInChildren<ParticleSystem>();
             foreach (var particle in ps)
             {
-                if (particle.isPlaying)
+                if (particle.isPlaying || particle.particleCount > 0)
                 {
-                    particle.Pause();
-                    particle.GetComponent<Renderer>().enabled = false;
-                    pausedParticles.Add(particle);
+                    if (!particle.main.loop)
+                    {
+                        particle.Pause();
+                        var psRenderer = particle.GetComponent<ParticleSystemRenderer>();
+                        if (psRenderer != null) psRenderer.enabled = false;
+                        //particle.GetComponent<Renderer>().enabled = false;
+                        //pausedParticles.Add(particle);
+                    }
+                    else Destroy(particle.gameObject);  //ループ系のエフェクトは破壊
                 }
             }
         }
@@ -397,30 +384,32 @@ public partial class PlayerManager : MonoBehaviour
         // BGMを勝利用に切り替える
         if (AudioManager.Instance != null)
         {
-			//勝利BGM
-			AudioManager.Instance.PlayBGM(AudioManager.Instance.victoryBGM);
-			yield return new WaitForSeconds(1.5f);
-		}
+            //勝利BGM
+            AudioManager.Instance.PlayBGM(AudioManager.Instance.victoryBGM);
+            yield return new WaitForSeconds(1.5f);
+        }
 
-		// カメラの設定を元に戻す
-		for (int i = 0; i < allCameras.Length; i++)
+        // カメラの設定を元に戻す
+        for (int i = 0; i < allCameras.Length; i++)
         {
             allCameras[i].clearFlags = originalFlags[i];
             allCameras[i].backgroundColor = originalBgColors[i];
         }
 
-		// プレイヤーのキャラを元のマテリアルに戻す
-		foreach (var kvp in originalMaterials)
+        // プレイヤーのキャラを元のマテリアルに戻す
+        foreach (var kvp in originalMaterials)
         {
             if (kvp.Key != null) kvp.Key.materials = kvp.Value;
         }
 
-		// エフェクトを再生する
-		foreach (var particle in pausedParticles)
+        // エフェクトを再生する
+        foreach (var particle in pausedParticles)
         {
             if (particle != null)
             {
-                particle.GetComponent<Renderer>().enabled = true;
+                var psRenderer = particle.GetComponent<ParticleSystemRenderer>();
+                if (psRenderer != null) psRenderer.enabled = true;
+                //particle.GetComponent<Renderer>().enabled = true;
                 particle.Play();
             }
         }
@@ -431,19 +420,19 @@ public partial class PlayerManager : MonoBehaviour
             if (r != null) r.enabled = true;
         }
 
-		// --- 4. ポーズ演出 ---
-		// UIを切り替える
-		if (uiManager != null)
+        // --- 4. ポーズ演出 ---
+        // UIを切り替える
+        if (uiManager != null)
         {
             uiManager.ShowVictoryGraphic();
             uiManager.HideAllInGameUI();
         }
         survivor.GetComponent<InputPlayer>()?.Win();    // 勝者のプレイヤーに勝利演出をさせる
 
-		// --- 5. リザルトへ ---
-		Character_Status.CharacterType winnerType = survivor.CharaAnim;
-		//勝者エニモは・・・（ナレーション）
-		AudioManager.Instance.PlaySEByIndex(26, 2.0f);
+        // --- 5. リザルトへ ---
+        Character_Status.CharacterType winnerType = survivor.CharaAnim;
+        //勝者エニモは・・・（ナレーション）
+        AudioManager.Instance.PlaySEByIndex(26, 2.0f);
 
         //エニモごとの鳴らすタイミングを変える
         switch (survivor.CharaAnim)
@@ -464,29 +453,26 @@ public partial class PlayerManager : MonoBehaviour
         Array.Reverse(ranking);
         uiManager.ShowResult(ranking, Animal_Select.playerChoices);
 
-		// 勝者の動物タイプに応じた勝利ボイスを鳴らす
-		if (AudioManager.Instance != null)
-		{
-			PlayWinnerVoice(survivor.CharaAnim);    //勝った動物の名前をナレーションするSEを鳴らす
-		}
+        // 勝者の動物タイプに応じた勝利ボイスを鳴らす
+        if (AudioManager.Instance != null)
+            PlayWinnerVoice(survivor.CharaAnim);    //勝った動物の名前をナレーションするSEを鳴らす
 
 
-		if (backTitleAuto != null)
+        if (backTitleAuto != null)
             backTitleAuto.gameObject.SetActive(true);
 
         yield return new WaitForSecondsRealtime(1.0f);
         if (endManager != null) endManager.SetEndFlag(true);
 
-		// 最後に残ったプレイヤーの入力を有効化して、エンドマネージャーに遷移フラグを渡す
-		foreach (var p in spawnedPlayers)
-		{
-			p.GetComponent<InputPlayer>().enabled = true;
-		}
+        // 最後に残ったプレイヤーの入力を有効化して、エンドマネージャーに遷移フラグを渡す
+        foreach (var p in spawnedPlayers)
+        {
+            p.GetComponent<InputPlayer>().enabled = true;
+        }
     }
 
-
-    // 勝者の動物タイプからボイスを判別して鳴らすメソッド
-    private void PlayWinnerVoice(Character_Status.CharacterType winnerType)
+	// 勝者の動物タイプからボイスを判別して鳴らすメソッド
+	private void PlayWinnerVoice(Character_Status.CharacterType winnerType)
     {
         int voiceIndex = -1;
 

@@ -85,7 +85,6 @@ public class UIManager : MonoBehaviour
 		return null;
 	}
 
-	// カウントダウン用の別のコルーチンを作って、それをコルーチンとして呼ぶと良いです
 	public void ShowCountdown(string text)
 	{
 		if (countdownText != null)

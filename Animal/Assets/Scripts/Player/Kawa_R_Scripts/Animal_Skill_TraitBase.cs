@@ -10,6 +10,7 @@ public class Animal_Skill_TraitBase : MonoBehaviour
 	[SerializeField] protected float skillCTMax = 10f;        // スキルの最大CT
 
 	protected Character_Status status; // 本体のステータスへの参照
+	protected PlayerManager playerManager;
 
 	// 外部（本体のCharacter_Statusなど）から、現在のCTを安全に覗き見（読み取り）するためのプロパティ
 	public float SkillCooldownTimer => skillCooldownTimer;
@@ -22,7 +23,7 @@ public class Animal_Skill_TraitBase : MonoBehaviour
 	{
 		// 同じオブジェクト（Player本体）についているステータスを取得しておく
 		status = GetComponent<Character_Status>();
-
+		playerManager = GetComponent<PlayerManager>();
 		if (status == null) Debug.LogError("Player本体に Character_Status が見つかりません！");
 	}
 

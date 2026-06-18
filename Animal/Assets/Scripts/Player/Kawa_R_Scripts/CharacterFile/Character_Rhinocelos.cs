@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class Character_Rhinocelos : Animal_Skill_TraitBase

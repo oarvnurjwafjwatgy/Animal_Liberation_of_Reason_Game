@@ -81,7 +81,7 @@ public class Nuts : MonoBehaviour
                         
                         int currentHP = other_chara_status.CurrentHP;
                         int nextHP = currentHP + (int)(currentHP * hpHealPercent);
-                        other_chara_status.NotDied(nextHP, other_chara_status.CurrentReason);
+                        other_chara_status.ItemHeal(nextHP, other_chara_status.CurrentReason);
                         Debug.Log($"<color=#ffff80>HPゲージ回復を付与しました</color>");
                         effect_num = 2;
                         break;
@@ -92,7 +92,7 @@ public class Nuts : MonoBehaviour
                         
                         int currentReason = other_chara_status.CurrentReason;
                         int nextReason = currentReason + (int)(currentReason * reasonHealPercent);
-                        other_chara_status.NotDied(other_chara_status.CurrentHP, nextReason);
+                        other_chara_status.ItemHeal(other_chara_status.CurrentHP, nextReason);
                         Debug.Log($"<color=#ffff80>理性解放ゲージ回復を付与しました</color>");
                         effect_num = 2; break;
                 }
