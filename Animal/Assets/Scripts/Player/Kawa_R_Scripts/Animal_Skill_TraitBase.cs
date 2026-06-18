@@ -19,6 +19,9 @@ public class Animal_Skill_TraitBase : MonoBehaviour
 
 	public virtual float CurrentSpeedBoost => 1.0f;
 
+	// if文のチェックで使用する(理性開放かどうか)
+	protected bool IsSpecialAnimal => status != null && status.GetMode() == Character_Status.Mode.SPSIAL_ANIMAL;
+
 	protected virtual void Start()
 	{
 		// 同じオブジェクト（Player本体）についているステータスを取得しておく
@@ -33,10 +36,10 @@ public class Animal_Skill_TraitBase : MonoBehaviour
 		if (skillCooldownTimer > 0) skillCooldownTimer -= Time.deltaTime;   //共通クールタイム
 	}
 
-	// 固有特性用（ virtual で子クラスに上書きさせる ）
+	// 固有特性
 	public virtual void Characteristic() { }
 
-	// 固有スキル用（ virtual で子クラスに上書きさせる ）
+	// 固有スキル
 	public virtual void Skill() { }
 
 	// 特殊な特性発動に使用する関数
@@ -50,6 +53,12 @@ public class Animal_Skill_TraitBase : MonoBehaviour
 
 	// CharacterStatusにある死亡処理を呼ぶ
 	protected virtual void Die() { status.ForceDie(); }
+
+
+	/*スキル使用時に通常攻撃の上乗せで攻撃力を作る関数(refで直接変更可能)
+	animl_atk   :各動物のAttackBoostを入れる。
+	boost_amount:変化した火力に変化させる(ex.理性開放後のスキル火力を反映*/
+	protected virtual void SetAtkBoost(ref float animl_atk, float boost_amount) { animl_atk = boost_amount; }
 
 	//動物のデバック用関数
 	protected virtual void AnimalDebugLog(

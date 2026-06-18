@@ -20,6 +20,45 @@ public struct AnimalParam
 	public float reasonSpdMult;
 }
 
+//各動物のスキルパラメーター
+public struct LionSkillParam
+{
+	//時間のパラメーター
+	public const float LION_SKILL_DURATION = 5.0f;  // 咆哮バフの持続時間
+	public const float LION_CT = 15.0f;             // スキルのCT(咆哮)※爆発力が高いので長め
+
+	//倍率のパラメーター
+	public const float LION_RESET_VALUE = 1.0f;     // 初期値:変化前に戻す値(ex.攻撃後に値を元に戻す
+	public const float SKILL_UP_VALUE = 1.3f;       // 通常時にスキルでバフ強化する時に上がる倍率
+	public const float REASON_SKILL_UP_VALUE = 1.7f;// 理性開放時にバフ強化する時に上がる倍率
+}
+public struct OstrichSkillParam
+{
+	//時間のパラメーター
+	public const float OSTRICH_CT = 6.0f;           // スキルCT(他動物との差別点はあまりないが回転率たかめ)
+
+	//倍率のパラメーター
+	public const float OSTRICH_RESET_VALUE = 1.0f;   // 初期値:変化前に戻す値(ex.攻撃後に値を元に戻す
+	public const float SKILL_UP_VALUE = 1.9f;        // 通常時:スキルで攻撃する時に通常攻撃に上乗せさせる値
+	public const float REASON_SKILL_UP_VALUE = 2.5f; // 理性解放:スキルで攻撃強化する時に通常攻撃に上乗せさせる値
+
+	//割合パラメーター
+	public const int HEAL_HP_RATE = 1;               //体力回復の割合量
+}
+
+public struct RhinocelosSkillParam
+{
+	//時間のパラメーター
+	public const float REASON_DECREASEINTERVAL = 1.0f; //何秒に1回理性を削るか(1秒)
+	public const int REASON_DECREASEAMOUNT = 5;        // 1回あたりに減らす理性の量（5）
+
+	//倍率のパラメーター
+	public const float RHINOCELOS_RESET_VALUE = 1.0f;   // 初期値:変化前に戻す値(ex.攻撃後に値を元に戻す
+	public const float RHINOCELOS_SPPEED_UP = 1.8f;     // スキル使用時:1.8倍速度が倍率かかる
+	public const float SKILL_UP_VALUE = 1.4f;           // 通常時:スキルで攻撃する時に通常攻撃に上乗せさせる値
+	public const float REASON_SKILL_UP_VALUE = 1.6f;    // 理性解放:スキルで攻撃強化する時に通常攻撃に上乗せさせる値
+}
+
 //動物ごとのパラメーター&理性解放の倍率
 public static class CharacterData
 {

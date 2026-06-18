@@ -31,15 +31,6 @@ public class Character_Status : MonoBehaviour
 
 	public Transform buffContainer;
 
-	// サイの突進状態管理用フラグ
-	private bool isRhinoDashing = false; // 突進中かどうか
-	private Coroutine rhinoDashCoroutine;
-	private float rhinoDashSpeedBoost = 1.0f;
-
-	// --- キャラクター別スキルクールタイム(CT)定数 ---
-	
-											 // サイは特殊（CTなし）
-
 	// 実際に計算に使用する倍率（1.0f = 等倍）
 	private float currentAtkMult = 1.0f;
 	private float currentDefMult = 1.0f;

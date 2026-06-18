@@ -1,14 +1,11 @@
 ﻿using UnityEngine;
+using P = LionSkillParam;
 using UnityEngine.UI;
 
 public class Character_Lion : Animal_Skill_TraitBase
 {
-	// 定数
-	private const float LION_SKILL_DURATION = 5.0f; // 咆哮バフの持続時間
-	private const float LION_CT = 15.0f;            // スキルのCT(咆哮)※爆発力が高いので長め
-
 	// ライオン専用のスキルバフ変数
-	private float lionSkillAtkBoost = 1.0f;
+	private float lionSkillAtkBoost = P.LION_RESET_VALUE;
 	private float lionSkillDurationTimer = 0f;
 
 	public override float CurrentAtkBoost => lionSkillAtkBoost;
@@ -24,7 +21,7 @@ public class Character_Lion : Animal_Skill_TraitBase
 			lionSkillDurationTimer -= Time.deltaTime;
 			if (lionSkillDurationTimer <= 0)
 			{
-				SetLionAtkBoost(1.0f);
+				SetAtkBoost(ref lionSkillAtkBoost, P.LION_RESET_VALUE);
 				AnimalDebugLog("white", "咆哮の効果が終了した");
 			}
 		}
@@ -43,21 +40,22 @@ public class Character_Lion : Animal_Skill_TraitBase
 			status.MyUIManager.CreateOrUpdateBuffUI(
 				status.playerID,
 				Character_Status.BuffType.AttackBuff, // Character_Status. を挟む
-				LION_SKILL_DURATION,
+				P.LION_SKILL_DURATION,  //CTをセット
 				status.buffContainer
 			);
 		}
 
 		// モードチェック
-		if (status != null && status.GetMode() == Character_Status.Mode.SPSIAL_ANIMAL)
-			SetLionAtkBoost(1.7f); // 解放中は1.7倍
-		else
-			SetLionAtkBoost(1.3f); // 通常時は1.3倍
+		if (IsSpecialAnimal) SetAtkBoost(ref lionSkillAtkBoost, P.REASON_SKILL_UP_VALUE); // 解放中:1.7倍
+		else SetAtkBoost(ref lionSkillAtkBoost, P.SKILL_UP_VALUE);  //通常:1.3倍
 
-		lionSkillDurationTimer = LION_SKILL_DURATION; // 5秒間持続
-		SetSkillCooldownTimer(LION_CT);
+		lionSkillDurationTimer = P.LION_SKILL_DURATION; // 5秒間持続
+		SetSkillCooldownTimer(P.LION_CT);
 	}
 
-	// ライオンがスキルを使用時に攻撃値が変化する
-	private void SetLionAtkBoost(float boost_amount){ lionSkillAtkBoost =  boost_amount; }
+	//// ライオンがスキルを使用時に攻撃値が変化する
+	//protected override void SetAtkBoost(ref float animl_atk, float boost_amount)
+	//{
+	//	base.SetAtkBoost(ref animl_atk, boost_amount);
+	//}
 }
