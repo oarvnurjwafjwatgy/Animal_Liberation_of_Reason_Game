@@ -3,99 +3,6 @@ using UnityEngine.UI;
 
 public class Character_Status : MonoBehaviour
 {
-	// ステータス
-	public int MaxHP { get; private set; }
-	public int MaxReason { get; private set; }
-	public int AttackPower { get; private set; }
-	public int DefensePower { get; private set; }
-	public float MoveSpeed { get; private set; }
-
-	[Header("キャラクターごとの固有特性設定一覧")]
-	[Header("ライオン特性：蓄積ダメージ設定")]
-	private Image lionRageFill;                                    // 外周ゲージを制御するための変数
-	private GameObject lionRageUIRoot;                             // アイコン全体を制御するための変数
-	private Transform uiPos;
-	private int accumulatedDamage = 0;
-	[SerializeField] private int burstThreshold = 80;              // これ以上食らわないと発動しない
-	[SerializeField] private float lionBurstDuration = 8f;         // バフが続く秒数（調整可能）
-	private float lionBurstSpeedBoost = 1.0f;
-	private float lionBurstAtkBoost = 1.0f;
-	private float lionBurstTimer = 0f;                             // バフの持続時間用
-
-
-	[Header("プレイヤー識別番号(1~4)")]
-	public int playerID;
-
-	// バフ・デバフ管理用の列挙型と変数
-	public enum BuffType { SpeedBuff, SpeedDebuff, AttackBuff, AttackDebuff, RhinoDash }
-
-	public Transform buffContainer;
-
-	// 実際に計算に使用する倍率（1.0f = 等倍）
-	private float currentAtkMult = 1.0f;
-	private float currentDefMult = 1.0f;
-	private float currentSpdMult = 1.0f;
-
-	// 外部参照用のプロパティ（蓄積バフ倍率も掛け合わせる）
-	//public virtual int CurrentAttackPower => (int)(AttackPower * currentAtkMult * lionBurstAtkBoost
-	//* lionSkillAtkBoost * (1f + GetComponent<NutsEffectManager>().CurrentAttackModifier));
-	//public virtual int CurrentDefensePower => (int)(DefensePower * currentDefMult);
-	//public virtual float CurrentMoveSpeed => MoveSpeed * currentSpdMult * lionBurstSpeedBoost
-	//* rhinoDashSpeedBoost * (1f + GetComponent<NutsEffectManager>().CurrentSpeedModifier);
-
-	// 攻撃の値
-	public virtual int CurrentAttackPower
-	{
-		get
-		{
-			float animalBuff = 1.0f;
-
-			// 自分についているスキル親クラスを取得（例:中身がライオンならライオンの倍率も含める）
-			Animal_Skill_TraitBase skillComponent = GetComponent<Animal_Skill_TraitBase>();
-			if (skillComponent != null) animalBuff = skillComponent.CurrentAtkBoost;
-
-			return (int)(AttackPower * currentAtkMult * animalBuff * (1f + GetComponent<NutsEffectManager>().CurrentAttackModifier));
-		}
-	}
-
-	// 防御の値
-	public virtual int CurrentDefensePower => (int)(DefensePower * currentDefMult);
-
-	//public virtual float CurrentMoveSpeed =>
-	//	MoveSpeed * currentSpdMult * rhinoDashSpeedBoost * (1f + GetComponent<NutsEffectManager>().CurrentSpeedModifier);
-
-	// 速度の値
-	public virtual float CurrentMoveSpeed
-	{
-		get
-		{
-			Animal_Skill_TraitBase skill = GetComponent<Animal_Skill_TraitBase>();
-			float skillSpeed = 1.0f;
-
-			if (skill != null) skillSpeed = skill.CurrentSpeedBoost;
-
-			return MoveSpeed
-				* currentSpdMult
-				* skillSpeed
-				* (1f + GetComponent<NutsEffectManager>().CurrentSpeedModifier);
-		}
-	}
-
-	private Slider hp_gauge;                    //HPゲージUIスライダー参照用変数
-	private Slider reason_gauge;                //HPゲージUIスライダー参照用変数
-	private Animator animator;                  //アニメーター参照用変数
-	private Animal_Skill_TraitBase animl_skill; //スキルに参照
-	private InputPlayer inputPlayer;			//InputPlayerに参照
-
-	public UIManager MyUIManager { get; private set; } // UIManagerへの参照
-
-	private float timer = 0f;              //タイマー系の変数
-
-	public int CurrentHP { get; protected set; }    // キャラクター現在HP(外部読み取り可、内部変更可)
-	public int CurrentReason { get; protected set; }    // キャラクター現在理性HP(外部読み取り可、内部変更可)
-
-	private PlayerManager playerManager;        // プレイヤーマネージャーオブジェクト
-
 	/**********状態*******************/
 	public enum State
 	{
@@ -118,29 +25,125 @@ public class Character_Status : MonoBehaviour
 		RATEL,          // ラーテル
 	}
 
-	protected State CharaState;                                   // キャラクター状態変数
-	protected Mode CharaMode;                                     // キャラクターモード変数
-	public CharacterType CharaAnim;                     // キャラクタータイプ変数
+	[Header("プレイヤー識別番号(1~4)")]
+	public int playerID;
+
+	// ステータス
+	public int MaxHP { get; private set; }
+	public int MaxReason { get; private set; }
+	public int AttackPower { get; private set; }
+	public int DefensePower { get; private set; }
+	public float MoveSpeed { get; private set; }
+	public int CurrentHP { get; protected set; }    // キャラクター現在HP(外部読み取り可、内部変更可)
+	public int CurrentReason { get; protected set; }    // キャラクター現在理性HP(外部読み取り可、内部変更可)
+
+	public UIManager MyUIManager { get; private set; } // UIManagerへの参照
+
+	// バフ・デバフ管理用の列挙型と変数
+	public enum BuffType { SpeedBuff, SpeedDebuff, AttackBuff, AttackDebuff, RhinoDash }
+
+	public Transform buffContainer;
+
+	// 実際に計算に使用する倍率（1.0f = 等倍）
+	private float currentAtkMult = CharacterData.INITIAL_MAGNIFICATION;
+	private float currentDefMult = CharacterData.INITIAL_MAGNIFICATION;
+	private float currentSpdMult = CharacterData.INITIAL_MAGNIFICATION;
+
+	// 外部参照用のプロパティ（蓄積バフ倍率も掛け合わせる）
+	// 攻撃の値
+	public virtual int CurrentAttackPower
+	{
+		get
+		{
+			float animalBuff = CharacterData.INITIAL_MAGNIFICATION;
+
+			// 自分についているスキル親クラスを取得（例:中身がライオンならライオンの倍率も含める）
+			Animal_Skill_TraitBase skillComponent = GetComponent<Animal_Skill_TraitBase>();
+			if (skillComponent != null) animalBuff = skillComponent.CurrentAtkBoost;
+
+			return (int)(AttackPower * currentAtkMult * animalBuff * (1f + GetComponent<NutsEffectManager>().CurrentAttackModifier));
+		}
+	}
+
+	// 防御の値
+	public virtual int CurrentDefensePower => (int)(DefensePower * currentDefMult);
+
+	// 速度の値
+	public virtual float CurrentMoveSpeed
+	{
+		get
+		{
+			Animal_Skill_TraitBase skill = GetComponent<Animal_Skill_TraitBase>();
+			float skillSpeed = 1.0f;
+			if (skill != null) skillSpeed = skill.CurrentSpeedBoost;
+
+			return MoveSpeed
+				* currentSpdMult
+				* skillSpeed
+				* (1f + GetComponent<NutsEffectManager>().CurrentSpeedModifier);
+		}
+	}
+	private Slider hp_gauge;                    //HPゲージUIスライダー参照用変数
+	private Slider reason_gauge;                //HPゲージUIスライダー参照用変数
+	private Animator animator;                  //アニメーター参照用変数
+	private Animal_Skill_TraitBase animl_skill; //スキルに参照
+
+	private PlayerManager playerManager;    // プレイヤーマネージャーオブジェクト
+	protected State CharaState;             // キャラクター状態
+	protected Mode CharaMode;               // キャラクターモード
+	public CharacterType CharaAnim;			// キャラクタータイプ
 	public bool IsDead => CharaState == State.DEAD;     // 死亡状態かどうかを外部から判定できるプロパティ
 
-	// 初期化
-	private void Start()
+	//変数
+	private float timer = 0f;              //タイマー
+
+	[Header("キャラクターごとの固有特性設定一覧")]
+	[Header("ライオン特性：蓄積ダメージ設定")]
+	private Image lionRageFill;                                    // 外周ゲージを制御するための変数
+	private GameObject lionRageUIRoot;                             // アイコン全体を制御するための変数
+	private Transform uiPos;
+	private int accumulatedDamage = 0;
+	[SerializeField] private int burstThreshold = 80;              // これ以上食らわないと発動しない
+	[SerializeField] private float lionBurstDuration = 8f;         // バフが続く秒数（調整可能）
+	private float lionBurstSpeedBoost = 1.0f;
+	private float lionBurstAtkBoost = 1.0f;
+	private float lionBurstTimer = 0f;                             // バフの持続時間用
+
+
+	// 選ばられた動物に合わせて適正のスクリプトをセットする
+	public void SetAnimalScripts(CharacterType animaltype)
 	{
-		if (playerID > 0)
-			CharaAnim = Animal_Select.playerChoices[playerID];
+		switch (animaltype)
+		{
+			case CharacterType.LION: gameObject.AddComponent<Character_Lion>(); break;
+			case CharacterType.OSTRICH: gameObject.AddComponent<Character_Ostrich>(); break;
+			case CharacterType.RHINOCELOS: gameObject.AddComponent<Character_Rhinocelos>(); break;
+			case CharacterType.RATEL: gameObject.AddComponent<Character_HoneyBadger>(); break;
+		}
+	}
 
-		SetAnimalScripts(CharaAnim);    //選んだ動物に合わせて動物ごとの専用スクリプトを張り付ける
-		SetBaseStatusByAnimal();        // 選択した動物に応じて基本ステータスを設定する関数呼び出し
-		SetHP(MaxHP);                   // 現在HPに最大HPを代入
-		SetReason(MaxReason);           // 現在理性ポイントに最大理性ポイントを代入
+	// --- 動物ごとのベース値を決める関数 ---
+	private void SetBaseStatusByAnimal()
+	{
+		//選択した動物の基本ステータスを設定する
+		switch (CharaAnim)
+		{
+			case CharacterType.LION: ApplyParam(CharacterData.Lion); break;
+			case CharacterType.OSTRICH: ApplyParam(CharacterData.Ostrich); break;
+			case CharacterType.RHINOCELOS: ApplyParam(CharacterData.Rhinocelos); break;
+			case CharacterType.RATEL: ApplyParam(CharacterData.Ratel); break;
+			default: Debug.LogError("動物が選択されていません"); break;
+		}
+	}
 
-		CharaState = State.IDLE;        // 初期状態を待機状態に設定
-		CharaMode = Mode.ANIMAL;        // 初期モードをエニモーに設定
-
-		animator = GetComponent<Animator>();
-		animl_skill = GetComponent<Animal_Skill_TraitBase>();
-		inputPlayer = GetComponent<InputPlayer>();
-		playerManager = GameObject.Find("PlayerManager").GetComponent<PlayerManager>();
+	//別ファイルから読み込んだデータを、実際のステータス変数に代入する処理
+	private void ApplyParam(AnimalParam param)
+	{
+		MaxHP = param.maxHP;
+		MaxReason = param.maxReason;
+		AttackPower = param.attackPower;
+		DefensePower = param.defensePower;
+		MoveSpeed = param.moveSpeed;
 	}
 
 	// Hpゲージと理性ゲージのUIコンポーネントを外部からセットする関数
@@ -180,6 +183,24 @@ public class Character_Status : MonoBehaviour
 		buffContainer = uIManager.ui_list[uIManager.ui_list.Count - 1].transform;
 	}
 
+	// 初期化
+	private void Start()
+	{
+		if (playerID > 0) CharaAnim = Animal_Select.playerChoices[playerID];
+
+		SetAnimalScripts(CharaAnim);    //選んだ動物に合わせて動物ごとの専用スクリプトを張り付ける
+		SetBaseStatusByAnimal();        // 選択した動物に応じて基本ステータスを設定する関数呼び出し
+		SetHP(MaxHP);                   // 現在HPに最大HPを代入
+		SetReason(MaxReason);           // 現在理性ポイントに最大理性ポイントを代入
+
+		CharaState = State.IDLE;        // 初期状態を待機状態に設定
+		CharaMode = Mode.ANIMAL;        // 初期モードをエニモーに設定
+
+		animator = GetComponent<Animator>();
+		animl_skill = GetComponent<Animal_Skill_TraitBase>();
+		playerManager = GameObject.Find("PlayerManager").GetComponent<PlayerManager>();
+	}
+
 	//ステータスを再度初期化する（外部から呼び出す用）
 	public void ReInitialize(int id)
 	{
@@ -190,18 +211,6 @@ public class Character_Status : MonoBehaviour
 		SetHP(MaxHP);           // 現在値を満タンにする
 		SetReason(MaxReason);
 		Debug.Log($"Player{id} を {CharaAnim} として再初期化しました。HP:{MaxHP}");
-	}
-
-	// 選ばられた動物に合わせて適正のスクリプトをセットする
-	public void SetAnimalScripts(CharacterType animaltype)
-	{
-		switch (animaltype)
-		{
-			case CharacterType.LION: gameObject.AddComponent<Character_Lion>(); break;
-			case CharacterType.OSTRICH: gameObject.AddComponent<Character_Ostrich>();break;
-			case CharacterType.RHINOCELOS: gameObject.AddComponent<Character_Rhinocelos>(); break;
-			case CharacterType.RATEL: gameObject.AddComponent<Character_HoneyBadger>();break;
-		}
 	}
 
 	//更新
@@ -258,68 +267,24 @@ public class Character_Status : MonoBehaviour
 		if (reason_gauge != null) reason_gauge.value = CurrentReason;
 	}
 
-	// --- 動物ごとのベース値を決める関数 ---
-	private void SetBaseStatusByAnimal()
-	{
-		//選択した動物の基本ステータスを設定する
-		switch (CharaAnim)
-		{
-			case CharacterType.LION:
-				ApplyParam(CharacterData.Lion);
-				break;
-			case CharacterType.OSTRICH:
-				ApplyParam(CharacterData.Ostrich);
-				break;
-			case CharacterType.RHINOCELOS:
-				ApplyParam(CharacterData.Rhinocelos);
-				break;
-			case CharacterType.RATEL:
-				ApplyParam(CharacterData.Ratel);
-				break;
-			default:
-				Debug.LogError("動物が選択されていません");
-				break;
-		}
-	}
-
-	//別ファイルから読み込んだデータを、実際のステータス変数に代入する処理
-	private void ApplyParam(AnimalParam param)
-	{
-		MaxHP = param.maxHP;
-		MaxReason = param.maxReason;
-		AttackPower = param.attackPower;
-		DefensePower = param.defensePower;
-		MoveSpeed = param.moveSpeed;
-	}
-
 	//モード切替発動によってチェンジする判定
 	private void JudgeModeChange()
 	{
 		switch (CharaMode)
 		{
 			case Mode.ANIMAL:
-				//もし死亡状態でなければ理性ゲージ回復処理を行う
+				//もし死亡状態でなければ理性ゲージ回復処理を行う(通常時)
 				if (CharaState != State.DEAD)
 				{
-					// エニモーモードの処理
 					timer += Time.deltaTime;
-					if (timer >= 1f)
-					{
-						ReasonHeal();
-						timer = 0f;
-					}
+					if (timer >= 1f){ ReasonHeal(); timer = 0f; }
 				}
 				break;
 
-			// スペシャルエニモーモードの理性ゲージ減少処理関数呼び出し
+			// 理性開放時の理性ゲージ減少処理関数呼び出し
 			case Mode.SPSIAL_ANIMAL:
-
 				timer += Time.deltaTime;
-				if (timer >= 1f)
-				{
-					ReasonDecrease();
-					timer = 0f;
-				}
+				if (timer >= 1f) { ReasonDecrease(); timer = 0f; }
 				break;
 		}
 	}
@@ -330,9 +295,9 @@ public class Character_Status : MonoBehaviour
 		// 通常モードに戻る時は全員 1.0f
 		if (!isReasoning)
 		{
-			currentAtkMult = 1.0f;
-			currentSpdMult = 1.0f;
-			currentDefMult = 1.0f;
+			currentAtkMult = CharacterData.INITIAL_MAGNIFICATION;
+			currentSpdMult = CharacterData.INITIAL_MAGNIFICATION;
+			currentDefMult = CharacterData.INITIAL_MAGNIFICATION;
 			return;
 		}
 
@@ -363,39 +328,12 @@ public class Character_Status : MonoBehaviour
 		if (CharaState == State.DEAD) return;
 
 		// モードごとのダメージ処理分岐
-		if (CharaMode == Mode.ANIMAL)
-		{
-			// 攻撃力の 20% は防御を無視して必ず通る
-			int actualDamage = Mathf.Max(damage - CurrentDefensePower, (int)(damage * 0.2f));
-			CurrentHP -= actualDamage; // HP減少処理
-
-			// 今いくら防いだか
-			Debug.Log($"<color=yellow>【被弾】 元ダメ:{damage} -> 防御後:" +
-			$"{actualDamage} (現在の防御力:{CurrentDefensePower})</color>");
-
-			// 通常モードかつライオンなら、受けた実ダメージを蓄積
-			if (CharaAnim == CharacterType.LION && CharaMode == Mode.ANIMAL)
-			{
-				accumulatedDamage += actualDamage;
-				Debug.Log($"ライオン：ダメージ蓄積中" +
-				$"（現在：{accumulatedDamage} / しきい値：{burstThreshold}）");
-			}
-		}
-		else if (CharaMode == Mode.SPSIAL_ANIMAL)
-		{
-			// ダメージ計算（防御力を考慮）
-			int actualDamage = Mathf.Max(damage - CurrentDefensePower, 1);
-			CurrentReason -= actualDamage; // 理性ゲージ減少処理
-			CurrentHP -= (int)((float)damage * 0.1f); // HP減少処理
-
-			// 今いくら防いだか
-			Debug.Log($"<color=yellow>【被弾】 元ダメ:{damage} -> 防御後:" +
-			$"{actualDamage} (現在の防御力:{CurrentDefensePower})</color>");
-		}
+		if (CharaMode == Mode.ANIMAL) DamageCalculation(damage);
+		else if (CharaMode == Mode.SPSIAL_ANIMAL) ReasonDamageCalculation(damage);
 
 		UpdateUI(); // UIの更新関数呼び出し
 
-		//死亡直前の特性チェック
+		//死亡直前の特性チェック(ex.ラーテルのピンチで耐えて発動する等
 		if (CurrentHP <= 0)
 		{
 			Animal_Skill_TraitBase trait = GetComponent<Animal_Skill_TraitBase>();
@@ -405,28 +343,10 @@ public class Character_Status : MonoBehaviour
 		if (CurrentHP <= 0 || CurrentReason <= 0) { Die(); }
 	}
 
-	//現在HP取得関数
-	//public int GetCurrentHP()
-	//{
-	//	return CurrentHP;
-	//}
-	//移動速度取得関数
-	//public float GetMoveSpeed()
-	//{
-	//    return MoveSpeed;
-	//}
-
 	//防御力取得関数
 	public int GetDefensePower(){ return DefensePower; }
 
-	//主に体力・理性ゲージの回復に使用する上限付の関数
-	public void ItemHeal(int hp, int reason)
-	{
-		CurrentHP = Mathf.Clamp(hp, 0, MaxHP);
-		CurrentReason = Mathf.Clamp(reason, 0, MaxReason);
-	}
-
-	//モード
+	//モード取得
 	public Mode GetMode() { return CharaMode; }
 
 	// 現在のステート状態をreturnで返す
@@ -482,19 +402,12 @@ public class Character_Status : MonoBehaviour
 	//死亡処理関数
 	protected virtual void Die()
 	{
-		// サイの突進を強制停止
-		//if (rhinoDashCoroutine != null)
-		//{
-		//	StopCoroutine(rhinoDashCoroutine);
-		//	rhinoDashCoroutine = null;
-		//}
 		//もし理性解放中に死亡したなら現在HP/通常なら理性を0に設定する
 		if (CharaMode == Mode.SPSIAL_ANIMAL) SetHP(0);
 		else if (CharaMode == Mode.ANIMAL) SetReason(0);
 
 		if (hp_gauge != null) hp_gauge.value = 0;
 		if (reason_gauge != null) reason_gauge.value = 0;
-
 
 		//体力ゲージ・理性ゲージのUIを非表示にする処理
 		if (hp_gauge != null) hp_gauge.gameObject.SetActive(false);
@@ -522,7 +435,6 @@ public class Character_Status : MonoBehaviour
 		// キャラクターが死亡状態の場合のみTagをチェック
 		if (CharaState == State.DEAD)
 		{
-			// アニメーションステートのTagが "Dead" であるかをチェック
 			if (stateInfo.IsTag("Dead"))
 			{
 				// 既に死亡ログが出ていなければログを出し、ゲームオブジェクトを非アクティブ化
@@ -538,15 +450,8 @@ public class Character_Status : MonoBehaviour
 	// スキル実行
 	public virtual void Skill()
 	{
-		Debug.Log("本体Skill");
 		Animal_Skill_TraitBase skillComponent = GetComponent<Animal_Skill_TraitBase>();
-
-		if (skillComponent != null)
-		{
-			Debug.Log("skillComponent発見");
-			Debug.Log(skillComponent.GetType().Name);
-			skillComponent.Skill();
-		}
+		if (skillComponent != null) skillComponent.Skill();
 	}
 
 	/*******回復処理*********/
@@ -562,6 +467,13 @@ public class Character_Status : MonoBehaviour
 		if (CurrentReason > MaxReason) SetReason(MaxReason);
 	}
 
+	//主に体力・理性ゲージの回復に使用する上限付の関数
+	public void ItemHeal(int hp, int reason)
+	{
+		CurrentHP = Mathf.Clamp(hp, 0, MaxHP);
+		CurrentReason = Mathf.Clamp(reason, 0, MaxReason);
+	}
+
 	//通常時は理性ゲージを回復(割合時間経過回復)
 	protected virtual void ReasonHeal()
 	{
@@ -571,6 +483,37 @@ public class Character_Status : MonoBehaviour
 			int healAmount = Mathf.Max((int)(MaxReason * CharacterData.REASON_HEAL_RATE), 1);
 			HealReason(healAmount);
 		}
+	}
+
+	/***********ダメージ関連****************/
+	private void DamageCalculation(int damage)
+	{
+		// 攻撃力の 20% は防御を無視して必ず通る
+		int actualDamage = Mathf.Max(damage - CurrentDefensePower, (int)(damage * 0.2f));
+		CurrentHP -= actualDamage; // HP減少処理
+
+		// 今いくら防いだか
+		Debug.Log($"<color=yellow>【被弾】 元ダメ:{damage} -> 防御後:" +
+		$"{actualDamage} (現在の防御力:{CurrentDefensePower})</color>");
+
+		// 通常モードかつライオンなら、受けた実ダメージを蓄積
+		if (CharaAnim == CharacterType.LION && CharaMode == Mode.ANIMAL)
+		{
+			accumulatedDamage += actualDamage;
+			Debug.Log($"ライオン：ダメージ蓄積中" +
+			$"（現在：{accumulatedDamage} / しきい値：{burstThreshold}）");
+		}
+	}
+
+	//理性ゲージでのダメージ計算（防御力を考慮）
+	private void ReasonDamageCalculation(int reason_damage)
+	{
+		int actualDamage = Mathf.Max(reason_damage - CurrentDefensePower, 1);
+		CurrentReason -= actualDamage;					 // 理性ゲージ減少処理
+		CurrentHP -= (int)((float)reason_damage * 0.1f); // HP減少処理
+		 // 今いくら防いだか
+		Debug.Log($"<color=yellow>【被弾】 元ダメ:{reason_damage} -> 防御後:" +
+		$"{actualDamage} (現在の防御力:{CurrentDefensePower})</color>");
 	}
 
 	//理性解放状態時:理性ゲージ減少処理関数
@@ -587,11 +530,7 @@ public class Character_Status : MonoBehaviour
 			Debug.Log($"{CharaAnim}の理性減少中: 残り{CurrentReason} (毎秒{decreaseAmount}減)");
 		}
 		//0以下なら理性ゲージを0・死亡処理を行う
-		else
-		{
-			animator.SetBool("Reason_Dead", true);
-			Die();
-		}
+		else { animator.SetBool("Reason_Dead", true); Die(); }
 	}
 
 	// 現在の理性ゲージに引数分引く
@@ -600,6 +539,16 @@ public class Character_Status : MonoBehaviour
 		if (playerManager.isGameEnd) return;
 		CurrentReason -= amount;
 	}
+
+	/*割合ダメージ計算関数
+	 hp      :体力
+	 max     :最大体力
+	 raito   :割合
+	 使用箇所:デッドゾーンに出たときの処理
+	 */
+	private void PercentageDamage(int hp, int max, float ratio)
+	{ hp -= (int)((float)max * ratio); }
+
 
 	//外部から呼び出すための関数
 	public void ForceDie() { Die(); }
@@ -612,7 +561,7 @@ public class Character_Status : MonoBehaviour
 	{
 		Debug.Log("ゲーム終了フラグ" + playerManager.isGameEnd);
 		if (playerManager.isGameEnd) return;  //ゲーム終了が確定したら死なせない
-		CurrentHP -= (int)((float)MaxHP * 0.05);
+		PercentageDamage(CurrentHP, MaxHP, CharacterData.OFF_SITE_RAITO);
 		if (CurrentHP <= 0) this.Die();     // 死亡判定
 	}
 

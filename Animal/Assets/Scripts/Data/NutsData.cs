@@ -6,7 +6,6 @@ public struct NutsParam
 	public float duration; //Œø‰ÊŽžŠÔ
 	public float power; //Œø‰Ê—Ê
 
-	
 	public NutsParam(float duration, float power)
 	{
 		this.duration = duration;

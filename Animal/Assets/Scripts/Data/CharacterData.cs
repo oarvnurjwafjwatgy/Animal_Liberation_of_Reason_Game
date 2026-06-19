@@ -20,7 +20,9 @@ public struct AnimalParam
 	public float reasonSpdMult;
 }
 
-//各動物のスキルパラメーター
+/****各動物のスキルパラメーター******/
+
+//ライオンのスキル
 public struct LionSkillParam
 {
 	//時間のパラメーター
@@ -32,6 +34,8 @@ public struct LionSkillParam
 	public const float SKILL_UP_VALUE = 1.3f;       // 通常時にスキルでバフ強化する時に上がる倍率
 	public const float REASON_SKILL_UP_VALUE = 1.7f;// 理性開放時にバフ強化する時に上がる倍率
 }
+
+//ダチョウのスキル
 public struct OstrichSkillParam
 {
 	//時間のパラメーター
@@ -46,6 +50,7 @@ public struct OstrichSkillParam
 	public const int HEAL_HP_RATE = 1;               //体力回復の割合量
 }
 
+//サイのスキル
 public struct RhinocelosSkillParam
 {
 	//時間のパラメーター
@@ -59,13 +64,25 @@ public struct RhinocelosSkillParam
 	public const float REASON_SKILL_UP_VALUE = 1.6f;    // 理性解放:スキルで攻撃強化する時に通常攻撃に上乗せさせる値
 }
 
+
+//ラーテルのスキル
+public struct SkillParam
+{
+	//時間のパラメーター
+	private const float RATEL_CT = 12.0f;    // ラーテルのスキルCoolTime
+}
+
+
 //動物ごとのパラメーター&理性解放の倍率
 public static class CharacterData
 {
 	/*共通の定数*/
-	public const float DEFAULT_MULT = 1.3f;			 //理性解放時の基本的な上昇倍率
-	public const float REASON_DECREASE_RATE = 0.02f; // 最大理性ゲージから2%分で減少
-	public const float REASON_HEAL_RATE = 0.01f;     // 最大理性ゲージから1%分で回復
+	public const float DEFAULT_MULT = 1.3f;				//理性解放時の基本的な上昇倍率
+	public const float INITIAL_MAGNIFICATION = 1.0f;	//全倍率の初期値(ex.AtkMult→リセット
+	public const float REASON_DECREASE_RATE = 0.02f;	// 最大理性ゲージから2%分で減少
+	public const float REASON_HEAL_RATE = 0.01f;		// 最大理性ゲージから1%分で回復
+	public const float OFF_SITE_RAITO = 0.05f;			// 場外に出たときの最大HP割合ダメージ量
+
 
 	//ライオンのパラメータ
 	public static readonly AnimalParam Lion = new AnimalParam
@@ -91,7 +108,7 @@ public static class CharacterData
 		maxReason = 120,
 		attackPower = 20,
 		defensePower = 13,
-		moveSpeed = 7.5f,//7.5f
+		moveSpeed = 7.5f,
 
 		//理性解放時の倍率
 		reasonAtkMult = DEFAULT_MULT,
