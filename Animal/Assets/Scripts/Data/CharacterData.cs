@@ -47,7 +47,7 @@ public struct OstrichSkillParam
 
 	//倍率のパラメーター
 	public const float OSTRICH_RESET_VALUE = 1.0f;   // 初期値:変化前に戻す値(ex.攻撃後に値を元に戻す
-	public const float SKILL_UP_VALUE = 9991.9f;        // 通常時:スキルで攻撃する時に通常攻撃に上乗せさせる値
+	public const float SKILL_UP_VALUE = 1.9f;        // 通常時:スキルで攻撃する時に通常攻撃に上乗せさせる値
 	public const float REASON_SKILL_UP_VALUE = 2.5f; // 理性解放:スキルで攻撃強化する時に通常攻撃に上乗せさせる値
 
 	//割合パラメーター
