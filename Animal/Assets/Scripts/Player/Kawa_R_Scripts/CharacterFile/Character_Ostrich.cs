@@ -5,8 +5,8 @@ using P = OstrichSkillParam;
 public class Character_Ostrich : Animal_Skill_TraitBase
 {
 	//変数
-	private float ostrichTimer = 0f; //ダチョウ回復専用タイマー
-	private float ostrichSkillAtkBoost = P.OSTRICH_RESET_VALUE; //初期値:スキルの攻撃力(通常から上乗せ)
+	private float ostrichTimer = AnimalParam.TIMER_RESET;		 //ダチョウ回復専用タイマー
+	private float ostrichSkillAtkBoost = P.OSTRICH_RESET_VALUE;  //初期値:スキルの攻撃力(通常から上乗せ)
 
 	public override float CurrentAtkBoost => ostrichSkillAtkBoost;
 
@@ -19,7 +19,7 @@ public class Character_Ostrich : Animal_Skill_TraitBase
 
 		base.Skill();   //共通の死亡チェックを実行
 		AnimalDebugLog("yellow", "固有スキルが発動した");
-		StartCoroutine(ResetAtkBoostAfterDelay(0.2f)); // 0.2秒後に自動で等倍に戻すコルーチン
+		StartCoroutine(ResetAtkBoostAfterDelay(P.RESET_DELAY)); // 0.2秒後に自動で等倍に戻すコルーチン
 		SetSkillCooldownTimer(P.OSTRICH_CT);
 	}
 
@@ -49,15 +49,15 @@ public class Character_Ostrich : Animal_Skill_TraitBase
 					status.HealHP(ostrich_heal);    //CharacterStatusの回復関数にて反映
 					AnimalDebugLog("green", "固有特性で回復中:" + status.CurrentHP);
 				}
-				ostrichTimer = 0f;
+				ostrichTimer = AnimalParam.TIMER_RESET;
 			}
 		}
 	}
 
 	//少し処理を遅らせてから攻撃値を元に戻す処理
-	private System.Collections.IEnumerator ResetAtkBoostAfterDelay(float delay)
+	protected override System.Collections.IEnumerator ResetAtkBoostAfterDelay(float delay)
 	{
-		yield return new WaitForSeconds(delay); // 指定した秒数（0.2秒など）だけ待つ
+		yield return base.ResetAtkBoostAfterDelay(delay);
 		SetAtkBoost(ref ostrichSkillAtkBoost, P.OSTRICH_RESET_VALUE); // ここで1.0倍に戻す
 		AnimalDebugLog("white", "ダチョウのスキル倍率が元に戻りました");
 	}

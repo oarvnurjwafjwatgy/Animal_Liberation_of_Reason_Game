@@ -541,13 +541,12 @@ public class Character_Status : MonoBehaviour
 	}
 
 	/*割合ダメージ計算関数
-	 hp      :体力
 	 max     :最大体力
 	 raito   :割合
 	 使用箇所:デッドゾーンに出たときの処理
 	 */
-	private void PercentageDamage(int hp, int max, float ratio)
-	{ hp -= (int)((float)max * ratio); }
+	private void PercentageDamage(int max, float ratio)
+	{ CurrentHP -= (int)((float)max * ratio); Debug.Log("ooooooooooooo"); }
 
 
 	//外部から呼び出すための関数
@@ -561,7 +560,7 @@ public class Character_Status : MonoBehaviour
 	{
 		Debug.Log("ゲーム終了フラグ" + playerManager.isGameEnd);
 		if (playerManager.isGameEnd) return;  //ゲーム終了が確定したら死なせない
-		PercentageDamage(CurrentHP, MaxHP, CharacterData.OFF_SITE_RAITO);
+		PercentageDamage(MaxHP, CharacterData.OFF_SITE_RAITO);
 		if (CurrentHP <= 0) this.Die();     // 死亡判定
 	}
 

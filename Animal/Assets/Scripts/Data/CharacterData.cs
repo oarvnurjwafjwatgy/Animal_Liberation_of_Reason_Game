@@ -18,6 +18,9 @@ public struct AnimalParam
 	public float reasonAtkMult;
 	public float reasonDefMult;
 	public float reasonSpdMult;
+
+	//「一部共通の定数」
+	public const float TIMER_RESET = 0f;	//基本全てで使用するタイマー初期値
 }
 
 /****各動物のスキルパラメーター******/
@@ -40,10 +43,11 @@ public struct OstrichSkillParam
 {
 	//時間のパラメーター
 	public const float OSTRICH_CT = 6.0f;           // スキルCT(他動物との差別点はあまりないが回転率たかめ)
+	public const float RESET_DELAY = 0.2f;			//攻撃値を含めた値をリセットするのにかかる時間
 
 	//倍率のパラメーター
 	public const float OSTRICH_RESET_VALUE = 1.0f;   // 初期値:変化前に戻す値(ex.攻撃後に値を元に戻す
-	public const float SKILL_UP_VALUE = 1.9f;        // 通常時:スキルで攻撃する時に通常攻撃に上乗せさせる値
+	public const float SKILL_UP_VALUE = 9991.9f;        // 通常時:スキルで攻撃する時に通常攻撃に上乗せさせる値
 	public const float REASON_SKILL_UP_VALUE = 2.5f; // 理性解放:スキルで攻撃強化する時に通常攻撃に上乗せさせる値
 
 	//割合パラメーター
@@ -62,6 +66,22 @@ public struct RhinocelosSkillParam
 	public const float RHINOCELOS_SPPEED_UP = 1.8f;     // スキル使用時:1.8倍速度が倍率かかる
 	public const float SKILL_UP_VALUE = 1.4f;           // 通常時:スキルで攻撃する時に通常攻撃に上乗せさせる値
 	public const float REASON_SKILL_UP_VALUE = 1.6f;    // 理性解放:スキルで攻撃強化する時に通常攻撃に上乗せさせる値
+}
+
+//ラーテルのスキル
+public struct HoneyBadgerSkillParam
+{
+	//時間のパラメーター
+	public const float HONEYBADGER_CT = 12.0f;    // ラーテルのスキルCT
+	public const float RESET_DELAY = 2.0f;        //攻撃値を含めた値をリセットするのにかかる時間
+	
+	//倍率のパラメーター
+	public const float HONEYBADGER_RESET_VALUE = 1.0f;   // 初期値:変化前に戻す値(ex.攻撃後に値を元に戻す
+	public const float SKILL_UP_VALUE = 1.7f;			 // 通常時:スキルで攻撃する時に通常攻撃に上乗せさせる値
+	public const float REASON_SKILL_UP_VALUE = 9992.0f;	 // 理性解放:スキルで攻撃強化する時に通常攻撃に上乗せさせる値
+
+	//割合パラメーター
+	public const float TRAIT_PERCENTAGE_RECOVERY = 0.25f;	//特性発動後の回復量
 }
 
 

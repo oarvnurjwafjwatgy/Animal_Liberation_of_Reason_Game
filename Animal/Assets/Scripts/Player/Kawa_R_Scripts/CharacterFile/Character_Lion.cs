@@ -6,7 +6,7 @@ public class Character_Lion : Animal_Skill_TraitBase
 {
 	// ライオン専用のスキルバフ変数
 	private float lionSkillAtkBoost = P.LION_RESET_VALUE;
-	private float lionSkillDurationTimer = 0f;
+	private float lionSkillDurationTimer = AnimalParam.TIMER_RESET;
 
 	public override float CurrentAtkBoost => lionSkillAtkBoost;
 

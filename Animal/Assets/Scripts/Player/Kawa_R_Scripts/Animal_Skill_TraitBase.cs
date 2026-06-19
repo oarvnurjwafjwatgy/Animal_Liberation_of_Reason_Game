@@ -48,6 +48,11 @@ public class Animal_Skill_TraitBase : MonoBehaviour
 	// クールタイムをセットする関数
 	public virtual void SetSkillCooldownTimer(float timer) { skillCooldownTimer = timer; }
 
+	/* スキル発動時一時的に攻撃が上昇した後、数秒後に戻す関数
+	 delay:指定した秒数（0.2秒など）だけ待つ*/
+	protected virtual System.Collections.IEnumerator ResetAtkBoostAfterDelay(float delay)
+	{ yield return new WaitForSeconds(delay); }
+
 	// CharacterStatusのReducedReasoning関数の処理を呼び出す。
 	protected void ReducedReasoning(int amount) { status.ReducedReasoning(amount); }
 
