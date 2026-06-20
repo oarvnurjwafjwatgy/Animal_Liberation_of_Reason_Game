@@ -78,18 +78,10 @@ public struct HoneyBadgerSkillParam
 	//倍率のパラメーター
 	public const float HONEYBADGER_RESET_VALUE = 1.0f;   // 初期値:変化前に戻す値(ex.攻撃後に値を元に戻す
 	public const float SKILL_UP_VALUE = 1.7f;			 // 通常時:スキルで攻撃する時に通常攻撃に上乗せさせる値
-	public const float REASON_SKILL_UP_VALUE = 9992.0f;	 // 理性解放:スキルで攻撃強化する時に通常攻撃に上乗せさせる値
+	public const float REASON_SKILL_UP_VALUE = 2.0f;	 // 理性解放:スキルで攻撃強化する時に通常攻撃に上乗せさせる値
 
 	//割合パラメーター
 	public const float TRAIT_PERCENTAGE_RECOVERY = 0.25f;	//特性発動後の回復量
-}
-
-
-//ラーテルのスキル
-public struct SkillParam
-{
-	//時間のパラメーター
-	private const float RATEL_CT = 12.0f;    // ラーテルのスキルCoolTime
 }
 
 

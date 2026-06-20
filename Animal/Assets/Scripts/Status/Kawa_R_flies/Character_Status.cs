@@ -97,18 +97,19 @@ public class Character_Status : MonoBehaviour
 	//変数
 	private float timer = 0f;              //タイマー
 
-	[Header("キャラクターごとの固有特性設定一覧")]
-	[Header("ライオン特性：蓄積ダメージ設定")]
-	private Image lionRageFill;                                    // 外周ゲージを制御するための変数
-	private GameObject lionRageUIRoot;                             // アイコン全体を制御するための変数
-	private Transform uiPos;
-	private int accumulatedDamage = 0;
-	[SerializeField] private int burstThreshold = 80;              // これ以上食らわないと発動しない
-	[SerializeField] private float lionBurstDuration = 8f;         // バフが続く秒数（調整可能）
-	private float lionBurstSpeedBoost = 1.0f;
-	private float lionBurstAtkBoost = 1.0f;
-	private float lionBurstTimer = 0f;                             // バフの持続時間用
+	//[Header("キャラクターごとの固有特性設定一覧")]
+	//[Header("ライオン特性：蓄積ダメージ設定")]
+	//private Image lionRageFill;                                    // 外周ゲージを制御するための変数
+	//private GameObject lionRageUIRoot;                             // アイコン全体を制御するための変数
+	//private int accumulatedDamage = 0;
+	//[SerializeField] private int burstThreshold = 80;              // これ以上食らわないと発動しない
+	//[SerializeField] private float lionBurstDuration = 8f;         // バフが続く秒数（調整可能）
+	//private float lionBurstSpeedBoost = 1.0f;
+	//private float lionBurstAtkBoost = 1.0f;
+	//private float lionBurstTimer = 0f;                             // バフの持続時間用
 
+	protected Transform uiPos;
+	public Transform UiPos => uiPos;
 
 	// 選ばられた動物に合わせて適正のスクリプトをセットする
 	public void SetAnimalScripts(CharacterType animaltype)
@@ -167,17 +168,17 @@ public class Character_Status : MonoBehaviour
 		}
 
 		// ライオンなら専用アイコンも作る
-		if (CharaAnim == CharacterType.LION)
-		{
-			uIManager.CreateUI(UIManager.UI_ID.LION_RAGE, uiPos, playerID);
+		//if (CharaAnim == CharacterType.LION)
+		//{
+		//	uIManager.CreateUI(UIManager.UI_ID.LION_RAGE, uiPos, playerID);
 
-			// 生成されたアイコンはリストの最後に追加されるはずなので、そこから参照する
-			lionRageUIRoot = uIManager.ui_list[uIManager.ui_list.Count - 1];
+		//	// 生成されたアイコンはリストの最後に追加されるはずなので、そこから参照する
+		//	lionRageUIRoot = uIManager.ui_list[uIManager.ui_list.Count - 1];
 
-			// リストの最後（今作ったアイコン）から Gauge 画像を探す
-			GameObject iconObj = uIManager.ui_list[uIManager.ui_list.Count - 1];
-			lionRageFill = iconObj.transform.Find("Gauge").GetComponent<Image>();
-		}
+		//	// リストの最後（今作ったアイコン）から Gauge 画像を探す
+		//	GameObject iconObj = uIManager.ui_list[uIManager.ui_list.Count - 1];
+		//	lionRageFill = iconObj.transform.Find("Gauge").GetComponent<Image>();
+		//}
 
 		uIManager.CreateUI(UIManager.UI_ID.BUFF_CONTAINER, uiPos, playerID);
 		buffContainer = uIManager.ui_list[uIManager.ui_list.Count - 1].transform;
@@ -224,24 +225,24 @@ public class Character_Status : MonoBehaviour
 		}
 
 		// ライオンの専用UIの更新
-		if (CharaAnim == CharacterType.LION && lionRageFill != null)
-		{
-			if (lionBurstTimer > 0)
-			{
-				// バフ発動中：残り時間をカウントダウン（赤色など）
-				lionRageFill.fillAmount = lionBurstTimer / lionBurstDuration;
-				lionRageFill.color = Color.red;
-			}
-			else
-			{
-				// 蓄積中：ダメージの溜まり具合を表示（黄色など）
-				float ratio = (float)accumulatedDamage / burstThreshold;
-				lionRageFill.fillAmount = Mathf.Clamp01(ratio);
+		//if (CharaAnim == CharacterType.LION && lionRageFill != null)
+		//{
+		//	if (lionBurstTimer > 0)
+		//	{
+		//		// バフ発動中：残り時間をカウントダウン（赤色など）
+		//		lionRageFill.fillAmount = lionBurstTimer / lionBurstDuration;
+		//		lionRageFill.color = Color.red;
+		//	}
+		//	else
+		//	{
+		//		// 蓄積中：ダメージの溜まり具合を表示（黄色など）
+		//		float ratio = (float)accumulatedDamage / burstThreshold;
+		//		lionRageFill.fillAmount = Mathf.Clamp01(ratio);
 
-				// 溜まったら色を変えて教える（オレンジなど）
-				lionRageFill.color = (ratio >= 1f) ? new Color(1f, 0.5f, 0f) : Color.yellow;
-			}
-		}
+		//		// 溜まったら色を変えて教える（オレンジなど）
+		//		lionRageFill.color = (ratio >= 1f) ? new Color(1f, 0.5f, 0f) : Color.yellow;
+		//	}
+		//}
 
 		JudgeModeChange();              //毎度切替を判定する
 		CheckAnimatorStateTag();
@@ -414,7 +415,7 @@ public class Character_Status : MonoBehaviour
 		if (reason_gauge != null) reason_gauge.gameObject.SetActive(false);
 
 		// ライオンの専用UIも非表示にする
-		if (lionRageUIRoot != null) lionRageUIRoot.gameObject.SetActive(false);
+		//if (lionRageUIRoot != null) lionRageUIRoot.gameObject.SetActive(false);
 
 		Debug.Log($"{gameObject.name} が死亡したため、UIを非表示にしました。");
 
@@ -497,12 +498,15 @@ public class Character_Status : MonoBehaviour
 		$"{actualDamage} (現在の防御力:{CurrentDefensePower})</color>");
 
 		// 通常モードかつライオンなら、受けた実ダメージを蓄積
-		if (CharaAnim == CharacterType.LION && CharaMode == Mode.ANIMAL)
-		{
-			accumulatedDamage += actualDamage;
-			Debug.Log($"ライオン：ダメージ蓄積中" +
-			$"（現在：{accumulatedDamage} / しきい値：{burstThreshold}）");
-		}
+		//if (CharaAnim == CharacterType.LION && CharaMode == Mode.ANIMAL)
+		//{
+		//	accumulatedDamage += actualDamage;
+		//	Debug.Log($"ライオン：ダメージ蓄積中" +
+		//	$"（現在：{accumulatedDamage} / しきい値：{burstThreshold}）");
+		//}
+
+		Animal_Skill_TraitBase trait = GetComponent<Animal_Skill_TraitBase>();
+		if (trait != null){ trait.OnCharacterTakeDamage(actualDamage); }
 	}
 
 	//理性ゲージでのダメージ計算（防御力を考慮）
@@ -565,34 +569,34 @@ public class Character_Status : MonoBehaviour
 	}
 
 	//ライオンの固有特性処理関数
-	void UniqueSkill_Lion()
-	{
-		// しきい値を超えている場合のみバフを計算
-		if (accumulatedDamage >= burstThreshold)
-		{
-			// 蓄積量に応じて強化幅を変える（最大1.4倍、攻撃1.1倍など）
-			float extraPower = (float)(accumulatedDamage - burstThreshold) / 150f;
-			lionBurstSpeedBoost = 1.25f + Mathf.Min(extraPower, 0.15f);
-			lionBurstAtkBoost = 1.15f;
+	//void UniqueSkill_Lion()
+	//{
+	//	// しきい値を超えている場合のみバフを計算
+	//	if (accumulatedDamage >= burstThreshold)
+	//	{
+	//		// 蓄積量に応じて強化幅を変える（最大1.4倍、攻撃1.1倍など）
+	//		float extraPower = (float)(accumulatedDamage - burstThreshold) / 150f;
+	//		lionBurstSpeedBoost = 1.25f + Mathf.Min(extraPower, 0.15f);
+	//		lionBurstAtkBoost = 1.15f;
 
-			// ここで持続時間をセット
-			lionBurstTimer = lionBurstDuration;
+	//		// ここで持続時間をセット
+	//		lionBurstTimer = lionBurstDuration;
 
-			if (MyUIManager != null)
-				MyUIManager.CreateOrUpdateBuffUI(playerID, BuffType.SpeedBuff, lionBurstDuration, buffContainer);
+	//		if (MyUIManager != null)
+	//			MyUIManager.CreateOrUpdateBuffUI(playerID, BuffType.SpeedBuff, lionBurstDuration, buffContainer);
 
-			Debug.Log($"<color=red>【特性発動】憤怒解放！ {lionBurstDuration}秒間、爆速モード！</color>");
-		}
-		else
-		{
-			// 足りなければ通常通りの解放（バフなし）
-			lionBurstSpeedBoost = 1.0f;
-			lionBurstAtkBoost = 1.0f;
-			lionBurstTimer = 0f;
-			Debug.Log($"<color=white>蓄積不足({accumulatedDamage}/{burstThreshold})のため特性は不発</color>");
-		}
+	//		Debug.Log($"<color=red>【特性発動】憤怒解放！ {lionBurstDuration}秒間、爆速モード！</color>");
+	//	}
+	//	else
+	//	{
+	//		// 足りなければ通常通りの解放（バフなし）
+	//		lionBurstSpeedBoost = 1.0f;
+	//		lionBurstAtkBoost = 1.0f;
+	//		lionBurstTimer = 0f;
+	//		Debug.Log($"<color=white>蓄積不足({accumulatedDamage}/{burstThreshold})のため特性は不発</color>");
+	//	}
 
-		// 特性成否に関わらず、一度解放したら蓄積はリセット（「溜め」の戦略性を出すため）
-		accumulatedDamage = 0;
-	}
+	//	// 特性成否に関わらず、一度解放したら蓄積はリセット（「溜め」の戦略性を出すため）
+	//	accumulatedDamage = 0;
+	//}
 }

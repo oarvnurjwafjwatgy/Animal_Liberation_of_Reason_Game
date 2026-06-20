@@ -65,6 +65,11 @@ public class Animal_Skill_TraitBase : MonoBehaviour
 	boost_amount:変化した火力に変化させる(ex.理性開放後のスキル火力を反映*/
 	protected virtual void SetAtkBoost(ref float animl_atk, float boost_amount) { animl_atk = boost_amount; }
 
+	
+	// 通常被弾時にCharacter_Statusからダメージ通知を受け取るための仮想関数
+	public virtual void OnCharacterTakeDamage(int actualDamage) { }
+
+
 	//動物のデバック用関数
 	protected virtual void AnimalDebugLog(
 	string color,
