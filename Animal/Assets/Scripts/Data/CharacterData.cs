@@ -26,7 +26,7 @@ public struct AnimalParam
 
 /****各動物のスキルパラメーター******/
 
-//ライオンのスキル
+//ライオンのスキル&特性の定数
 public struct LionSkillParam
 {
 	//時間のパラメーター
@@ -37,6 +37,14 @@ public struct LionSkillParam
 	public const float LION_RESET_VALUE = 1.0f;     // 初期値:変化前に戻す値(ex.攻撃後に値を元に戻す
 	public const float SKILL_UP_VALUE = 1.3f;       // 通常時にスキルでバフ強化する時に上がる倍率
 	public const float REASON_SKILL_UP_VALUE = 1.7f;// 理性開放時にバフ強化する時に上がる倍率
+
+	// 特性用の定数
+	public const int BURST_THRESHOLD = 80;                 // 発動しきい値
+	public const float LION_BURST_DURATION = 8f;           // バースト持続時間
+	public const float BURST_BASE_SPEED_BOOST = 1.25f;     // バースト時の基本速度上昇率
+	public const float BURST_MAX_EXTRA_SPEED = 0.15f;      // 蓄積ダメージによる追加速度の上限値
+	public const float BURST_ATK_BOOST = 1.15f;            // バースト時の攻撃上昇率
+	public const float DAMAGE_TO_SPEED_SCALE = 150f;       // ダメージを速度倍率に変換する際の割る数
 }
 
 //ダチョウのスキル
@@ -83,16 +91,6 @@ public struct HoneyBadgerSkillParam
 
 	//割合パラメーター
 	public const float TRAIT_PERCENTAGE_RECOVERY = 0.25f;	//特性発動後の回復量
-}
-
-/************特性********************/
-public struct LionCharacterIsticParameter
-{
-	public const int BURST_THRESHOLD = 80;          // 特性の発動しきい値
-	public const float BURST_DURATION = 8f;         // バースト持続時間
-	public const float BURST_BASE_SPEED = 1.25f;    // バースト時の基本速度上昇率
-	public const float BURST_MAX_EXTRA_SPEED = 0.15f;// ダメージによる追加速度の上限
-	public const float DAMAGE_TO_SPEED_SCALE = 150f; // ダメージを速度倍率に変換する割る数
 }
 
 

@@ -1,40 +1,30 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using P = LionSkillParam;
-using Istic = LionCharacterIsticParameter;
-
 
 public class Character_Lion : Animal_Skill_TraitBase
 {
-	// 特性用（蓄積ダメージ・憤怒バースト）の変数をこちらに移行
+	// 特性用（蓄積ダメージ・憤怒バースト
 	private Image lionRageFill;             // 外周ゲージUI
 	private GameObject lionRageUIRoot;      // アイコンUIルート
-	private int accumulatedDamage = 0;      // 蓄積ダメージ
 
-	
-	private float lionBurstSpeedBoost = P.LION_RESET_VALUE;		// 特性による速度倍率
-	private float lionBurstAtkBoost = P.LION_RESET_VALUE;		// 特性による攻撃倍率
-	private float lionBurstTimer = AnimalParam.TIMER_RESET;		// 特性の残り時間タイマー
-	
-	// 特性用の定数
-	private const int   BURST_THRESHOLD = 80;               // 発動しきい値
-	private const float LION_BURST_DURATION = 8f;			// バースト持続時間
-	private const float BURST_BASE_SPEED_BOOST = 1.25f;     // バースト時の基本速度上昇率
-	private const float BURST_MAX_EXTRA_SPEED = 0.15f;      // 蓄積ダメージによる追加速度の上限値
-	private const float BURST_ATK_BOOST = 1.15f;            // バースト時の攻撃上昇率
-	private const float DAMAGE_TO_SPEED_SCALE = 150f;       // ダメージを速度倍率に変換する際の割る数
-	
-	// ライオン専用のスキルバフ変数
+	// スキルバフ変数
 	private float lionSkillAtkBoost = P.LION_RESET_VALUE;
 	private float lionSkillDurationTimer = AnimalParam.TIMER_RESET;
+
+	// 特性の変数
+	private float lionBurstSpeedBoost = P.LION_RESET_VALUE;     // 特性による速度倍率
+	private float lionBurstAtkBoost = P.LION_RESET_VALUE;       // 特性による攻撃倍率
+	private float lionBurstTimer = AnimalParam.TIMER_RESET;     // 特性の残り時間タイマー
+	private int accumulatedDamage = 0;						    // 蓄積ダメージ
 
 	public override float CurrentAtkBoost => lionSkillAtkBoost * lionBurstAtkBoost;
 	public override float CurrentSpeedBoost => lionBurstSpeedBoost;
 
+	//初期
 	protected override void Start()
 	{
 		base.Start();
-
 		if (status != null && status.MyUIManager != null)
 		{
 			status.MyUIManager.CreateUI(UIManager.UI_ID.LION_RAGE, status.UiPos, status.playerID);
@@ -43,10 +33,7 @@ public class Character_Lion : Animal_Skill_TraitBase
 			{
 				lionRageUIRoot = status.MyUIManager.ui_list[status.MyUIManager.ui_list.Count - 1];
 				Transform gaugeTrans = lionRageUIRoot.transform.Find("Gauge");
-				if (gaugeTrans != null)
-				{
-					lionRageFill = gaugeTrans.GetComponent<Image>();
-				}
+				if (gaugeTrans != null) { lionRageFill = gaugeTrans.GetComponent<Image>(); }
 			}
 		}
 	}
@@ -94,12 +81,12 @@ public class Character_Lion : Animal_Skill_TraitBase
 
 		if (lionBurstTimer > 0)
 		{
-			lionRageFill.fillAmount = lionBurstTimer / LION_BURST_DURATION;
+			lionRageFill.fillAmount = lionBurstTimer / P.LION_BURST_DURATION;
 			lionRageFill.color = Color.red;
 		}
 		else
 		{
-			float ratio = (float)accumulatedDamage / BURST_THRESHOLD;
+			float ratio = (float)accumulatedDamage / P.BURST_THRESHOLD;
 			lionRageFill.fillAmount = Mathf.Clamp01(ratio);
 			lionRageFill.color = (ratio >= 1f) ? new Color(1f, 0.5f, 0f) : Color.yellow;
 		}
@@ -117,8 +104,8 @@ public class Character_Lion : Animal_Skill_TraitBase
 		{
 			status.MyUIManager.CreateOrUpdateBuffUI(
 				status.playerID,
-				Character_Status.BuffType.AttackBuff, // Character_Status. を挟む
-				P.LION_SKILL_DURATION,  //CTをセット
+				Character_Status.BuffType.AttackBuff, // Character_Statusを挟む
+				P.LION_SKILL_DURATION,  //CTセット
 				status.buffContainer
 			);
 		}
@@ -137,7 +124,7 @@ public class Character_Lion : Animal_Skill_TraitBase
 		if (status == null || status.GetMode() != Character_Status.Mode.ANIMAL) return;
 
 		accumulatedDamage += actualDamage;
-		AnimalDebugLog("yellow", $"ライオン：ダメージ蓄積中（現在：{accumulatedDamage} / しきい値：{BURST_THRESHOLD}）");
+		AnimalDebugLog("yellow", $"ライオン：ダメージ蓄積中（現在：{accumulatedDamage} / しきい値：{P.BURST_THRESHOLD}）");
 	}
 
 	// 理性解放した瞬間（本体のGetModeChange時）に呼び出される特性確定処理
@@ -145,26 +132,26 @@ public class Character_Lion : Animal_Skill_TraitBase
 	{
 		base.Characteristic();
 
-		if (accumulatedDamage >= BURST_THRESHOLD)
+		if (accumulatedDamage >= P.BURST_THRESHOLD)
 		{
 			// 蓄積量に応じて強化幅を変える（最大1.4倍、攻撃1.15倍など）
-			float extraPower = (float)(accumulatedDamage - BURST_THRESHOLD) / DAMAGE_TO_SPEED_SCALE;
-			lionBurstAtkBoost = BURST_BASE_SPEED_BOOST + Mathf.Min(extraPower, BURST_MAX_EXTRA_SPEED);
-			lionBurstAtkBoost = BURST_ATK_BOOST;
-			lionBurstTimer = LION_BURST_DURATION; // バーストタイマー開始
+			float extraPower = (float)(accumulatedDamage - P.BURST_THRESHOLD) / P.DAMAGE_TO_SPEED_SCALE;
+			lionBurstAtkBoost = P.BURST_BASE_SPEED_BOOST + Mathf.Min(extraPower, P.BURST_MAX_EXTRA_SPEED);
+			lionBurstAtkBoost = P.BURST_ATK_BOOST;
+			lionBurstTimer = P.LION_BURST_DURATION; // バーストタイマー開始
 
 			if (status != null && status.MyUIManager != null && status.buffContainer != null)
 			{
-				status.MyUIManager.CreateOrUpdateBuffUI(status.playerID, Character_Status.BuffType.SpeedBuff, LION_BURST_DURATION, status.buffContainer);
+				status.MyUIManager.CreateOrUpdateBuffUI(status.playerID, Character_Status.BuffType.SpeedBuff, P.LION_BURST_DURATION, status.buffContainer);
 			}
-			AnimalDebugLog("red", $"【特性発動】憤怒解放！ {LION_BURST_DURATION}秒間爆速！");
+			AnimalDebugLog("red", $"【特性発動】憤怒解放！ {P.LION_BURST_DURATION}秒間爆速！");
 		}
 		else
 		{
 			lionBurstSpeedBoost = P.LION_RESET_VALUE;
 			lionBurstAtkBoost = P.LION_RESET_VALUE;
 			lionBurstTimer = AnimalParam.TIMER_RESET;
-			AnimalDebugLog("white", $"蓄積不足({accumulatedDamage}/{BURST_THRESHOLD})のため特性は不発");
+			AnimalDebugLog("white", $"蓄積不足({accumulatedDamage}/{P.BURST_THRESHOLD})のため特性は不発");
 		}
 		accumulatedDamage = 0;  // 成否に関わらず蓄積はリセット
 	}
