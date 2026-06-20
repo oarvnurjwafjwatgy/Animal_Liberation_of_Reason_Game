@@ -116,12 +116,6 @@ public class Character_Lion : Animal_Skill_TraitBase
 		SetSkillCooldownTimer(P.LION_CT);
 	}
 
-	//// ライオンがスキルを使用時に攻撃値が変化する
-	//protected override void SetAtkBoost(ref float animl_atk, float boost_amount)
-	//{
-	//	base.SetAtkBoost(ref animl_atk, boost_amount);
-	//}
-
 	// 被弾時に Character_Status から呼び出されてダメージを溜める
 	public override void OnCharacterTakeDamage(int actualDamage)
 	{
