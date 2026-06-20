@@ -1,3 +1,4 @@
+using System.Data.Common;
 using UnityEngine;
 
 /*あくまでもここはデータのみの情報だけなので
@@ -82,6 +83,16 @@ public struct HoneyBadgerSkillParam
 
 	//割合パラメーター
 	public const float TRAIT_PERCENTAGE_RECOVERY = 0.25f;	//特性発動後の回復量
+}
+
+/************特性********************/
+public struct LionCharacterIsticParameter
+{
+	public const int BURST_THRESHOLD = 80;          // 特性の発動しきい値
+	public const float BURST_DURATION = 8f;         // バースト持続時間
+	public const float BURST_BASE_SPEED = 1.25f;    // バースト時の基本速度上昇率
+	public const float BURST_MAX_EXTRA_SPEED = 0.15f;// ダメージによる追加速度の上限
+	public const float DAMAGE_TO_SPEED_SCALE = 150f; // ダメージを速度倍率に変換する割る数
 }
 
 
