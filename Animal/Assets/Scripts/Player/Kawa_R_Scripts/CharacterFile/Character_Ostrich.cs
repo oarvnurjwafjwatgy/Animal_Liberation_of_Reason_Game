@@ -9,6 +9,7 @@ public class Character_Ostrich : Animal_Skill_TraitBase
 	private float ostrichSkillAtkBoost = P.OSTRICH_RESET_VALUE;  //初期値:スキルの攻撃力(通常から上乗せ)
 
 	public override float CurrentAtkBoost => ostrichSkillAtkBoost;
+	public override float MaxSkillCooldown => P.OSTRICH_CT;    // CTを入れる。
 
 	//ダチョウ専用のスキル
 	public override void Skill()

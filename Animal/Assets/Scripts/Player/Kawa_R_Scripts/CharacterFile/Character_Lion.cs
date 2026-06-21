@@ -16,10 +16,13 @@ public class Character_Lion : Animal_Skill_TraitBase
 	private float lionBurstSpeedBoost = P.LION_RESET_VALUE;     // 特性による速度倍率
 	private float lionBurstAtkBoost = P.LION_RESET_VALUE;       // 特性による攻撃倍率
 	private float lionBurstTimer = AnimalParam.TIMER_RESET;     // 特性の残り時間タイマー
-	private int accumulatedDamage = 0;						    // 蓄積ダメージ
+	private float uiVisibleTimer = AnimalParam.TIMER_RESET;		// UIを表示し続けるタイマー
+	private int accumulatedDamage = AnimalParam.INITIAL_VALUE;  // 蓄積ダメージ
 
 	public override float CurrentAtkBoost => lionSkillAtkBoost * lionBurstAtkBoost;
 	public override float CurrentSpeedBoost => lionBurstSpeedBoost;
+
+	public override float MaxSkillCooldown => P.LION_CT;	// CTを入れる。
 
 	//初期
 	protected override void Start()
@@ -41,9 +44,13 @@ public class Character_Lion : Animal_Skill_TraitBase
 	//更新
 	protected override void Update()
 	{
-		base.Update(); // 親クラスの共通CTカウントダウン（skillCooldownTimer）を実行
+		if (status != null && status.IsDead)
+		{ lionRageUIRoot.SetActive(false); return; }
+		base.Update();        // 親クラスの共通CTカウントダウンを実行
 		UpdateSkillTimer();   // 咆哮スキルのタイマー更新
 		UpdateBurstTimer();   // 憤怒バーストのタイマー更新
+
+		if (uiVisibleTimer > 0) { uiVisibleTimer -= Time.deltaTime; }
 		UpdateRageUI();       // 外周ゲージUIの表示更新
 	}
 
@@ -79,17 +86,29 @@ public class Character_Lion : Animal_Skill_TraitBase
 	{
 		if (lionRageFill == null) return;
 
-		if (lionBurstTimer > 0)
+		bool isBursting = lionBurstTimer > 0;                          // ①特性発動中（バースト中）
+		bool isGaugeMax = accumulatedDamage >= P.BURST_THRESHOLD;      // ②ゲージが満タン
+		bool isRecentlyDamaged = uiVisibleTimer > 0;                   // ③最近ダメージを喰らった（3秒以内）
+
+		// いずれかの条件を満たしていればUIを表示、そうでなければ非表示にする
+		if (isBursting || isGaugeMax || isRecentlyDamaged)
 		{
-			lionRageFill.fillAmount = lionBurstTimer / P.LION_BURST_DURATION;
-			lionRageFill.color = Color.red;
+			lionRageUIRoot.SetActive(true);
+
+			if (lionBurstTimer > 0)
+			{
+				lionRageFill.fillAmount = lionBurstTimer / P.LION_BURST_DURATION;
+				lionRageFill.color = Color.red;
+				SetUIRootAlpha(1.0f);// バースト中は点滅させず、完全に不透明（Alpha = 1）にする
+			}
+			else
+			{
+				float ratio = (float)accumulatedDamage / P.BURST_THRESHOLD;
+				lionRageFill.fillAmount = Mathf.Clamp01(ratio);
+				lionRageFill.color = (ratio >= 1f) ? new Color(1f, 0.5f, 0f) : Color.yellow;
+			}
 		}
-		else
-		{
-			float ratio = (float)accumulatedDamage / P.BURST_THRESHOLD;
-			lionRageFill.fillAmount = Mathf.Clamp01(ratio);
-			lionRageFill.color = (ratio >= 1f) ? new Color(1f, 0.5f, 0f) : Color.yellow;
-		}
+		else lionRageUIRoot.SetActive(false);   //条件をどれも満たさないのなら画面から削除。
 	}
 
 	// ライオンの専用スキル処理
@@ -124,6 +143,7 @@ public class Character_Lion : Animal_Skill_TraitBase
 		if (status == null || status.GetMode() != Character_Status.Mode.ANIMAL) return;
 
 		accumulatedDamage += actualDamage;
+		uiVisibleTimer = P.UI_VISIBLE_DURATION;// 被弾。UI表示タイマーを3秒セット&表示
 		AnimalDebugLog("yellow", $"ライオン：ダメージ蓄積中（現在：{accumulatedDamage} / しきい値：{P.BURST_THRESHOLD}）");
 	}
 
@@ -153,6 +173,29 @@ public class Character_Lion : Animal_Skill_TraitBase
 			lionBurstTimer = AnimalParam.TIMER_RESET;
 			AnimalDebugLog("white", $"蓄積不足({accumulatedDamage}/{P.BURST_THRESHOLD})のため特性は不発");
 		}
-		accumulatedDamage = 0;  // 成否に関わらず蓄積はリセット
+		accumulatedDamage = AnimalParam.INITIAL_VALUE;  // 成否に関わらず蓄積はリセット
+	}
+
+
+	// UI全体の透明度を一発で変更するヘルパー関数
+	private void SetUIRootAlpha(float alpha)
+	{
+		if (lionRageUIRoot == null) return;
+
+		// UIの親オブジェクトに CanvasGroup がついていればそれを使う
+		CanvasGroup cg = lionRageUIRoot.GetComponent<CanvasGroup>();
+		if (cg != null) cg.alpha = alpha;
+		else
+		{
+			// CanvasGroupがない場合は、とりあえずImageのColorからAlphaを直接いじる
+			Image rootImage = lionRageUIRoot.GetComponent<Image>();
+			if (rootImage != null)
+			{
+				Color c = rootImage.color;
+				c.a = alpha;
+				rootImage.color = c;
+			}
+		}
+
 	}
 }

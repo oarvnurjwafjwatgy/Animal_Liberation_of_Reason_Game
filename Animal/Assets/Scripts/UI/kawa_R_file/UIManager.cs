@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
-	public enum UI_ID { GAUGE_HP, GAUGE_REASON, LION_RAGE, BUFF_CONTAINER }
+	public enum UI_ID { GAUGE_HP, GAUGE_REASON, LION_RAGE, BUFF_CONTAINER, SKILL_CT}
 	public List<GameObject> ui_list = new List<GameObject>();
 	public Transform canvasParent;
 
@@ -47,6 +47,7 @@ public class UIManager : MonoBehaviour
         else if (ui_id == UI_ID.GAUGE_REASON) prefab = Resources.Load("Prefab/UI/Reason_ber") as GameObject;
         else if (ui_id == UI_ID.LION_RAGE) prefab = Resources.Load("Prefab/UI/Lion_Rage_Icon") as GameObject;
 		else if (ui_id == UI_ID.BUFF_CONTAINER)prefab = Resources.Load("Prefab/UI/Buff_Container") as GameObject;
+		else if (ui_id == UI_ID.SKILL_CT) prefab = Resources.Load("Prefab/UI/Skill_CT_Icon") as GameObject;
 
 		if (prefab != null)
 		{
@@ -61,22 +62,24 @@ public class UIManager : MonoBehaviour
 				rect.localScale = new Vector3(0.8f, 0.8f, 1.0f);
 				rect.position = pos.position;
 
-				// 理性ゲージ（Reason）ならHPバーの上に少し重ねる
-				if (ui_id == UI_ID.GAUGE_REASON)
+				switch (ui_id)
 				{
-					rect.anchoredPosition += new Vector2(0f, 19f);
-					rect.localScale = new Vector3(0.8f, 0.6f, 1.0f); // 少し細長く
-				}
-				else if (ui_id == UI_ID.LION_RAGE)
-				{
-					// バーの左側にずらす。
-					rect.anchoredPosition += new Vector2(-200f, -120f);
-					rect.localScale = new Vector3(1.0f, 1.0f, 1.0f);
-				}
-				else if (ui_id == UI_ID.BUFF_CONTAINER)
-				{
-					rect.anchoredPosition += new Vector2(-80f, -100f);
-					rect.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+					case UI_ID.GAUGE_REASON:// 理性ゲージならHPバーの上に少し重ねる
+						rect.anchoredPosition += new Vector2(0f, 19f);
+						rect.localScale = new Vector3(0.8f, 0.6f, 1.0f); // 少し細長く
+						break;
+					case UI_ID.LION_RAGE:// バーの左側にずらす。
+						rect.anchoredPosition += new Vector2(-200f, -250f);
+						rect.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+						break;
+					case UI_ID.BUFF_CONTAINER:  //スキルUIの右辺りに配置
+						rect.anchoredPosition += new Vector2(-80f, -100f);
+						rect.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+						break;
+					case UI_ID.SKILL_CT:    //スキルアイコン
+						rect.anchoredPosition += new Vector2(-200f, -120f);
+						rect.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+						break;
 				}
 			}
 			ui_list.Add(uiObj);

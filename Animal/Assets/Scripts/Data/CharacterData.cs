@@ -22,6 +22,8 @@ public struct AnimalParam
 
 	//「一部共通の定数」
 	public const float TIMER_RESET = 0f;	//基本全てで使用するタイマー初期値
+	public const int INITIAL_VALUE = 0;		//初期値
+	
 }
 
 /****各動物のスキルパラメーター******/
@@ -29,22 +31,29 @@ public struct AnimalParam
 //ライオンのスキル&特性の定数
 public struct LionSkillParam
 {
-	//時間のパラメーター
+	/****時間のパラメーター***********/
+	//スキルの定数
 	public const float LION_SKILL_DURATION = 5.0f;  // 咆哮バフの持続時間
 	public const float LION_CT = 15.0f;             // スキルのCT(咆哮)※爆発力が高いので長め
+	
+	// 特性用の定数
+	public const float UI_VISIBLE_DURATION = 3.0f;  // 被弾後、UIを何秒間表示させるか
+	public const float LION_BURST_DURATION = 8f;    // バースト持続時間
 
-	//倍率のパラメーター
+
+	/******倍率のパラメーター********/
+	//スキル
 	public const float LION_RESET_VALUE = 1.0f;     // 初期値:変化前に戻す値(ex.攻撃後に値を元に戻す
 	public const float SKILL_UP_VALUE = 1.3f;       // 通常時にスキルでバフ強化する時に上がる倍率
 	public const float REASON_SKILL_UP_VALUE = 1.7f;// 理性開放時にバフ強化する時に上がる倍率
 
-	// 特性用の定数
+	//特性
 	public const int BURST_THRESHOLD = 80;                 // 発動しきい値
-	public const float LION_BURST_DURATION = 8f;           // バースト持続時間
 	public const float BURST_BASE_SPEED_BOOST = 1.25f;     // バースト時の基本速度上昇率
 	public const float BURST_MAX_EXTRA_SPEED = 0.15f;      // 蓄積ダメージによる追加速度の上限値
 	public const float BURST_ATK_BOOST = 1.15f;            // バースト時の攻撃上昇率
 	public const float DAMAGE_TO_SPEED_SCALE = 150f;       // ダメージを速度倍率に変換する際の割る数
+
 }
 
 //ダチョウのスキル
