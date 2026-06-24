@@ -19,12 +19,12 @@ public class Animal_Skill_TraitBase : MonoBehaviour
 	// 外部（本体のCharacter_Statusなど）から、現在のCTを安全に読み取りするためのプロパティ
 	public float SkillCooldownTimer => skillCooldownTimer;
 
-	public virtual float CurrentAtkBoost => 1.0f;
+	public virtual float CurrentAtkBoost => CharacterData.INITIAL_MAGNIFICATION;
 
-	public virtual float CurrentSpeedBoost => 1.0f;
+	public virtual float CurrentSpeedBoost => CharacterData.INITIAL_MAGNIFICATION;
 
 	// 例：ライオンなら P.LION_CT を返すように各子クラスでオーバーライドする
-	public virtual float MaxSkillCooldown => 0f;
+	public virtual float MaxSkillCooldown => AnimalParam.TIMER_RESET;
 
 	// if文のチェックで使用する(理性開放かどうか)
 	protected bool IsSpecialAnimal => status != null && status.GetMode() == Character_Status.Mode.SPSIAL_ANIMAL;
