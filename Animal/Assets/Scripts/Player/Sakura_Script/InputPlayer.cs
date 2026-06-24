@@ -87,7 +87,9 @@ public class InputPlayer : MonoBehaviour
 
     private float SkillStartTime = 0; // サイのスキル開始時間を記録
 
-    public enum Direction
+	private PlayerCameraController cameraController;
+
+	public enum Direction
     {
         Front,
         Right,
@@ -111,6 +113,7 @@ public class InputPlayer : MonoBehaviour
         // ただし、既に SetupDynamicReferences で設定されている場合は何もしない
         if (cameraObject == null) cameraObject = transform.GetChild(0).gameObject;
         if (ghostObject == null) ghostObject = transform.GetChild(1).gameObject;
+        cameraController.Initialize(cameraObject, ghostObject);
 
         character_Status = GetComponent<Character_Status>();
 
@@ -133,8 +136,11 @@ public class InputPlayer : MonoBehaviour
         // 同じゲームオブジェクトにアタッチされているコンポーネントを取得
         TryGetComponent(out rb);
         TryGetComponent(out controller);
-
         if (controller == null) Debug.LogError("Controller コンポーネントが見つかりません！");
+
+        //新しいカメラコントローラーを取得：無ければ追加
+        cameraController = GetComponent<PlayerCameraController>();
+        if(cameraController==null) cameraController = gameObject.AddComponent<PlayerCameraController>();
     }
 
     private void OnEnable()
@@ -187,7 +193,8 @@ public class InputPlayer : MonoBehaviour
         if (deathFlag)
         {
             this.UpdateGhostMove();
-            this.UpdateGhostCamera();
+            //this.UpdateGhostCamera();
+            cameraController.UpdateGhostCamera(controller.GetRightStick(), transform,ref cachedRotate);return;
         }
 
         if (controller == null || rb == null || LiveFlag == false) return;
@@ -197,11 +204,12 @@ public class InputPlayer : MonoBehaviour
         {
             // スティック入力に関係なく直進
             rb.velocity = skillDirection * character_Status.CurrentMoveSpeed + new Vector3(0, rb.velocity.y, 0);
+            cameraController.UpdateCamera(controller.GetRightStick(), transform);return;
 
             // スキル中でもカメラ操作（Rスティック）だけは可能にする
-            if (!deathFlag) this.UpdateCamera();
-            else this.UpdateGhostCamera();
-            return; // 通常のLスティック移動処理は行わない
+            //if (!deathFlag) this.UpdateCamera();
+            //else this.UpdateGhostCamera();
+            //return; // 通常のLスティック移動処理は行わない
         }
 
         // --- 通常の移動処理 ---
@@ -216,8 +224,9 @@ public class InputPlayer : MonoBehaviour
             rb.velocity = moveForward * character_Status.CurrentMoveSpeed + new Vector3(0, rb.velocity.y, 0);
 
             // 通常時のカメラ更新
-            if (!deathFlag) this.UpdateCamera();
-            else this.UpdateGhostCamera();
+            cameraController.UpdateCamera(controller.GetRightStick(), transform);
+            //if (!deathFlag) this.UpdateCamera();
+            //else this.UpdateGhostCamera();
         }
     }
 
@@ -530,9 +539,10 @@ public class InputPlayer : MonoBehaviour
 
     private void OnCameraReset(InputAction.CallbackContext context)
     {
-        cameraObject.transform.position = normalObject.transform.position + new Vector3(0f, 1f, 0f) + normalObject.transform.forward * -3f;
-        cameraObject.transform.rotation = normalObject.transform.rotation;
+        //cameraObject.transform.position = normalObject.transform.position + new Vector3(0f, 1f, 0f) + normalObject.transform.forward * -3f;
+        //cameraObject.transform.rotation = normalObject.transform.rotation;
         Debug.Log("カメラリセット");
+        cameraController.ResetCamera(GetActiveModel());
     }
 
     private GameObject GetActiveModel()
