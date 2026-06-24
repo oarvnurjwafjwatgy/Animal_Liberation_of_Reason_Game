@@ -82,6 +82,8 @@ public class InputPlayer : MonoBehaviour
 
     private float SkillStartTime = 0; // サイのスキル開始時間を記録
 
+	private Coroutine ratelAutoAttackCoroutine;
+
 	private PlayerCameraController cameraController;
 
 	public enum Direction
@@ -168,12 +170,12 @@ public class InputPlayer : MonoBehaviour
 
         // ラーテルがスキル発動中(1)の時だけHPチェック
         if (character_Status.CharaAnim == Character_Status.CharacterType.RATEL &&
-            animator.GetInteger("RatelSkill") == 1)
+            animator.GetInteger("RatelSkill") == (int)RatelSkillState.Hide)
         {
             if (character_Status.CurrentHP < ratelSkillStartHP)
             {
                 Debug.Log("ダメージを受けたのでラーテルのスキルを解除します");
-                animator.SetInteger("RatelSkill", 2);
+                animator.SetInteger("RatelSkill", (int)RatelSkillState.Attack);
                 MoveFlag = true;
             }
         }
@@ -308,9 +310,7 @@ public class InputPlayer : MonoBehaviour
 
             // ラーテルの場合、アニメーションパラメータが0（Idle）なら強制的にMoveFlagを戻す
             if (character_Status.CharaAnim == Character_Status.CharacterType.RATEL)
-                if (animator.GetInteger("RatelSkill") == 0) MoveFlag = true;
-
-            // --- 追加：クールタイムの判定 ---
+                if (animator.GetInteger("RatelSkill") == (int)RatelSkillState.Idle) MoveFlag = true;
             Character_Status.CharacterType currentType = character_Status.CharaAnim;
 
             bool isSpecial = (character_Status.GetMode() == Character_Status.Mode.SPSIAL_ANIMAL);
@@ -488,7 +488,7 @@ public class InputPlayer : MonoBehaviour
         : normalObject;
     }
 
-    private void OnSkill(InputAction.CallbackContext context)
+	private void OnSkill(InputAction.CallbackContext context)
     {
         if (!LiveFlag) return;
         // Character_Status.CharacterType currentType = character_Status.CharaAnim;
@@ -497,7 +497,7 @@ public class InputPlayer : MonoBehaviour
         var activeModel = GetActiveModel();
         var effectPosition = GetEffectSpawnPosition(activeModel);
 
-        // サイだけ先に処理
+        // サイ・先に処理
         if (currentType == Character_Status.CharacterType.RHINOCELOS)
         {
             Debug.Log("サイスキル入口");
@@ -506,6 +506,11 @@ public class InputPlayer : MonoBehaviour
             character_Status.Skill();
             return;
         }
+
+        /*ラーテルも先に処理
+         もしラーテルで既に潜ってたらCTガン無視で飛び出す処理を呼ぶ*/
+        if (currentType == Character_Status.CharacterType.RATEL
+        && animator.GetInteger("RatelSkill") == (int)RatelSkillState.Hide) { ExecuteRatelAttack(); }
 
 		var skillBase = GetComponent<Animal_Skill_TraitBase>();
 		if (skillBase != null && skillBase.SkillCooldownTimer > 0f)
@@ -517,27 +522,8 @@ public class InputPlayer : MonoBehaviour
 		switch (currentType)
         {
             case Character_Status.CharacterType.RATEL:
-                var currentRatelSkill = animator.GetInteger("RatelSkill");
-                if (currentRatelSkill == 1) // 溜め中 -> 攻撃
-                {
-					//if (Time.time - ratelSkillStartTime < 1.0f) return;
-					AudioManager.Instance.PlaySEByIndex(5, 1.5f);
-					animator.SetInteger("RatelSkill", 2);
-                    // ★ 攻撃アニメーションが終わる頃に、すべてのフラグを「0」に戻す
-                    StartCoroutine(ResetRatelSkillState(0.8f));
-                    Invoke("AttackCollider", 0.5f);
-                    MoveFlag = true;
-                }
-                else if (currentRatelSkill == 0) // 待機中(0) から 溜め開始(1) へ
-                {
-                    Effect_Manager.PlayEffect(normalObject.name, 1,
-                    effectPosition, activeModel.transform.rotation, Vector3.one, this.transform);
-                    animator.SetInteger("RatelSkill", 1);
-                    ratelSkillStartTime = Time.time; // 開始時間を記録
-                    AudioManager.Instance.PlaySEByIndex(5, 1.5f);
-                    MoveFlag = false;
-                    ratelSkillStartHP = character_Status.CurrentHP;
-                }
+                int state = animator.GetInteger("RatelSkill");
+                if (state == (int)RatelSkillState.Idle) EnterRatelHide(effectPosition);
                 break;
 
             case Character_Status.CharacterType.LION:
@@ -553,13 +539,52 @@ public class InputPlayer : MonoBehaviour
                 SetEffect(1);
                 break;
         }
-
-        //lastSkillTime = Time.time;
         character_Status.Skill();
     }
 
-    // ライオンやダチョウの重複処理を統一させる＆SE決定
-    private void PlaySkillTrigger(int seIndex)
+    //時間経過後自動的に飛び出し
+    private IEnumerator AutoRatelAttack()
+    {
+        yield return new WaitForSeconds(HoneyBadgerSkillParam.RATEL_MAX_HIDE_TIME);
+
+        if (animator.GetInteger("RatelSkill") == (int)RatelSkillState.Hide)
+        { ExecuteRatelAttack(); }
+    }
+
+    //スキル飛び出し
+    private void ExecuteRatelAttack()
+    {
+        animator.SetInteger("RatelSkill", (int)RatelSkillState.Attack);
+        AudioManager.Instance.PlaySEByIndex(5, 1.5f);
+        Invoke(nameof(AttackCollider), 0.5f);
+        StartCoroutine(ResetRatelSkillState(0.8f));
+        MoveFlag = true;
+        //lastAttackTime = Time.time;//CT
+        character_Status.Skill();
+        Debug.Log("ラーテルの飛び出し");
+	}
+
+    //スキル潜る
+    private void EnterRatelHide(Vector3 effectPosition)
+    {
+        animator.SetInteger("RatelSkill", (int)RatelSkillState.Hide);
+        ratelSkillStartHP = character_Status.CurrentHP;
+        MoveFlag = false;
+        Effect_Manager.PlayEffect(
+        normalObject.name, 1,
+        effectPosition,
+        transform.rotation,
+        Vector3.one,
+        transform
+        ); //エフェクト生成
+
+		if (ratelAutoAttackCoroutine != null) { StopCoroutine(ratelAutoAttackCoroutine); }
+        ratelAutoAttackCoroutine = StartCoroutine(AutoRatelAttack());
+        Debug.Log("ラーテル潜伏開始");
+	}
+
+	// ライオンやダチョウの重複処理を統一させる＆SE決定
+	private void PlaySkillTrigger(int seIndex)
     {
         animator.SetTrigger("Skill");
         AudioManager.Instance.PlaySEByIndex(seIndex, 1.5f);
@@ -605,11 +630,17 @@ public class InputPlayer : MonoBehaviour
 
     private void HandleRatelSkill() { }
 
+    //ラーテルのスキル遷移リセット
     private IEnumerator ResetRatelSkillState(float delay)
     {
         yield return new WaitForSeconds(delay);
-        if (animator != null) animator.SetInteger("RatelSkill", 0);
+        animator.SetInteger("RatelSkill", (int)RatelSkillState.Idle);
         MoveFlag = true;
+        if(ratelAutoAttackCoroutine!=null)
+        {
+            StopCoroutine(ratelAutoAttackCoroutine);
+            ratelAutoAttackCoroutine = null;
+        }
     }
 
 
@@ -894,7 +925,8 @@ public class InputPlayer : MonoBehaviour
         if (character_Status.CharaAnim == Character_Status.CharacterType.RATEL)
         {
             int ratelState = animator.GetInteger("RatelSkill");
-            if (ratelState == 1 || ratelState == 2) return true;
+            if (ratelState == (int)RatelSkillState.Hide || ratelState == (int)RatelSkillState.Attack)
+                return true;
         }
 
         if (character_Status.CharaAnim == Character_Status.CharacterType.RHINOCELOS)
@@ -936,7 +968,7 @@ public class InputPlayer : MonoBehaviour
     {
         if (character_Status.CharaAnim == Character_Status.CharacterType.RATEL)
         {
-            animator.SetInteger("RatelSkill", 0);
+            animator.SetInteger("RatelSkill", (int)RatelSkillState.Idle);
             animator.SetInteger("State", 0);
             MoveFlag = true;
         }
@@ -949,7 +981,7 @@ public class InputPlayer : MonoBehaviour
 
         // 数値系 (Int, Float) のリセット
         animator.SetInteger("State", 0);      // 0: Idle
-        animator.SetInteger("RatelSkill", 0); // ラーテルの溜め状態解除
+        animator.SetInteger("RatelSkill", (int)RatelSkillState.Idle); // ラーテルの溜め状態解除
 
         // トリガー系 (Trigger) のリセット
         // ※発動待ちのトリガーがある場合に備えてリセットします
