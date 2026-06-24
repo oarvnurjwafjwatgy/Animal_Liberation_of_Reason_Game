@@ -6,6 +6,14 @@ using System.Collections;
 /*InputPlayer.cs全体担当者:古澤 桜
   SE関連担当者            :川上 流輝 */
 
+// TODO:
+// ラーテルスキル連打時に Hide→Attack 遷移が失敗する場合あり
+// 原因候補:
+// ・Animator Transition条件
+// ・Exit Time
+// ・Stateパラメータ競合
+// リリース前に再調査
+
 // 動物ごとの設定をインスペクターで表示するためのクラス
 [System.Serializable]
 public struct AnimalAttackSettings
@@ -187,7 +195,7 @@ public class InputPlayer : MonoBehaviour
     // 物理演算は FixedUpdate で行います
     private void FixedUpdate()
     {
-        if (deathFlag)
+		if (deathFlag)
         {
             this.UpdateGhostMove();
             cameraController.UpdateGhostCamera(controller.GetRightStick(), transform,ref cachedRotate);return;
@@ -259,7 +267,6 @@ public class InputPlayer : MonoBehaviour
                 reasonObject.transform.rotation = cachedRotate;
             }
         }
-
     }
 
     // 観戦モード時の移動
@@ -490,7 +497,7 @@ public class InputPlayer : MonoBehaviour
 
 	private void OnSkill(InputAction.CallbackContext context)
     {
-        if (!LiveFlag) return;
+		if (!LiveFlag) return;
         // Character_Status.CharacterType currentType = character_Status.CharaAnim;
         //GameObject activeModel = GetActiveModel();
         var currentType = character_Status.CharaAnim;
@@ -554,21 +561,23 @@ public class InputPlayer : MonoBehaviour
     //スキル飛び出し
     private void ExecuteRatelAttack()
     {
-        animator.SetInteger("RatelSkill", (int)RatelSkillState.Attack);
+		animator.SetInteger("State", 0);//潜らないバグ修正箇所
+		animator.SetInteger("RatelSkill", (int)RatelSkillState.Attack);
         AudioManager.Instance.PlaySEByIndex(5, 1.5f);
         Invoke(nameof(AttackCollider), 0.5f);
         StartCoroutine(ResetRatelSkillState(0.8f));
         MoveFlag = true;
-        //lastAttackTime = Time.time;//CT
         character_Status.Skill();
         Debug.Log("ラーテルの飛び出し");
-	}
+    }
 
     //スキル潜る
     private void EnterRatelHide(Vector3 effectPosition)
     {
-        animator.SetInteger("RatelSkill", (int)RatelSkillState.Hide);
-        ratelSkillStartHP = character_Status.CurrentHP;
+		animator.SetInteger("State", 0);//潜らないバグ修正箇所
+		animator.SetInteger("RatelSkill", (int)RatelSkillState.Hide);
+		rb.velocity = Vector3.zero;
+		ratelSkillStartHP = character_Status.CurrentHP;
         MoveFlag = false;
         Effect_Manager.PlayEffect(
         normalObject.name, 1,
@@ -636,7 +645,7 @@ public class InputPlayer : MonoBehaviour
         yield return new WaitForSeconds(delay);
         animator.SetInteger("RatelSkill", (int)RatelSkillState.Idle);
         MoveFlag = true;
-        if(ratelAutoAttackCoroutine!=null)
+		if (ratelAutoAttackCoroutine!=null)
         {
             StopCoroutine(ratelAutoAttackCoroutine);
             ratelAutoAttackCoroutine = null;

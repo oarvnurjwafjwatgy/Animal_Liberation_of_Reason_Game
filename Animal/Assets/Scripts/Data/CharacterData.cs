@@ -92,7 +92,7 @@ public struct HoneyBadgerSkillParam
 	//時間のパラメーター
 	public const float HONEYBADGER_CT = 12.0f;    // ラーテルのスキルCT
 	public const float RESET_DELAY = 2.0f;        // 攻撃値を含めた値をリセットするのにかかる時間
-	public const float RATEL_MAX_HIDE_TIME = 20f; // ラーテルのスキルで潜っている最長時間
+	public const float RATEL_MAX_HIDE_TIME = 10f; // ラーテルのスキルで潜っている最長時間
 
 	//倍率のパラメーター
 	public const float HONEYBADGER_RESET_VALUE = 1.0f;   // 初期値:変化前に戻す値(ex.攻撃後に値を元に戻す
