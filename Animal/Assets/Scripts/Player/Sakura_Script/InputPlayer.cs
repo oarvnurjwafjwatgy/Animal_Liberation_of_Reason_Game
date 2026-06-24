@@ -193,23 +193,20 @@ public class InputPlayer : MonoBehaviour
         if (deathFlag)
         {
             this.UpdateGhostMove();
-            //this.UpdateGhostCamera();
             cameraController.UpdateGhostCamera(controller.GetRightStick(), transform,ref cachedRotate);return;
         }
 
         if (controller == null || rb == null || LiveFlag == false) return;
 
         // --- 【サイのスキル直進ロジック】 ---
-        if (character_Status.CharaAnim == Character_Status.CharacterType.RHINOCELOS && animator.GetBool("RhinocerosSkill"))
+        if (character_Status.CharaAnim == Character_Status.CharacterType.RHINOCELOS
+        && animator.GetBool("RhinocerosSkill"))
         {
             // スティック入力に関係なく直進
             rb.velocity = skillDirection * character_Status.CurrentMoveSpeed + new Vector3(0, rb.velocity.y, 0);
-            cameraController.UpdateCamera(controller.GetRightStick(), transform);return;
 
             // スキル中でもカメラ操作（Rスティック）だけは可能にする
-            //if (!deathFlag) this.UpdateCamera();
-            //else this.UpdateGhostCamera();
-            //return; // 通常のLスティック移動処理は行わない
+            cameraController.UpdateCamera(controller.GetRightStick(), transform); return;
         }
 
         // --- 通常の移動処理 ---
@@ -225,8 +222,6 @@ public class InputPlayer : MonoBehaviour
 
             // 通常時のカメラ更新
             cameraController.UpdateCamera(controller.GetRightStick(), transform);
-            //if (!deathFlag) this.UpdateCamera();
-            //else this.UpdateGhostCamera();
         }
     }
 
@@ -268,58 +263,6 @@ public class InputPlayer : MonoBehaviour
             }
         }
 
-    }
-
-    // 通常時のカメラ更新
-    private void UpdateCamera()
-    {
-        // ControllerクラスからRスティックの入力値を取得
-        Vector2 rightStickInput = controller.GetRightStick();
-
-        // カメラの横移動
-        if (rightStickInput.x > 0.25f || rightStickInput.x < -0.25f)
-        {
-            cameraObject.transform.RotateAround(this.transform.position, Vector3.up, rightStickInput.x * Time.deltaTime * 200f);
-        }
-        // カメラの縦移動
-        float camera_angle_x = cameraObject.transform.localEulerAngles.x;
-        //Debug.Log(camera_angle_x);
-        if (rightStickInput.y > 0.25f && (camera_angle_x >= 0f && camera_angle_x < 180f))
-        {
-            // 下移動
-            cameraObject.transform.RotateAround(this.transform.position, cameraObject.transform.right, -rightStickInput.y * Time.deltaTime * 200f);
-        }
-        if (rightStickInput.y < -0.25f && (camera_angle_x < 60f || camera_angle_x <= 360f && camera_angle_x > 180f))
-        {
-            // 上移動
-            cameraObject.transform.RotateAround(this.transform.position, cameraObject.transform.right, -rightStickInput.y * Time.deltaTime * 200f);
-        }
-    }
-
-    // 観戦モード時のカメラ更新
-    private void UpdateGhostCamera()
-    {
-        // ControllerクラスからRスティックの入力値を取得
-        Vector2 rightStickInput = controller.GetRightStick();
-
-        // カメラの横移動
-        if (rightStickInput.x > 0.25f || rightStickInput.x < -0.25f)
-        {
-            ghostObject.transform.RotateAround(this.transform.position, Vector3.up, rightStickInput.x * Time.deltaTime * 200f);
-        }
-        // カメラの縦移動
-        float camera_angle_x = ghostObject.transform.localEulerAngles.x;
-        //Debug.Log(camera_angle_x);
-        if (rightStickInput.y > 0.25f && (camera_angle_x > 280f || camera_angle_x >= 0f && camera_angle_x < 180f))
-        {
-            // 下移動
-            ghostObject.transform.RotateAround(this.transform.position, ghostObject.transform.right, -rightStickInput.y * Time.deltaTime * 200f);
-        }
-        if (rightStickInput.y < -0.25f && (camera_angle_x < 80f || camera_angle_x <= 360f && camera_angle_x > 180f))
-        {
-            // 上移動
-            ghostObject.transform.RotateAround(this.transform.position, ghostObject.transform.right, -rightStickInput.y * Time.deltaTime * 200f);
-        }
     }
 
     // 観戦モード時の移動
@@ -537,13 +480,9 @@ public class InputPlayer : MonoBehaviour
 
     }
 
+    //カメラリセット
     private void OnCameraReset(InputAction.CallbackContext context)
-    {
-        //cameraObject.transform.position = normalObject.transform.position + new Vector3(0f, 1f, 0f) + normalObject.transform.forward * -3f;
-        //cameraObject.transform.rotation = normalObject.transform.rotation;
-        Debug.Log("カメラリセット");
-        cameraController.ResetCamera(GetActiveModel());
-    }
+    { cameraController.ResetCamera(GetActiveModel()); }
 
     private GameObject GetActiveModel()
     {
@@ -1035,11 +974,6 @@ public class InputPlayer : MonoBehaviour
         }
         return false;
     }
-
-    //void DeleteEffect()
-    //{
-    //    Effect_Manager.StopLoopEffect(this.gameObject.transform);
-    //}
 
     public void ResetRatelSkillParam()
     {
