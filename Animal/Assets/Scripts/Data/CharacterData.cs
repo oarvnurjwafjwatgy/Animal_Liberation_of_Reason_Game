@@ -111,7 +111,8 @@ public static class CharacterData
 	public const float INITIAL_MAGNIFICATION = 1.0f;	//全倍率の初期値(ex.AtkMult→リセット
 	public const float REASON_DECREASE_RATE = 0.02f;	// 最大理性ゲージから2%分で減少
 	public const float REASON_HEAL_RATE = 0.01f;		// 最大理性ゲージから1%分で回復
-	public const float OFF_SITE_RAITO = 0.05f;			// 場外に出たときの最大HP割合ダメージ量
+	public const float OFF_SITE_RAITO = 0.05f;          // 場外に出たときの最大HP割合ダメージ量
+	public const float ATTACK_OFFSET = 1.0f;            // 攻撃判定を出す位置（自分の中心からどれくらい前か）
 
 
 	//ライオンのパラメータ

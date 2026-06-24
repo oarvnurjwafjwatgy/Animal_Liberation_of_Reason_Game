@@ -20,21 +20,17 @@ public struct AnimalAttackSettings
 
 public class InputPlayer : MonoBehaviour
 {
-
     [Header("クールタイム設定")]
     [SerializeField] private List<AnimalAttackSettings> animalSettings = new List<AnimalAttackSettings>();
-    private Dictionary<Character_Status.CharacterType, float> cooldownDict = new Dictionary<Character_Status.CharacterType, float>();
+    private Dictionary<Character_Status.CharacterType, float> 
+    cooldownDict = new Dictionary<Character_Status.CharacterType, float>();
+    
     private float lastAttackTime; // 最後に攻撃した時間
-    private float lastSkillTime; // 最後にスキルを使った時間
-
     private Vector3 effectOffset = new Vector3(0f, 0.2f, 1.0f);
 
     [Header("攻撃の設定")]
-    public float attackRange = 2.0f;   // 攻撃が届く距離
-    public float attackOffset = 1.0f;  // 攻撃判定を出す位置（自分の中心からどれくらい前か）
     public LayerMask enemyLayer;       // インスペクターで「Player」レイヤーを選択
 
-    public float moveSpeed = 5.0f; // キャラクターの移動速度
     private GameObject cameraObject;
     public GameObject normalObject;
     public GameObject reasonObject;
@@ -61,7 +57,6 @@ public class InputPlayer : MonoBehaviour
     EffectManager Effect_Manager = null;
 
     bool MoveFlag = true; // 動かせるか
-
     bool LiveFlag = true; //生きているか
 
     Vector3 Position;
@@ -121,7 +116,7 @@ public class InputPlayer : MonoBehaviour
         if (animator == null) animator = GetComponent<Animator>();
 
         deathFlag = false;
-        outOfRangeDamageTimer = 0f;
+        outOfRangeDamageTimer = AnimalParam.TIMER_RESET;
 
         // 辞書の初期化（リストから検索しやすい辞書形式に変換）
         foreach (var setting in animalSettings)
@@ -464,7 +459,8 @@ public class InputPlayer : MonoBehaviour
             }
             else Debug.Log("モードチェンジ可能");
 
-            Effect_Manager.PlayEffect("Common", 0, this.transform.position, this.transform.rotation, new Vector3(2.0f, 2.0f, 2.0f), this.transform);
+            Effect_Manager.PlayEffect("Common", 0, this.transform.position,
+            this.transform.rotation, new Vector3(2.0f, 2.0f, 2.0f), this.transform);
 
             switch (character_Status.CharaAnim)
             {
@@ -511,31 +507,22 @@ public class InputPlayer : MonoBehaviour
             return;
         }
 
-        float skillCooldown = GetSkillCooldown(currentType);    //各動物ごとにCTをセット
+		var skillBase = GetComponent<Animal_Skill_TraitBase>();
+		if (skillBase != null && skillBase.SkillCooldownTimer > 0f)
+		{
+			Debug.Log($"{currentType} のスキルはクールタイム中です。残り: {skillBase.SkillCooldownTimer:F2}秒");
+			return; // クールタイム中なら、SEもアニメーションも走らせずにここで終了
+		}
 
-        // --- 2. クールタイムの判定 (攻撃と同じやり方) ---
-        if (Time.time - lastSkillTime < skillCooldown)
-        {
-            Debug.Log($"{currentType} のスキルはまだ使えません。残り: {skillCooldown - (Time.time - lastSkillTime):F2}秒");
-            return;
-        }
-
-        // --- 3. スキル発動成功！時間の更新 ---
-        //lastSkillTime = Time.time;
-
-        // 共通参照の取得
-        //GameObject activeModel = GetActiveModel();
-        //Vector3 effectPosition = GetEffectSpawnPosition(activeModel);
-
-        switch (currentType)
+		switch (currentType)
         {
             case Character_Status.CharacterType.RATEL:
                 var currentRatelSkill = animator.GetInteger("RatelSkill");
                 if (currentRatelSkill == 1) // 溜め中 -> 攻撃
                 {
-                    //if (Time.time - ratelSkillStartTime < 1.0f) return;
-                    AudioManager.Instance.PlaySEByIndex(5, 1.5f);
-                    animator.SetInteger("RatelSkill", 2);
+					//if (Time.time - ratelSkillStartTime < 1.0f) return;
+					AudioManager.Instance.PlaySEByIndex(5, 1.5f);
+					animator.SetInteger("RatelSkill", 2);
                     // ★ 攻撃アニメーションが終わる頃に、すべてのフラグを「0」に戻す
                     StartCoroutine(ResetRatelSkillState(0.8f));
                     Invoke("AttackCollider", 0.5f);
@@ -543,7 +530,8 @@ public class InputPlayer : MonoBehaviour
                 }
                 else if (currentRatelSkill == 0) // 待機中(0) から 溜め開始(1) へ
                 {
-                    Effect_Manager.PlayEffect(normalObject.name, 1, effectPosition, activeModel.transform.rotation, Vector3.one, this.transform);
+                    Effect_Manager.PlayEffect(normalObject.name, 1,
+                    effectPosition, activeModel.transform.rotation, Vector3.one, this.transform);
                     animator.SetInteger("RatelSkill", 1);
                     ratelSkillStartTime = Time.time; // 開始時間を記録
                     AudioManager.Instance.PlaySEByIndex(5, 1.5f);
@@ -566,23 +554,8 @@ public class InputPlayer : MonoBehaviour
                 break;
         }
 
-        lastSkillTime = Time.time;
+        //lastSkillTime = Time.time;
         character_Status.Skill();
-    }
-
-
-    private float GetSkillCooldown(Character_Status.CharacterType type)
-    {
-        var settings = animalSettings.Find(s => s.type == type);
-        if (settings.type == type) return settings.skillCooldown;
-        switch (type)
-        {
-            case Character_Status.CharacterType.LION: return 5f;
-            case Character_Status.CharacterType.OSTRICH: return 2f;
-            case Character_Status.CharacterType.RHINOCELOS: return 3f;
-            case Character_Status.CharacterType.RATEL: return 2f;
-            default: return 1f;
-        }
     }
 
     // ライオンやダチョウの重複処理を統一させる＆SE決定
@@ -632,8 +605,6 @@ public class InputPlayer : MonoBehaviour
 
     private void HandleRatelSkill() { }
 
-
-
     private IEnumerator ResetRatelSkillState(float delay)
     {
         yield return new WaitForSeconds(delay);
@@ -656,7 +627,6 @@ public class InputPlayer : MonoBehaviour
         }
     }
 
-
     private void OnDescent()
     {
         Debug.Log("下降");
@@ -669,12 +639,7 @@ public class InputPlayer : MonoBehaviour
         rb.velocity = new Vector3(rb.velocity.x, 5f, rb.velocity.z);
     }
 
-    private void RemoveUpDown()
-    {
-        //Debug.Log("上下キャンセル");
-        rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
-    }
-
+    private void RemoveUpDown() { rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z); }
 
     public void SetDeath()
     {
@@ -714,7 +679,7 @@ public class InputPlayer : MonoBehaviour
         // 2. 出現位置の計算
         // activeModel.transform.forward : モデルが向いている正面方向
         // attackOffset : インスペクターで設定できる「前方にどれくらい離すか」の距離
-        Vector3 spawnPosition = activeModel.transform.position + new Vector3(0f, 0.5f, 0f) + activeModel.transform.forward * attackOffset;
+        Vector3 spawnPosition = activeModel.transform.position + new Vector3(0f, 0.5f, 0f) + activeModel.transform.forward * CharacterData.ATTACK_OFFSET;
 
         // 3. 当たり判定の生成
         // Quaternion.identity ではなく activeModel.transform.rotation を渡すことで、向きを合わせます
@@ -722,8 +687,6 @@ public class InputPlayer : MonoBehaviour
 
         return collisionObject.transform.position;
     }
-
-    //public void ColliderDelete() { Destroy(collisionObject); }
 
     public void SetupDynamicReferences(GameObject normal, GameObject reason)
     {
@@ -947,10 +910,7 @@ public class InputPlayer : MonoBehaviour
         // ※Animator上のステート名が "Skill" であることを確認してください
         if (stateInfo.IsName("Skill"))
         {
-            if (stateInfo.normalizedTime < 1.0f)
-            {
-                return true;
-            }
+            if (stateInfo.normalizedTime < 1.0f) { return true; }
         }
         return false;
     }
@@ -967,10 +927,7 @@ public class InputPlayer : MonoBehaviour
         if (stateInfo.IsName("Attack"))
         {
             // normalizedTime が 1.0f 未満であれば再生中とみなす
-            if (stateInfo.normalizedTime < 1.0f)
-            {
-                return true;
-            }
+            if (stateInfo.normalizedTime < 1.0f) { return true; }
         }
         return false;
     }
