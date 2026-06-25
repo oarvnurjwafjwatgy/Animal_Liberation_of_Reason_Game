@@ -8,6 +8,7 @@ public class Character_HoneyBadger : Animal_Skill_TraitBase
 	private bool hasTriggeredGuts = false;
 	private float honeyBadgerSkillAtkBoost = P.HONEYBADGER_RESET_VALUE;  //初期値:スキルの攻撃力(通常から上乗せ)
 	public override float CurrentAtkBoost => honeyBadgerSkillAtkBoost;
+	public override float MaxSkillCooldown => P.HONEYBADGER_CT;
 
 	//スキル発動処理(継承)
 	public override void Skill()
