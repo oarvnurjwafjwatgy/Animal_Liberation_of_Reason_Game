@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using Mode = ChangeMode;
+using BfType = BuffType;
 using P = LionSkillParam;
 
 public class Character_Lion : Animal_Skill_TraitBase
@@ -123,7 +125,7 @@ public class Character_Lion : Animal_Skill_TraitBase
 		{
 			status.MyUIManager.CreateOrUpdateBuffUI(
 				status.playerID,
-				Character_Status.BuffType.AttackBuff, // Character_Statusを挟む
+				BfType.AttackBuff, // Character_Statusを挟む
 				P.LION_SKILL_DURATION,  //CTセット
 				status.buffContainer
 			);
@@ -140,7 +142,7 @@ public class Character_Lion : Animal_Skill_TraitBase
 	// 被弾時に Character_Status から呼び出されてダメージを溜める
 	public override void OnCharacterTakeDamage(int actualDamage)
 	{
-		if (status == null || status.GetMode() != Character_Status.Mode.ANIMAL) return;
+		if (status == null || status.GetMode() != Mode.ANIMAL) return;
 
 		accumulatedDamage += actualDamage;
 		uiVisibleTimer = P.UI_VISIBLE_DURATION;// 被弾。UI表示タイマーを3秒セット&表示
@@ -162,7 +164,8 @@ public class Character_Lion : Animal_Skill_TraitBase
 
 			if (status != null && status.MyUIManager != null && status.buffContainer != null)
 			{
-				status.MyUIManager.CreateOrUpdateBuffUI(status.playerID, Character_Status.BuffType.SpeedBuff, P.LION_BURST_DURATION, status.buffContainer);
+				status.MyUIManager.CreateOrUpdateBuffUI(status.playerID, BfType.SpeedBuff,
+				P.LION_BURST_DURATION, status.buffContainer);
 			}
 			AnimalDebugLog("red", $"【特性発動】憤怒解放！ {P.LION_BURST_DURATION}秒間爆速！");
 		}

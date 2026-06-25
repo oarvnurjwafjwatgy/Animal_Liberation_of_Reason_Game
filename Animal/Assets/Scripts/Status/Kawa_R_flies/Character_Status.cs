@@ -1,34 +1,11 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using Mode = ChangeMode;
 using animalP = AnimalParam;
+using State = AnimalState.State;
 
 public class Character_Status : MonoBehaviour
 {
-	/**********状態*******************/
-	public enum State
-	{
-		IDLE,       // 待機状態
-		MOVE,       // 移動状態
-		ATTAKING,   // 攻撃状態
-		DEAD        // 死亡状態
-	}
-
-	/**********モード*******************/
-	public enum Mode { ANIMAL, SPSIAL_ANIMAL }   // 通常&理性解放
-
-	/**********キャラクタータイプ*******************/
-	public enum CharacterType
-	{
-		NONE,           // 無し
-		LION,           // ライオン
-		OSTRICH,        // ダチョウ
-		RHINOCELOS,     // サイ
-		RATEL,          // ラーテル
-	}
-
-	[Header("プレイヤー識別番号(1~4)")]
-	public int playerID;
-
 	// ステータス
 	public int MaxHP { get; private set; }
 	public int MaxReason { get; private set; }
@@ -39,11 +16,6 @@ public class Character_Status : MonoBehaviour
 	public int CurrentReason { get; protected set; }    // キャラクター現在理性HP(外部読み取り可、内部変更可)
 
 	public UIManager MyUIManager { get; private set; } // UIManagerへの参照
-
-	// バフ・デバフ管理用の列挙型と変数
-	public enum BuffType { SpeedBuff, SpeedDebuff, AttackBuff, AttackDebuff, RhinoDash }
-
-	public Transform buffContainer;
 
 	// 実際に計算に使用する倍率（1.0f = 等倍）
 	private float currentAtkMult = CharacterData.INITIAL_MAGNIFICATION;
@@ -84,6 +56,9 @@ public class Character_Status : MonoBehaviour
 				* (1f + GetComponent<NutsEffectManager>().CurrentSpeedModifier);
 		}
 	}
+	[Header("プレイヤー識別番号(1~4)")]
+	public int playerID;
+
 	private Slider hp_gauge;                    //HPゲージUIスライダー参照用変数
 	private Slider reason_gauge;                //HPゲージUIスライダー参照用変数
 	private Animator animator;                  //アニメーター参照用変数
@@ -91,15 +66,17 @@ public class Character_Status : MonoBehaviour
 
 	private PlayerManager playerManager;    // プレイヤーマネージャーオブジェクト
 	protected State CharaState;             // キャラクター状態
+	protected Transform uiPos;				// UI出現位置
 	protected Mode CharaMode;               // キャラクターモード
-	public CharacterType CharaAnim;			// キャラクタータイプ
+	public CharacterType CharaAnim;         // キャラクタータイプ
+	public Transform buffContainer;			// バフ
+
+	public Transform UiPos => uiPos;
 	public bool IsDead => CharaState == State.DEAD;     // 死亡状態かどうかを外部から判定できるプロパティ
 
 	//変数
 	private float timer = animalP.TIMER_RESET;              //タイマー
 
-	protected Transform uiPos;
-	public Transform UiPos => uiPos;
 
 	// 選ばられた動物に合わせて適正のスクリプトをセットする
 	public void SetAnimalScripts(CharacterType animaltype)
@@ -189,7 +166,7 @@ public class Character_Status : MonoBehaviour
 		// HPゲージの現在値を更新
 		if (hp_gauge != null && reason_gauge != null)
 		{ hp_gauge.value = CurrentHP; reason_gauge.value = CurrentReason; }
-		
+
 		JudgeModeChange();              //毎度切替を判定する
 		CheckAnimatorStateTag();
 	}
@@ -275,7 +252,7 @@ public class Character_Status : MonoBehaviour
 	}
 
 	//防御力取得関数
-	public int GetDefensePower(){ return DefensePower; }
+	public int GetDefensePower() { return DefensePower; }
 
 	//モード取得
 	public Mode GetMode() { return CharaMode; }
@@ -337,7 +314,7 @@ public class Character_Status : MonoBehaviour
 
 		Debug.Log($"{gameObject.name} が死亡したため、UIを非表示にしました。");
 		if (CharaState != State.DEAD) playerManager.SetDiePlayerList(playerID);
-		
+
 		CharaState = State.DEAD; // 状態を死亡状態に変更
 	}
 
@@ -422,9 +399,9 @@ public class Character_Status : MonoBehaviour
 	private void ReasonDamageCalculation(int reason_damage)
 	{
 		int actualDamage = Mathf.Max(reason_damage - CurrentDefensePower, 1);
-		CurrentReason -= actualDamage;					 // 理性ゲージ減少処理
+		CurrentReason -= actualDamage;                   // 理性ゲージ減少処理
 		CurrentHP -= (int)((float)reason_damage * 0.1f); // HP減少処理
-		
+
 		Debug.Log($"<color=yellow>【被弾】 元ダメ:{reason_damage} -> 防御後:" +
 		$"{actualDamage} (現在の防御力:{CurrentDefensePower})</color>"); // 今いくら防いだか
 	}

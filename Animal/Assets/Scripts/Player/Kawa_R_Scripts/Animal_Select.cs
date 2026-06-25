@@ -1,12 +1,13 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
+using System.Collections;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using CharaType = CharacterType;
 
 public class Animal_Select : MonoBehaviour
 {
 	// 静的配列：全プレイヤー(1~4P)の選んだ動物を保存
-	public static Character_Status.CharacterType[] playerChoices = new Character_Status.CharacterType[5];
+	public static CharaType[] playerChoices = new CharaType[5];
 	// 静的配列：各プレイヤーが今どのボタン(0~3)にいるかを記録
 	public static int[] playerPositions = new int[] { 0, 0, 0, 0, 0 };
 
@@ -14,7 +15,7 @@ public class Animal_Select : MonoBehaviour
 
 	//ボタンにある動物タイプ
 	[Header("この選択肢の動物タイプ")]
-	public Character_Status.CharacterType animalType;
+	public CharaType animalType;
 
 	//シーン
 	[Header("設定")]
@@ -105,7 +106,7 @@ public class Animal_Select : MonoBehaviour
 			// 参加人数分の配列をループして、全てのプレイヤーの選択をリセット
 			for (int i = 0; i < playerChoices.Length; i++)
             {
-                playerChoices[i] = Character_Status.CharacterType.NONE; // 選択をなしにする
+                playerChoices[i] = CharaType.NONE; // 選択をなしにする
                 playerPositions[i] = 0; // カーソルを左端に戻す
             }
 
@@ -137,7 +138,7 @@ public class Animal_Select : MonoBehaviour
 			for (int pID = 1; pID <= dynamicRequiredPlayers; pID++) // 参戦人数分ループ
 			{
 				//選択中のプレイヤーが決定済みなら移動不可
-				if (playerChoices[pID] != Character_Status.CharacterType.NONE) continue;
+				if (playerChoices[pID] != CharaType.NONE) continue;
 
 				//実際にコントローラーが接続されている場合のみ入力を受け取る
 				if (pID <= Gamepad.all.Count)
@@ -191,13 +192,13 @@ public class Animal_Select : MonoBehaviour
 
 			// このプレイヤーが「このボタン」にいるか、またはここで決定済みか
 			bool isHere = (playerPositions[pID] == buttonIndex);
-			bool isDecidedHere = (playerChoices[pID] == animalType && animalType != Character_Status.CharacterType.NONE);
+			bool isDecidedHere = (playerChoices[pID] == animalType && animalType != CharaType.NONE);
 
 			// マークの表示切替
-			pFrames[pID - 1].SetActive(isDecidedHere || (playerChoices[pID] == Character_Status.CharacterType.NONE && isHere));
+			pFrames[pID - 1].SetActive(isDecidedHere || (playerChoices[pID] == CharaType.NONE && isHere));
 
 			// そのボタンの上にいる時だけ
-			if (isHere && playerChoices[pID] == Character_Status.CharacterType.NONE)
+			if (isHere && playerChoices[pID] == CharaType.NONE)
 			{
 				// コントローラー接続チェックを厳密化
 				if (pID <= Gamepad.all.Count && Gamepad.all[pID - 1] != null &&
@@ -308,8 +309,8 @@ public class Animal_Select : MonoBehaviour
 	//キャンセル処理
 	void CancelChoice(int pID)
 	{
-		playerChoices[pID] = Character_Status.CharacterType.NONE;
-		select_saver.Instance.PlayerChoices[pID - 1] = Character_Status.CharacterType.NONE;
+		playerChoices[pID] = CharaType.NONE;
+		select_saver.Instance.PlayerChoices[pID - 1] = CharaType.NONE;
 		UpdateDisplayModel(pID, playerPositions[pID], false);       // キャンセルしたらシルエットモデルに切り替え
 		
 		//選択状態をリセット
@@ -327,7 +328,7 @@ public class Animal_Select : MonoBehaviour
 		//参加プレイヤー全員分ループ
 		for (int i = 1; i <= dynamicRequiredPlayers; i++)
 			//選択済みならカウントアップ
-			if (playerChoices[i] != Character_Status.CharacterType.NONE) count++;
+			if (playerChoices[i] != CharaType.NONE) count++;
 
 		//全員決定済みならフラグを立てる
 		if (count >= dynamicRequiredPlayers)
@@ -340,7 +341,7 @@ public class Animal_Select : MonoBehaviour
 	}
 
 	//選択した動物の名前をナレーションで流す処理
-	void PlayCharacterVoice(Character_Status.CharacterType type)
+	void PlayCharacterVoice(CharaType type)
 	{
 		if (AudioManager.Instance == null) return;
 
@@ -350,16 +351,16 @@ public class Animal_Select : MonoBehaviour
 		// ※番号は実際のseClipsの登録順に合わせて調整
 		switch (type)
 		{
-			case Character_Status.CharacterType.LION:
+			case CharaType.LION:
 				voiceIndex = 21;
 				break;
-			case Character_Status.CharacterType.OSTRICH:
+			case CharaType.OSTRICH:
 				voiceIndex = 22;
 				break;
-			case Character_Status.CharacterType.RHINOCELOS:
+			case CharaType.RHINOCELOS:
 				voiceIndex = 23;
 				break;
-			case Character_Status.CharacterType.RATEL:
+			case CharaType.RATEL:
 				voiceIndex = 24;
 				break;
 		}

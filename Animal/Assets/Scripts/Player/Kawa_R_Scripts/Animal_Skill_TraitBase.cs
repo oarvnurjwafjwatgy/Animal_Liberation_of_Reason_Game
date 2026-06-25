@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using Mode = ChangeMode;
 
 public class Animal_Skill_TraitBase : MonoBehaviour
 {
@@ -27,7 +28,7 @@ public class Animal_Skill_TraitBase : MonoBehaviour
 	public virtual float MaxSkillCooldown => AnimalParam.TIMER_RESET;
 
 	// if文のチェックで使用する(理性開放かどうか)
-	protected bool IsSpecialAnimal => status != null && status.GetMode() == Character_Status.Mode.SPSIAL_ANIMAL;
+	protected bool IsSpecialAnimal => status != null && status.GetMode() == Mode.SPSIAL_ANIMAL;
 
 
 	//共通初期化

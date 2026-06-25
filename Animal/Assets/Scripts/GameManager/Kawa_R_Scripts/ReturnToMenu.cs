@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
+using CharaType = CharacterType;
 
 public class ReturnToMenu : MonoBehaviour
 {
@@ -85,7 +86,7 @@ public class ReturnToMenu : MonoBehaviour
 			for (int i = 0; i < Animal_Select.playerChoices.Length; i++)
 			{
 				//以下初期状態にリセットする処理
-				Animal_Select.playerChoices[i] = Character_Status.CharacterType.NONE;   // キャラクター選択をリセット
+				Animal_Select.playerChoices[i] = CharaType.NONE;   // キャラクター選択をリセット
 				Animal_Select.playerPositions[i] = 0;   // ポジションもリセット
 			}
 

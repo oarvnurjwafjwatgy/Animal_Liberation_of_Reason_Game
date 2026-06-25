@@ -2,8 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
+using CharaType = CharacterType;
 
 /*全体の基礎処理担当者:
  古澤 桜
@@ -81,10 +82,10 @@ public partial class PlayerManager : MonoBehaviour
         for (int i = 1; i <= playersToSpawn; i++)
         {
             // 1. 選択された動物のタイプを取得 (1Pなら index 1)
-            Character_Status.CharacterType selectedType = Animal_Select.playerChoices[i];
+            CharaType selectedType = Animal_Select.playerChoices[i];
 
             // NONE（未選択）の場合は生成をスキップ
-            if (selectedType == Character_Status.CharacterType.NONE) continue;
+            if (selectedType == CharaType.NONE) continue;
 
             // Enumをintに変換してプレハブのインデックスとして使用
             int animalIndex = (int)selectedType - 1;
@@ -430,17 +431,17 @@ public partial class PlayerManager : MonoBehaviour
         survivor.GetComponent<InputPlayer>()?.Win();    // 勝者のプレイヤーに勝利演出をさせる
 
         // --- 5. リザルトへ ---
-        Character_Status.CharacterType winnerType = survivor.CharaAnim;
+        CharaType winnerType = survivor.CharaAnim;
         //勝者エニモは・・・（ナレーション）
         AudioManager.Instance.PlaySEByIndex(26, 2.0f);
 
         //エニモごとの鳴らすタイミングを変える
         switch (survivor.CharaAnim)
         {
-            case Character_Status.CharacterType.RHINOCELOS:
+            case CharaType.RHINOCELOS:
                 yield return new WaitForSecondsRealtime(1.6f);
                 break;
-            case Character_Status.CharacterType.RATEL:
+            case CharaType.RATEL:
                 yield return new WaitForSecondsRealtime(1.1f);
                 break;
             default:
@@ -472,23 +473,23 @@ public partial class PlayerManager : MonoBehaviour
     }
 
 	// 勝者の動物タイプからボイスを判別して鳴らすメソッド
-	private void PlayWinnerVoice(Character_Status.CharacterType winnerType)
+	private void PlayWinnerVoice(CharaType winnerType)
     {
         int voiceIndex = -1;
 
         // 動物タイプに応じてSEインデックスを指定
         switch (winnerType)
         {
-            case Character_Status.CharacterType.LION:
+            case CharaType.LION:
                 voiceIndex = 21; // ライオン勝利
                 break;
-            case Character_Status.CharacterType.OSTRICH:
+            case CharaType.OSTRICH:
                 voiceIndex = 22; // ダチョウ勝利
                 break;
-            case Character_Status.CharacterType.RHINOCELOS:
+            case CharaType.RHINOCELOS:
                 voiceIndex = 23; // サイ勝利
                 break;
-            case Character_Status.CharacterType.RATEL:
+            case CharaType.RATEL:
                 voiceIndex = 24; // ラーテル勝利
                 break;
         }

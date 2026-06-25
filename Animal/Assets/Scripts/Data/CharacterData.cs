@@ -1,6 +1,3 @@
-using System.Data.Common;
-using UnityEngine;
-
 /*あくまでもここはデータのみの情報だけなので
  * MonoBehaviourというオブジェクトに張り付けるだけのものを削除*/
 
@@ -181,11 +178,41 @@ public static class CharacterData
 	};
 }
 
-//ラーテルのスキル状態遷移
-public enum RatelSkillState
+/**********キャラクタータイプ*******************/
+public enum CharacterType
 {
-	Idle = 0,
-	Hide = 1,
-	Attack = 2
+	NONE,           // 無し
+	LION,           // ライオン
+	OSTRICH,        // ダチョウ
+	RHINOCELOS,     // サイ
+	RATEL,          // ラーテル
+}
+
+/**********モード*******************/
+public enum ChangeMode { ANIMAL, SPSIAL_ANIMAL }   // 通常&理性解放
+
+// バフ・デバフ管理用の列挙型と変数
+public enum BuffType { SpeedBuff, SpeedDebuff, AttackBuff, AttackDebuff, RhinoDash }
+
+
+/**********状態*******************/
+public struct AnimalState
+{
+	//共通状態
+	public enum State
+	{
+		IDLE,       // 待機状態
+		MOVE,       // 移動状態
+		ATTAKING,   // 攻撃状態
+		DEAD        // 死亡状態
+	}
+
+	//ラーテルのスキル状態
+	public enum RatelSkillState
+	{
+		Idle = 0,
+		Hide = 1,
+		Attack = 2
+	}
 }
 

@@ -1,12 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using CharaType = CharacterType;
 
 public class select_saver : MonoBehaviour
 {
     public static select_saver Instance { get; private set; }
 
-    public Character_Status.CharacterType[] PlayerChoices = new Character_Status.CharacterType[5];
+    public CharaType[] PlayerChoices = new CharaType[5];
 
     // Start is called before the first frame update
     void Start()

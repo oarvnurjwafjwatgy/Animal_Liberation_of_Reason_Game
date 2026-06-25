@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using BfType = BuffType;
 
 public class Nuts : MonoBehaviour
 {
@@ -55,23 +56,17 @@ public class Nuts : MonoBehaviour
             {
                 switch (random_efficacy)
                 {
-                    //case NUTS_EFFICACY.SPEED_BUFF: other_chara_status.SetSpeedBuff(); effect_num = 2; break;
-                    //case NUTS_EFFICACY.SPEED_DEBUFF: other_chara_status.SetSpeedDebuff(); effect_num = 3; break;
-                    //case NUTS_EFFICACY.ATTACK_BUFF: other_chara_status.SetAttackBuff(); effect_num = 2; break;
-                    //case NUTS_EFFICACY.ATTACK_DEBUFF: other_chara_status.SetAttackDebuff(); effect_num = 3; break;
-                    //case NUTS_EFFICACY.HP_HEAL: other_chara_status.SetNutsHpHeal(); effect_num = 2; break;
-                    //case NUTS_EFFICACY.REASON_HEAL: other_chara_status.SetNutsReasonHeal(); effect_num = 2; break;
                     case NUTS_EFFICACY.SPEED_BUFF:
-                        nutsManager.TriggerBuff(Character_Status.BuffType.SpeedBuff); effect_num = 2;
+                        nutsManager.TriggerBuff(BfType.SpeedBuff); effect_num = 2;
                         break;
                     case NUTS_EFFICACY.SPEED_DEBUFF:
-                        nutsManager.TriggerBuff(Character_Status.BuffType.SpeedDebuff); effect_num = 3;
+                        nutsManager.TriggerBuff(BfType.SpeedDebuff); effect_num = 3;
                         break;
                     case NUTS_EFFICACY.ATTACK_BUFF:
-                        nutsManager.TriggerBuff(Character_Status.BuffType.AttackBuff); effect_num = 2;
+                        nutsManager.TriggerBuff(BfType.AttackBuff); effect_num = 2;
                         break;
                     case NUTS_EFFICACY.ATTACK_DEBUFF:
-                        nutsManager.TriggerBuff(Character_Status.BuffType.AttackDebuff); effect_num = 3;
+                        nutsManager.TriggerBuff(BfType.AttackDebuff); effect_num = 3;
                         break;
 
                     // 回復系は NutsData の確率（%）を使って、既存のNotDied関数で数値を上書きする

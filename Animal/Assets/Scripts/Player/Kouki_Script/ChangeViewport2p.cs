@@ -1,6 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using CharaType = CharacterType;
 
 public class ChangeViewport2p : MonoBehaviour
 {
@@ -20,7 +19,7 @@ public class ChangeViewport2p : MonoBehaviour
         var pm_playerCount = 0;
         for (int i = 0; i < 4; i++)
         {
-            if (Animal_Select.playerChoices[i] == Character_Status.CharacterType.NONE)
+            if (Animal_Select.playerChoices[i] ==CharaType.NONE)
                 continue;
 
             pm_playerCount++;

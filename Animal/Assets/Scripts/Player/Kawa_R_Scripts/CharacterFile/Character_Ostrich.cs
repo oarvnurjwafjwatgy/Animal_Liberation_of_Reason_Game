@@ -1,5 +1,7 @@
 using UnityEngine;
+using Mode = ChangeMode;
 using P = OstrichSkillParam;
+using State = AnimalState.State;
 
 //Animal_Skill_TraitBase‚ğŒ³‚ÉB
 public class Character_Ostrich : Animal_Skill_TraitBase
@@ -34,10 +36,10 @@ public class Character_Ostrich : Animal_Skill_TraitBase
 	private void Heal_Ostrich()
 	{
 		//‚à‚µ€–Só‘Ô‚È‚çˆ—‚ğs‚í‚È‚¢
-		if (status.GetState() == Character_Status.State.DEAD) return;
+		if (status.GetState() == State.DEAD) return;
 
 		// —«‰ğ•úó‘Ô‚Ì‚İ‘Ì—Í‰ñ•œ
-		if (status.GetMode() == Character_Status.Mode.SPSIAL_ANIMAL)
+		if (status.GetMode() == Mode.SPSIAL_ANIMAL)
 		{
 			ostrichTimer += Time.deltaTime;
 

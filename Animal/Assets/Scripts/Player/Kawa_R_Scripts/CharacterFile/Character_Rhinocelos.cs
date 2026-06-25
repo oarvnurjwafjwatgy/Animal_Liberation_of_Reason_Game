@@ -1,4 +1,5 @@
 using UnityEngine;
+using BfType = BuffType;
 using P = RhinocelosSkillParam;
 
 public class Character_Rhinocelos : Animal_Skill_TraitBase
@@ -30,7 +31,7 @@ public class Character_Rhinocelos : Animal_Skill_TraitBase
 		//スキル発動中に速度上昇バフのアイコンを表示
 		if (status.MyUIManager != null)
 			status.MyUIManager.CreateOrUpdateBuffUI(status.playerID,
-			Character_Status.BuffType.SpeedBuff, 999f, status.buffContainer);
+			BfType.SpeedBuff, 999f, status.buffContainer);
 
 		rhinoDashSpeedBoost = P.RHINOCELOS_SPPEED_UP; // 突進開始.速度を1.8倍にアップ
 
@@ -61,10 +62,10 @@ public class Character_Rhinocelos : Animal_Skill_TraitBase
 		// サイの突進を強制停止
 		if (rhinoDashCoroutine != null)
 		{ StopCoroutine(rhinoDashCoroutine); rhinoDashCoroutine = null; }
-		
+
 		//UIの削除
 		if (status.MyUIManager != null)
-			status.MyUIManager.RemoveBuffUI(status.playerID, Character_Status.BuffType.SpeedBuff);
+			status.MyUIManager.RemoveBuffUI(status.playerID, BfType.SpeedBuff);
 
 		rhinoDashSpeedBoost = P.RHINOCELOS_RESET_VALUE; // 速度を元に戻す
 		SetAtkBoost(ref rhinoSkillAtkBoost, P.RHINOCELOS_RESET_VALUE);	//攻撃値を戻す

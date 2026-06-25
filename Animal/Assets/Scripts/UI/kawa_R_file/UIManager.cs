@@ -1,8 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
+using BfType = BuffType;
+using CharaType = CharacterType;
 
 public class UIManager : MonoBehaviour
 {
@@ -217,7 +219,7 @@ public class UIManager : MonoBehaviour
 	// リザルトの敗北キャラの設定
 	// ranking_index	順位(昇順)
 	// player_chara_id	キャラクターのID
-	public void ShowResult(int[] ranking_index, Character_Status.CharacterType[] player_chara_id)
+	public void ShowResult(int[] ranking_index, CharaType[] player_chara_id)
 	{
 		// ranking[0] は1位なのでスキップ
 		for (int i = 1; i < ranking_index.Length; i++)
@@ -274,8 +276,8 @@ public class UIManager : MonoBehaviour
 	/********バフ・デバフのアイコンUI**********************************/
 
 	// プレイヤーごとのバフアイコンを管理する辞書(プレイヤーID,バフ管理)
-	private Dictionary<int, Dictionary<Character_Status.BuffType, BuffIcon>>
-	playerActiveBuffs = new Dictionary<int, Dictionary<Character_Status.BuffType, BuffIcon>>();
+	private Dictionary<int, Dictionary<BfType, BuffIcon>>
+	playerActiveBuffs = new Dictionary<int, Dictionary<BfType, BuffIcon>>();
 
 	[Header("バフUI用画像（UIManager側で管理）")]
 	[SerializeField] private Sprite spdBuffSprite;
@@ -285,7 +287,7 @@ public class UIManager : MonoBehaviour
 	[SerializeField] private Sprite lionBurstSpdSprite;
 
 	// バフアイコンの生成・更新関数
-	public void CreateOrUpdateBuffUI(int pID, Character_Status.BuffType type,
+	public void CreateOrUpdateBuffUI(int pID,BfType type,
 	float duration, Transform container)
 	{
 		// pID: プレイヤーID,  type: バフの種類,
@@ -294,17 +296,17 @@ public class UIManager : MonoBehaviour
 
 		// プレイヤーのバフ管理がなければ作る
 		if (!playerActiveBuffs.ContainsKey(pID))
-			playerActiveBuffs[pID] = new Dictionary<Character_Status.BuffType, BuffIcon>();
+			playerActiveBuffs[pID] = new Dictionary<BfType, BuffIcon>();
 
 		//適切なスプライトを選択
 		Sprite targetSprite = null;
-		if (type == Character_Status.BuffType.SpeedBuff) targetSprite = spdBuffSprite;
-		if(type ==Character_Status.BuffType.SpeedDebuff) targetSprite = spdDebuffSprite;
-		if(type ==Character_Status.BuffType.AttackBuff) targetSprite = atkBuffSprite;
-		if(type ==Character_Status.BuffType.AttackDebuff) targetSprite = atkDebuffSprite;
+		if (type == BfType.SpeedBuff) targetSprite = spdBuffSprite;
+		if(type ==BfType.SpeedDebuff) targetSprite = spdDebuffSprite;
+		if(type ==BfType.AttackBuff) targetSprite = atkBuffSprite;
+		if(type ==BfType.AttackDebuff) targetSprite = atkDebuffSprite;
 
 		//サイのダッシュの技もスピードバフのアイコンを流用
-		if (type ==Character_Status.BuffType.RhinoDash) targetSprite = spdBuffSprite;
+		if (type ==BfType.RhinoDash) targetSprite = spdBuffSprite;
 
 		// まだアイコンがない場合は新規作成/存在する場合は更新
 		if (playerActiveBuffs[pID].ContainsKey(type)
@@ -323,7 +325,7 @@ public class UIManager : MonoBehaviour
 	}
 
 	// バフアイコンの削除関数
-	public void RemoveBuffUI(int pID, Character_Status.BuffType type)
+	public void RemoveBuffUI(int pID, BfType type)
 	{
 		// バフアイコンが存在する場合は削除
 		if (playerActiveBuffs.ContainsKey(pID)&&playerActiveBuffs[pID].ContainsKey(type)
