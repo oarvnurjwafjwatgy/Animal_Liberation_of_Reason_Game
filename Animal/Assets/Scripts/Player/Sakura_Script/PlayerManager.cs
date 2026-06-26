@@ -10,7 +10,8 @@ using CharaType = CharacterType;
  古澤 桜
  
 *ゲームスタート関連の処理・SEの再生タイミングの調整・勝利演出(とどめの演出も含む)などといった
-一部の担当者:川上 流輝 */
+一部の担当者:
+リファクタリング作業:川上 流輝 */
 
 public partial class PlayerManager : MonoBehaviour
 {
@@ -26,10 +27,9 @@ public partial class PlayerManager : MonoBehaviour
 
     [Header("演出用カメラ位置")]
     [SerializeField] private List<Transform> introCameraPositions = new List<Transform>();
-    // ★追加: 演出専用カメラの参照
-    [SerializeField] private Camera introCamera;
+    [SerializeField] private Camera introCamera;// 演出専用カメラの参照
 
-    [HideInInspector] // インスペクターには出さなくて良い場合はこれをつける
+	[HideInInspector] // インスペクターには出さなくて良い場合はこれをつける
     public int playerCount;
     public bool isGameEnd;  // ゲーム終了フラグ
     public int lastPlayer;  // 最後に残ったプレイヤー
@@ -47,22 +47,23 @@ public partial class PlayerManager : MonoBehaviour
 
     [SerializeField] private GameObject backTitleAuto;
 
-    //InputPlayer input_player;
-
-    void Start()
+    // システムの初期化
+    private void InitializeSystem()
     {
-        Time.timeScale = 1.0f; // 念のため、ゲーム開始時にタイムスケールをリセット
-        Time.fixedDeltaTime = 0.02f; // ★物理演算もリセット
-        int playersToSpawn = GameDataManager.SelectedPlayerCount;
-        playerCount = playersToSpawn;
+        Time.timeScale = 1.0f;// ゲーム開始時にタイムスケールをリセット
+        Time.fixedDeltaTime = 0.02f;
+        playerCount = GameDataManager.SelectedPlayerCount;
         isGameEnd = false;
         lastPlayer = 0;
-        var gamepads = Gamepad.all;
+        spawnedPlayers.Clear();// 既存のプレイヤーリストをクリア
+        playerCameras.Clear();
+        diedPlayer.Clear();
+        if (AudioManager.Instance != null) AudioManager.Instance.PlayBGM(AudioManager.Instance.battleBGM);
+    }
 
-        spawnedPlayers.Clear(); // 既存のプレイヤーリストをクリア
-        playerCameras.Clear(); // ★リストをクリア
-
-        // スポーン位置をシャッフルする
+    //出現位置をシャッフルする関数
+    private void ShuffleSpawnPoints()
+    {
         for (int i = PlayerTransforms.Count - 1; i > 0; i--)
         {
             int j = UnityEngine.Random.Range(0, i + 1);
@@ -71,67 +72,74 @@ public partial class PlayerManager : MonoBehaviour
             PlayerTransforms[i] = PlayerTransforms[j];
             PlayerTransforms[j] = temp;
         }
+    }
 
-        // 戦闘シーンが始まったら、BGMを戦闘用に切り替える
-        if (AudioManager.Instance != null)
-        {
-            AudioManager.Instance.PlayBGM(AudioManager.Instance.battleBGM);
-        }
-
-        // プレイヤーの生成ループ
+    //プレイヤー全体の生成ループ関数
+    private void SpawnAllPlayers()
+    {
+        var gamepads = Gamepad.all;
+        int playersToSpawn = GameDataManager.SelectedPlayerCount;
         for (int i = 1; i <= playersToSpawn; i++)
         {
-            // 1. 選択された動物のタイプを取得 (1Pなら index 1)
             CharaType selectedType = Animal_Select.playerChoices[i];
-
-            // NONE（未選択）の場合は生成をスキップ
             if (selectedType == CharaType.NONE) continue;
-
-            // Enumをintに変換してプレハブのインデックスとして使用
-            int animalIndex = (int)selectedType - 1;
-
-            // 2. プレイヤーの土台（カメラや移動スクリプト入り）を生成
-            int padIndex = i - 1;
-            PlayerInput newPlayer = PlayerInput.Instantiate(
-                prefab: PlayerBasePrefab,
-                playerIndex: padIndex,
-                controlScheme: "Gamepad",
-                pairWithDevice: (padIndex < gamepads.Count) ? gamepads[padIndex] : null
-            );
-
-            // 3. 動物モデル（通常・理性）を生成し、プレイヤーの子にする
-            GameObject normalModel = Instantiate(AnimalPrefabs[animalIndex], newPlayer.transform);
-            GameObject reasonModel = Instantiate(AnimalReasonPrefabs[animalIndex], newPlayer.transform);
-            reasonModel.SetActive(false); // 理性モデルは最初はオフ
-
-            // 4. 各コンポーネントに生成したモデルを登録する
-            SetupPlayer(newPlayer.gameObject, i, normalModel, reasonModel);
-
-            if (uiManager != null && uiPositions.Count >= i)
-            {
-                // 生成したプレイヤーのステータスをリストに追加
-                var status = newPlayer.GetComponent<Character_Status>();
-                Slider hp = uiManager.CreateUI(UIManager.UI_ID.GAUGE_HP, uiPositions[padIndex], i);
-                Slider rs = uiManager.CreateUI(UIManager.UI_ID.GAUGE_REASON, uiPositions[padIndex], i);
-                if (status != null)
-                {
-                    status.ReInitialize(i); // プレイヤーIDを設定
-                    spawnedPlayers.Add(status);
-                    //実際のデータが入っている uiPositions[padIndex] を渡す
-                    status.SetUIComponents(hp, rs, uiManager, uiPositions[padIndex]);
-                }
-
-                // 5. 初期位置へ移動
-                if (PlayerTransforms[padIndex] != null)
-                {
-                    newPlayer.transform.position = PlayerTransforms[padIndex].position;
-                    newPlayer.transform.rotation = PlayerTransforms[padIndex].rotation;
-                }
-            }
+            Gamepad targetPad = (i - 1 < gamepads.Count) ? gamepads[i - 1] : null;
+            SpawnSinglePlayer(i, targetPad, selectedType);
         }
+    }
 
-        // プレイヤー生成後、演出を開始
-        StartCoroutine(BattleStartSequence());
+    // プレイヤー1人分の生成・配置の関数
+	private void SpawnSinglePlayer(int pID, Gamepad pad, CharaType selectedType)
+	{
+		int padIndex = pID - 1;
+		int animalIndex = (int)selectedType - 1;
+
+        //土台生成
+        PlayerInput newPlayer = PlayerInput.Instantiate(
+        prefab: PlayerBasePrefab,
+        playerIndex: padIndex,
+        controlScheme: "Gamepad",
+        pairWithDevice: pad
+        );
+
+        //モデル生成&子登録
+        GameObject normalModel = Instantiate(AnimalPrefabs[animalIndex], newPlayer.transform);
+		GameObject reasonModel = Instantiate(AnimalReasonPrefabs[animalIndex],newPlayer.transform);
+        reasonModel.SetActive(false);
+
+        //SetupPlayerReferencesを呼ぶ
+        SetupPlayerReferences(newPlayer.gameObject, pID, normalModel, reasonModel);
+
+		//UIの生成とStatusへの紐付け
+		if (uiManager != null && uiPositions.Count >= pID)
+        {
+            var status = newPlayer.GetComponent<Character_Status>();
+            Slider hp = uiManager.CreateUI(UIManager.UI_ID.GAUGE_HP, uiPositions[padIndex], pID);
+            Slider rs = uiManager.CreateUI(UIManager.UI_ID.GAUGE_REASON, uiPositions[padIndex], pID);
+
+            if (status != null)
+            {
+                status.ReInitialize(pID);
+                status.SetUIComponents(hp, rs, uiManager, uiPositions[padIndex]);
+                spawnedPlayers.Add(status);
+            }
+		}
+
+        //位置＆回転の初期化
+        if (PlayerTransforms[padIndex] != null)
+        {
+            newPlayer.transform.position = PlayerTransforms[padIndex].position;
+            newPlayer.transform.rotation = PlayerTransforms[padIndex].rotation;
+        }
+	}
+
+    //初期化
+    void Start()
+    {
+        InitializeSystem();
+        ShuffleSpawnPoints();
+        SpawnAllPlayers();
+        StartCoroutine(BattleStartSequence()); // プレイヤー生成後、演出を開始
     }
 
     // 戦闘開始の演出を行うコルーチン
@@ -198,7 +206,7 @@ public partial class PlayerManager : MonoBehaviour
         AudioManager.Instance.PlaySEByIndex(seNumber, seVol);
     }
 
-    private void SetupPlayer(GameObject playerObj, int pID, GameObject normal, GameObject reason)
+    private void SetupPlayerReferences(GameObject playerObj, int pID, GameObject normal, GameObject reason)
     {
         // カメラは子オブジェクトの0番目
         if (playerObj.transform.childCount > 0)
