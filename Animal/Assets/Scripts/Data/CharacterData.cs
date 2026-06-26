@@ -23,6 +23,16 @@ public struct AnimalParam
 	
 }
 
+//通常攻撃の攻撃間隔
+public struct NormalAttack_CoolTime
+{
+	public const float LION_ATTACK_CT = 2.0f;
+	public const float OSTRICH_ATTACK_CT = 0.3f;
+	public const float RHINOCELOS_ATTACK_CT = 1.5f;
+	public const float RATEL_ATTACK_CT = 1.0f;
+}
+
+
 /****各動物のスキルパラメーター******/
 
 //ライオンのスキル&特性の定数
@@ -111,7 +121,6 @@ public static class CharacterData
 	public const float REASON_HEAL_RATE = 0.01f;		// 最大理性ゲージから1%分で回復
 	public const float OFF_SITE_RAITO = 0.05f;          // 場外に出たときの最大HP割合ダメージ量
 	public const float ATTACK_OFFSET = 1.0f;            // 攻撃判定を出す位置（自分の中心からどれくらい前か）
-
 
 	//ライオンのパラメータ
 	public static readonly AnimalParam Lion = new AnimalParam

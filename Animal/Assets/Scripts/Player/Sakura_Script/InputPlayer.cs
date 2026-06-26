@@ -3,11 +3,16 @@ using UnityEngine.InputSystem;
 using System.Collections.Generic;
 using System.Collections;
 using Mode = ChangeMode;
+using InputD = InputData;
+using Param = AnimalParam;
 using CharaType = CharacterType;
+using Direction = InputData.Direction;
 using RatelState = AnimalState.RatelSkillState;
+using A_CT = NormalAttack_CoolTime;
 
 /*InputPlayer.cs全体担当者:古澤 桜
-  SE関連担当者            :川上 流輝 */
+  SE関連担当者
+  リファクタリング        :川上 流輝 */
 
 // TODO:
 // ラーテルスキル連打時に Hide→Attack 遷移が失敗する場合あり
@@ -60,8 +65,6 @@ public class InputPlayer : MonoBehaviour
     private Rigidbody rb;
     private Controller controller; // 作成した Controller クラス
 
-    private const float ghostMoveSpeed = 15f;
-
     [SerializeField] private GameObject Collision;
 
     private GameObject EffectManager;
@@ -85,26 +88,13 @@ public class InputPlayer : MonoBehaviour
 
     public Vector3 skillDirection; // スキル発動時の向きを固定するための変数
 
-    private bool isGameFinished = false; // 追加
+    private bool isGameFinished = false; // ゲーム終了フラグ
 
-    private float rhinocerosSkillStartTime = 0; // サイのスキル開始時間を記録
-
-    private float ratelSkillStartTime = 0; // ラーテルの溜め開始時間を記録
-
-    private float SkillStartTime = 0; // サイのスキル開始時間を記録
+    private float rhinocerosSkillStartTime = Param.INITIAL_VALUE; // サイのスキル開始時間を記録
 
 	private Coroutine ratelAutoAttackCoroutine;
 
 	private PlayerCameraController cameraController;
-
-	public enum Direction
-    {
-        Front,
-        Right,
-        Left,
-        Back,
-    }
-
     Direction direction = Direction.Front;
 
 
@@ -289,7 +279,7 @@ public class InputPlayer : MonoBehaviour
             // 3. Rigidbody の速度 (velocity) を変更して移動させる
             Vector3 cameraForward = Vector3.Scale(camera.transform.forward, new Vector3(1, 0, 1)).normalized;
             Vector3 moveForward = cameraForward * leftStickInput.y + camera.transform.right * leftStickInput.x;
-            rb.velocity = moveForward * ghostMoveSpeed + new Vector3(0, rb.velocity.y, 0);
+            rb.velocity = moveForward * InputD.GHOST_MOVE_SPEED + new Vector3(0, rb.velocity.y, 0);
         }
     }
 
@@ -325,14 +315,15 @@ public class InputPlayer : MonoBehaviour
 
             bool isSpecial = (character_Status.GetMode() == Mode.SPSIAL_ANIMAL);
 
-            float cooldown = 0.0f;
+            float cooldown = Param.TIMER_RESET;
 
+            //通常攻撃後にセット
             switch (currentType)
             {
-                case CharaType.LION: cooldown = 2.5f; break;
-                case CharaType.OSTRICH: cooldown = 0.3f; break;
-                case CharaType.RHINOCELOS: cooldown = 1.5f; break;
-                case CharaType.RATEL: cooldown = 1f; break;
+                case CharaType.LION: cooldown = A_CT.LION_ATTACK_CT; break;
+                case CharaType.OSTRICH: cooldown = A_CT.OSTRICH_ATTACK_CT; break;
+                case CharaType.RHINOCELOS: cooldown = A_CT.RHINOCELOS_ATTACK_CT; break;
+                case CharaType.RATEL: cooldown = A_CT.RATEL_ATTACK_CT; break;
             }
 
 
