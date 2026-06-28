@@ -186,13 +186,13 @@ public class Character_Status : MonoBehaviour
 			case Mode.ANIMAL:
 				if (CharaState == State.DEAD) return;   //死亡なら以下を通さない
 				timer += Time.deltaTime;
-				if (timer >= 1f) { ReasonHeal(); timer = 0f; } //通常時にのみ理性回復
+				if (timer >= 1f) { ReasonHeal(); timer = animalP.TIMER_RESET; } //通常時にのみ理性回復
 				break;
 
 			// 理性開放時の理性ゲージ減少処理関数呼び出し
 			case Mode.SPSIAL_ANIMAL:
 				timer += Time.deltaTime;
-				if (timer >= 1f) { ReasonDecrease(); timer = 0f; }
+				if (timer >= 1f) { ReasonDecrease(); timer = animalP.TIMER_RESET; }
 				break;
 		}
 	}
@@ -302,11 +302,11 @@ public class Character_Status : MonoBehaviour
 	protected virtual void Die()
 	{
 		//もし理性解放中に死亡したなら現在HP/通常なら理性を0に設定する
-		if (CharaMode == Mode.SPSIAL_ANIMAL) SetHP(0);
-		else if (CharaMode == Mode.ANIMAL) SetReason(0);
+		if (CharaMode == Mode.SPSIAL_ANIMAL) SetHP(animalP.INITIAL_VALUE);
+		else if (CharaMode == Mode.ANIMAL) SetReason(animalP.INITIAL_VALUE);
 
-		if (hp_gauge != null) hp_gauge.value = 0;
-		if (reason_gauge != null) reason_gauge.value = 0;
+		if (hp_gauge != null) hp_gauge.value = animalP.INITIAL_VALUE;
+		if (reason_gauge != null) reason_gauge.value = animalP.INITIAL_VALUE;
 
 		//体力ゲージ・理性ゲージのUIを非表示にする処理
 		if (hp_gauge != null) hp_gauge.gameObject.SetActive(false);
@@ -353,7 +353,7 @@ public class Character_Status : MonoBehaviour
 	//指定した値分の回復
 	public void HealHP(int amount)
 	{
-		CurrentHP += Mathf.Clamp(amount, 0, MaxHP);
+		CurrentHP += Mathf.Clamp(amount, CharacterData.MinHP, MaxHP);
 		if (CurrentHP > MaxHP) SetHP(MaxHP);
 	}
 	public void HealReason(int amount)
@@ -365,8 +365,8 @@ public class Character_Status : MonoBehaviour
 	//主に体力・理性ゲージの回復に使用する上限付の関数
 	public void ItemHeal(int hp, int reason)
 	{
-		CurrentHP = Mathf.Clamp(hp, 0, MaxHP);
-		CurrentReason = Mathf.Clamp(reason, 0, MaxReason);
+		CurrentHP = Mathf.Clamp(hp, CharacterData.MinHP, MaxHP);
+		CurrentReason = Mathf.Clamp(reason, CharacterData.MinReason, MaxReason);
 	}
 
 	//通常時は理性ゲージを回復(割合時間経過回復)
@@ -375,7 +375,8 @@ public class Character_Status : MonoBehaviour
 		if (MaxReason != CurrentReason)
 		{
 			// 最大理性の1%を計算。最低でも1は回復させる
-			int healAmount = Mathf.Max((int)(MaxReason * CharacterData.REASON_HEAL_RATE), 1);
+			int healAmount = Mathf.Max((int)(MaxReason * CharacterData.REASON_HEAL_RATE)
+			, CharacterData.MINIMUM_HEALING_GUARANTEE);
 			HealReason(healAmount);
 		}
 	}
@@ -398,7 +399,8 @@ public class Character_Status : MonoBehaviour
 	//理性ゲージでのダメージ計算（防御力を考慮）
 	private void ReasonDamageCalculation(int reason_damage)
 	{
-		int actualDamage = Mathf.Max(reason_damage - CurrentDefensePower, 1);
+		int actualDamage = Mathf.Max(reason_damage - CurrentDefensePower,
+		CharacterData.MINIMUM_HEALING_GUARANTEE);
 		CurrentReason -= actualDamage;                   // 理性ゲージ減少処理
 		CurrentHP -= (int)((float)reason_damage * 0.1f); // HP減少処理
 
@@ -415,7 +417,8 @@ public class Character_Status : MonoBehaviour
 		if (CurrentReason > 0)
 		{
 			//最大理性ポイントに減少率をかけて減少量を計算し、最低でも1は減少するようにする
-			int decreaseAmount = Mathf.Max((int)(MaxReason * CharacterData.REASON_DECREASE_RATE), 1);
+			int decreaseAmount = Mathf.Max((int)(MaxReason * CharacterData.REASON_DECREASE_RATE),
+			CharacterData.MINIMUM_HEALING_GUARANTEE);
 			ReducedReasoning(decreaseAmount);    // 理性ゲージ減少処理
 			Debug.Log($"{CharaAnim}の理性減少中: 残り{CurrentReason} (毎秒{decreaseAmount}減)");
 		}
