@@ -66,10 +66,10 @@ public class Character_Status : MonoBehaviour
 
 	private PlayerManager playerManager;    // プレイヤーマネージャーオブジェクト
 	protected State CharaState;             // キャラクター状態
-	protected Transform uiPos;				// UI出現位置
+	protected Transform uiPos;              // UI出現位置
 	protected Mode CharaMode;               // キャラクターモード
 	public CharacterType CharaAnim;         // キャラクタータイプ
-	public Transform buffContainer;			// バフ
+	public Transform buffContainer;         // バフ
 
 	public Transform UiPos => uiPos;
 	public bool IsDead => CharaState == State.DEAD;     // 死亡状態かどうかを外部から判定できるプロパティ
@@ -91,18 +91,8 @@ public class Character_Status : MonoBehaviour
 	}
 
 	// --- 動物ごとのベース値を決める関数 ---
-	private void SetBaseStatusByAnimal()
-	{
-		//選択した動物の基本ステータスを設定する
-		switch (CharaAnim)
-		{
-			case CharacterType.LION: ApplyParam(CharacterData.Lion); break;
-			case CharacterType.OSTRICH: ApplyParam(CharacterData.Ostrich); break;
-			case CharacterType.RHINOCELOS: ApplyParam(CharacterData.Rhinocelos); break;
-			case CharacterType.RATEL: ApplyParam(CharacterData.Ratel); break;
-			default: Debug.LogError("動物が選択されていません"); break;
-		}
-	}
+	//選択した動物の基本ステータスを設定する
+	private void SetBaseStatusByAnimal() { FindCurrentAnimalParam(param => ApplyParam(param)); }
 
 	//別ファイルから読み込んだデータを、実際のステータス変数に代入する処理
 	private void ApplyParam(AnimalParam param)
@@ -185,16 +175,16 @@ public class Character_Status : MonoBehaviour
 		{
 			case Mode.ANIMAL:
 				if (CharaState == State.DEAD) return;   //死亡なら以下を通さない
-				timer += Time.deltaTime;
-				if (timer >= 1f) { ReasonHeal(); timer = animalP.TIMER_RESET; } //通常時にのみ理性回復
-				break;
-
-			// 理性開放時の理性ゲージ減少処理関数呼び出し
-			case Mode.SPSIAL_ANIMAL:
-				timer += Time.deltaTime;
-				if (timer >= 1f) { ReasonDecrease(); timer = animalP.TIMER_RESET; }
-				break;
+				UpdateTickTimer(ReasonHeal); break;     //通常時にのみ理性回復
+			case Mode.SPSIAL_ANIMAL: UpdateTickTimer(ReasonDecrease); break;// 理性開放時の理性ゲージ減少処理関数呼び出し
 		}
+	}
+
+	// タイマー計算式(上記処理[JudgeModeChange]に使用する関数)
+	private void UpdateTickTimer(System.Action onTickAction)
+	{
+		timer += Time.deltaTime;
+		if (timer >= 1f) { onTickAction(); timer = animalP.TIMER_RESET; }
 	}
 
 	// --- 倍率設定用の関数 ---
@@ -219,14 +209,9 @@ public class Character_Status : MonoBehaviour
 	// 現在の動物のパラメーターを返す関数
 	private animalP GetCurrentAnimalParam()
 	{
-		switch (CharaAnim)
-		{
-			case CharacterType.LION: return CharacterData.Lion;
-			case CharacterType.OSTRICH: return CharacterData.Ostrich;
-			case CharacterType.RHINOCELOS: return CharacterData.Rhinocelos;
-			case CharacterType.RATEL: return CharacterData.Ratel;
-			default: return default;
-		}
+		animalP result = default;
+		FindCurrentAnimalParam(param => result = param);//関数内でキャラごとに感知後値を返す
+		return result;
 	}
 
 	//死亡処理関数&ダメージ処理関数
@@ -309,9 +294,8 @@ public class Character_Status : MonoBehaviour
 		if (reason_gauge != null) reason_gauge.value = animalP.INITIAL_VALUE;
 
 		//体力ゲージ・理性ゲージのUIを非表示にする処理
-		if (hp_gauge != null) hp_gauge.gameObject.SetActive(false);
-		if (reason_gauge != null) reason_gauge.gameObject.SetActive(false);
-
+		HideGauge(hp_gauge);
+		HideGauge(reason_gauge);
 		Debug.Log($"{gameObject.name} が死亡したため、UIを非表示にしました。");
 		if (CharaState != State.DEAD) playerManager.SetDiePlayerList(playerID);
 
@@ -453,5 +437,20 @@ public class Character_Status : MonoBehaviour
 		if (playerManager.isGameEnd) return;  //ゲーム終了が確定したら死なせない
 		PercentageDamage(MaxHP, CharacterData.OFF_SITE_RAITO);
 		if (CurrentHP <= 0) this.Die();     // 死亡判定
+	}
+
+	// 引数として受け取ったゲージを非表示にする関数
+	private void HideGauge(Slider gauge) { if (gauge != null) gauge.gameObject.SetActive(false); }
+
+	// 動物のデータを倉庫から探し出して、指示された作業（onParamFound）を実行する関数
+	private void FindCurrentAnimalParam(System.Action<AnimalParam> onParamFound)
+	{
+		switch (CharaAnim)
+		{
+			case CharacterType.LION:		onParamFound(CharacterData.Lion);break;
+			case CharacterType.OSTRICH:		onParamFound(CharacterData.Ostrich);break;
+			case CharacterType.RHINOCELOS:	onParamFound(CharacterData.Rhinocelos);break;
+			case CharacterType.RATEL:		onParamFound(CharacterData.Ratel);break;
+		}
 	}
 }
