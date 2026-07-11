@@ -138,7 +138,7 @@ public class PlayerCountMultiHandler : MonoBehaviour
 		for (int j = 1; j < countButtons.Length; j++)
 		{
 			// 接続数以下なら選択可能、超えてたら選択不可にする
-			countButtons[j].interactable = (j + 1 <= connectedCount);
+			//countButtons[j].interactable = (j + 1 <= connectedCount);
 		}
 
 		// 現在選択されているオブジェクトを取得

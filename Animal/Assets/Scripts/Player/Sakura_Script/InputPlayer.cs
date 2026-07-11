@@ -161,6 +161,8 @@ public class InputPlayer : MonoBehaviour
 
     private void Update()
     {
+        if (GetComponent<Character_CPU>() != null) return;
+
         // 観戦者の上昇下降の処理
         this.GhostUpDown();
         if (character_Status.CurrentHP <= 0 || character_Status.CurrentReason <= 0)
@@ -188,6 +190,8 @@ public class InputPlayer : MonoBehaviour
     // 物理演算は FixedUpdate で行います
     private void FixedUpdate()
     {
+		if (GetComponent<Character_CPU>() != null) return;
+
 		if (deathFlag)
         {
             this.UpdateGhostMove();
@@ -236,6 +240,9 @@ public class InputPlayer : MonoBehaviour
             reasonObject.transform.rotation = skillRotation;
             return; // スキル中はここで終了して、スティックによる回転計算をさせない
         }
+
+        //もしCPUのコードがあるなら下の回転は無視
+        if (GetComponent<Character_CPU>() != null) return;
 
         if (MoveFlag)
         {
@@ -301,7 +308,8 @@ public class InputPlayer : MonoBehaviour
 
     private void OnAttack(InputAction.CallbackContext context)
     {
-        if (LiveFlag)
+        if (GetComponent<Character_CPU>() != null) return;
+		if (LiveFlag)
         {
             if (IsAnySkillActive())
             {
@@ -1008,5 +1016,16 @@ public class InputPlayer : MonoBehaviour
     {
         Effect_Manager.PlayEffect(normalObject.name, id, this.gameObject.transform.position, this.gameObject.transform.rotation, new Vector3(1, 1, 1), this.transform);
     }
+
+	// どの方向を与えられても、Playerと同じルールで回転を返すメソッド
+	public Quaternion CalculateRotation(Vector3 moveDir, Quaternion currentRotation)
+	{
+		if (moveDir.sqrMagnitude > 0.1f)
+		{
+			Quaternion targetRot = Quaternion.LookRotation(moveDir);
+			return Quaternion.Lerp(currentRotation, targetRot, Time.deltaTime * 10f);//動きを滑らかに。
+		}
+		return currentRotation;
+	}
 }
 

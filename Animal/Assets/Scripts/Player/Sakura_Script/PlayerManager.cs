@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using CharaType = CharacterType;
+//using UnityEngine.UIElements;
 
 /*全体の基礎処理担当者:
  古澤 桜
@@ -52,7 +53,7 @@ public partial class PlayerManager : MonoBehaviour
     {
         Time.timeScale = 1.0f;// ゲーム開始時にタイムスケールをリセット
         Time.fixedDeltaTime = 0.02f;
-        playerCount = GameDataManager.SelectedPlayerCount;
+        playerCount = GameDataManager.TotalRoomSize;
         isGameEnd = false;
         lastPlayer = 0;
         spawnedPlayers.Clear();// 既存のプレイヤーリストをクリア
@@ -78,40 +79,96 @@ public partial class PlayerManager : MonoBehaviour
     private void SpawnAllPlayers()
     {
         var gamepads = Gamepad.all;
-        int playersToSpawn = GameDataManager.SelectedPlayerCount;
-        for (int i = 1; i <= playersToSpawn; i++)
+        //int playersToSpawn = GameDataManager.TotalRoomSize;
+        //for (int i = 1; i <= playersToSpawn; i++)
+        //      {
+        //          CharaType selectedType = Animal_Select.playerChoices[i];
+        //          if (selectedType == CharaType.NONE) continue;
+        //          Gamepad targetPad = (i - 1 < gamepads.Count) ? gamepads[i - 1] : null;
+        //          SpawnSinglePlayer(i, targetPad, selectedType);
+        //      }
+
+        //選択画面で選んだ「総枠数（TotalRoomSize）」の分だけループ
+        int totalSlots = GameDataManager.TotalRoomSize;
+
+        for (int i = 1; i <= totalSlots; i++)
         {
+            //select_saver に保存されている、この枠のタイプ（PLAYER か CPU か）を確認
             CharaType selectedType = Animal_Select.playerChoices[i];
-            if (selectedType == CharaType.NONE) continue;
-            Gamepad targetPad = (i - 1 < gamepads.Count) ? gamepads[i - 1] : null;
-            SpawnSinglePlayer(i, targetPad, selectedType);
-        }
-    }
+            if(selectedType == CharaType.NONE) continue;
+
+			SlotType slotType = select_saver.Instance.SlotTypes[i];
+            if (slotType == SlotType.PLAYER)
+            {
+                Gamepad targetPad = (i - 1 < gamepads.Count) ? gamepads[i - 1] : null;
+                SpawnSinglePlayer(i, targetPad, selectedType, isCPU: false);
+            }
+            else if (slotType == SlotType.CPU) { SpawnSinglePlayer(i, null, selectedType, true); }
+		}
+
+        Character_CPU[] allCpus = GameObject.FindObjectsOfType<Character_CPU>();
+
+        foreach (var cpu in allCpus)
+        {
+			// spawnedPlayers（現在生成された1P〜4Pのリスト）をそのままCPUに共有する
+			cpu.SetAllPlayersList(spawnedPlayers);
+			Debug.Log($"<color=cyan>[AI設定] {cpu.gameObject.name} に生存者リストを共有しました。</color>");
+		}
+	}
 
     // プレイヤー1人分の生成・配置の関数
-    private void SpawnSinglePlayer(int pID, Gamepad pad, CharaType selectedType)
+    private void SpawnSinglePlayer(int pID, Gamepad pad, CharaType selectedType, bool isCPU)
     {
         int padIndex = pID - 1;
         int animalIndex = (int)selectedType - 1;
+        GameObject playerObj = null;
 
-        //土台生成
-        PlayerInput newPlayer = PlayerInput.Instantiate(
-        prefab: PlayerBasePrefab,
-        playerIndex: padIndex,
-        controlScheme: "Gamepad",
-        pairWithDevice: pad
-        );
+        if (!isCPU)
+        {
+            //土台生成
+            PlayerInput newPlayer = PlayerInput.Instantiate(
+            prefab: PlayerBasePrefab,
+            playerIndex: padIndex,
+            controlScheme: "Gamepad",
+            pairWithDevice: pad
+            );
 
-        //モデル生成&子登録
-        GameObject normalModel = Instantiate(AnimalPrefabs[animalIndex], newPlayer.transform);
-        GameObject reasonModel = Instantiate(AnimalReasonPrefabs[animalIndex], newPlayer.transform);
+            playerObj = newPlayer.gameObject;
+        }
+        else
+        {
+            playerObj = Instantiate(PlayerBasePrefab);
+			if (playerObj.TryGetComponent(out PlayerInput playerInput))
+			{
+				playerInput.enabled = false;
+			}
+			//InputPlayerを消さずに、単に入力（コンポーネント自体）を無効化する
+			//if (playerObj.TryGetComponent(out InputPlayer inputPlayer)) inputPlayer.enabled = false;
+		}
+		//else
+		//{
+		//	playerObj = Instantiate(PlayerBasePrefab);
+		//	if (playerObj.TryGetComponent(out InputPlayer inputPlayer)) Destroy(inputPlayer);
+		//}
+  //      playerObj.name = $"Player{pID}";
+
+		//モデル生成&子登録
+		GameObject normalModel = Instantiate(AnimalPrefabs[animalIndex], playerObj.transform);
+        GameObject reasonModel = Instantiate(AnimalReasonPrefabs[animalIndex], playerObj.transform);
         reasonModel.SetActive(false);
-        SetupPlayerReferences(newPlayer.gameObject, pID, normalModel, reasonModel);//SetupPlayerReferencesを呼ぶ
+        SetupPlayerReferences(playerObj, pID, normalModel, reasonModel);//SetupPlayerReferencesを呼ぶ
+
+        if (isCPU)
+        {
+            var cpu = playerObj.AddComponent<Character_CPU>();
+            cpu.SetupCPUModels(normalModel, reasonModel);//CPUに自分自身の通常・強化モデルの参照を直接渡す
+			//playerObj.AddComponent<Character_CPU>();
+		}
 
 		//UIの生成とStatusへの紐付け
 		if (uiManager != null && uiPositions.Count >= pID)
         {
-            var status = newPlayer.GetComponent<Character_Status>();
+            var status = playerObj.GetComponent<Character_Status>();
             Slider hp = uiManager.CreateUI(UIManager.UI_ID.GAUGE_HP, uiPositions[padIndex], pID);
             Slider rs = uiManager.CreateUI(UIManager.UI_ID.GAUGE_REASON, uiPositions[padIndex], pID);
 
@@ -126,8 +183,8 @@ public partial class PlayerManager : MonoBehaviour
         //位置＆回転の初期化
         if (PlayerTransforms[padIndex] != null)
         {
-            newPlayer.transform.position = PlayerTransforms[padIndex].position;
-            newPlayer.transform.rotation = PlayerTransforms[padIndex].rotation;
+            playerObj.transform.position = PlayerTransforms[padIndex].position;
+            playerObj.transform.rotation = PlayerTransforms[padIndex].rotation;
         }
     }
 
@@ -143,11 +200,16 @@ public partial class PlayerManager : MonoBehaviour
     // 戦闘開始の演出を行うコルーチン
     IEnumerator BattleStartSequence()
     {
-        // 1. 全プレイヤーの入力を一時的に無効化
-        foreach (var p in spawnedPlayers) { p.GetComponent<InputPlayer>().enabled = false; }
+		// 1. 全プレイヤーの入力を一時的に無効化
+		//foreach (var p in spawnedPlayers) { p.GetComponent<InputPlayer>().enabled = false; }
+		foreach (var p in spawnedPlayers)
+		{
+			var input = p.GetComponent<InputPlayer>();
+            if (input != null) { input.enabled = false; }
+		}
 
-        // 2. 演出開始
-        if (uiManager != null) uiManager.ShowIntroductionPanel();
+		// 2. 演出開始
+		if (uiManager != null) uiManager.ShowIntroductionPanel();
         if (introCamera != null) introCamera.enabled = true;// 演出カメラを有効化
 
 		for (int i = 0; i < spawnedPlayers.Count; i++)
@@ -183,8 +245,13 @@ public partial class PlayerManager : MonoBehaviour
         uiManager.HideCountdown(); // カウントダウンを消す
 
         // 5. 全プレイヤーの入力を有効化
-        foreach (var p in spawnedPlayers) { p.GetComponent<InputPlayer>().enabled = true; }
-    }
+        //foreach (var p in spawnedPlayers) { p.GetComponent<InputPlayer>().enabled = true; }
+        foreach (var p in spawnedPlayers)
+        {
+            var input = p.GetComponent<InputPlayer>();
+            if (input != null) input.enabled = true;
+        }
+	}
 
     //カウントダウンに使用する設定(seNumber:27は無音)
     private void SetCountDownPreparation(string contents, Color color, int seNumber = 27, float seVol = 5f)
@@ -235,7 +302,7 @@ public partial class PlayerManager : MonoBehaviour
         playerCount = aliveCount;
 
         // プレイヤーが1人になった瞬間、ゲーム終了の処理を開始
-        if (GameDataManager.SelectedPlayerCount > 1 && playerCount == 1 && !isGameEnd)
+        if (GameDataManager.TotalRoomSize > 1 && playerCount == 1 && !isGameEnd)
         {
             Debug.Log("決着！リザルトシーンへ移動します。");
 

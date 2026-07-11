@@ -21,7 +21,7 @@ public class UniversalViewportHandler : MonoBehaviour
 
         if (playerManager != null && status != null)
         {
-            SetViewport(status.playerID, GameDataManager.SelectedPlayerCount);
+            SetViewport(status.playerID, GameDataManager.TotalRoomSize);
         }
     }
 
@@ -58,7 +58,7 @@ public class UniversalViewportHandler : MonoBehaviour
     // 勝利時のビューポート短形の更新
     private void UpdateViewportGameEnd()
     {
-        if (GameDataManager.SelectedPlayerCount <= 1) return;
+        if (GameDataManager.TotalRoomSize <= 1) return;
 
         // ゲームがまだ終了していない場合は処理しない
         if (!playerManager.isGameEnd) return;
@@ -77,7 +77,7 @@ public class UniversalViewportHandler : MonoBehaviour
             if (status.playerID == 1)       // プレイヤー1のカメラ
             {
                 // 2分割の時は高さは触らず、4分割の時は高さも変更
-                if (GameDataManager.SelectedPlayerCount <= 2)
+                if (GameDataManager.TotalRoomSize <= 2)
                     cam.rect = new Rect(cam.rect.x, cam.rect.y, 0.5f + change_rect, cam.rect.height);
                 else
                     cam.rect = new Rect(cam.rect.x, 0.5f - change_rect, 0.5f + change_rect, 0.5f + change_rect);
@@ -85,7 +85,7 @@ public class UniversalViewportHandler : MonoBehaviour
             else if (status.playerID == 2)  // プレイヤー2のカメラ
             {
                 // 2分割の時は高さは触らず、4分割の時は高さも変更
-                if (GameDataManager.SelectedPlayerCount <= 2)
+                if (GameDataManager.TotalRoomSize <= 2)
                     cam.rect = new Rect(0.5f + change_rect, cam.rect.y, 0.5f - change_rect, cam.rect.height);
                 else
                     cam.rect = new Rect(0.5f + change_rect, 0.5f - change_rect, 0.5f - change_rect, 0.5f + change_rect);
@@ -105,7 +105,7 @@ public class UniversalViewportHandler : MonoBehaviour
             if (status.playerID == 1)       // プレイヤー1のカメラ
             {
                 // 2分割の時は高さは触らず、4分割の時は高さも変更
-                if (GameDataManager.SelectedPlayerCount <= 2)
+                if (GameDataManager.TotalRoomSize <= 2)
                     cam.rect = new Rect(cam.rect.x, cam.rect.y, 0.5f - change_rect, cam.rect.height);
                 else
                     cam.rect = new Rect(cam.rect.x, cam.rect.y, 0.5f - change_rect, 0.5f + change_rect);
@@ -113,7 +113,7 @@ public class UniversalViewportHandler : MonoBehaviour
             else if (status.playerID == 2)  // プレイヤー2のカメラ
             {
                 // 2分割の時は高さは触らず、4分割の時は高さも変更
-                if (GameDataManager.SelectedPlayerCount <= 2)
+                if (GameDataManager.TotalRoomSize <= 2)
                     cam.rect = new Rect(0.5f - change_rect, cam.rect.y, 0.5f + change_rect, cam.rect.height);
                 else
                     cam.rect = new Rect(0.5f - change_rect, 0.5f - change_rect, 0.5f + change_rect, 0.5f + change_rect);

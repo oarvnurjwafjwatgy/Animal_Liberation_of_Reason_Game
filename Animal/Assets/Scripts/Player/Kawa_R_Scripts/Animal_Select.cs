@@ -68,20 +68,20 @@ public class Animal_Select : MonoBehaviour
 	public static ReadyImageController readyImageController;    // ReadyImageControllerへの参照
 
 	void Awake()
-    {
-        // --- シーン開始時の初期化処理 ---
-        //最初のボタンのみモデルを割り当てる（重複して割り当てないように）
-        if (buttonIndex == 0)
-        {
-            normalModels_1P = setupNormals_1P;
-            silhouetteModels_1P = setupSilhouettes_1P;
-            normalModels_2P = setupNormals_2P;
-            silhouetteModels_2P = setupSilhouettes_2P;
-            normalModels_3P = setupNormals_3P;
-            silhouetteModels_3P = setupSilhouettes_3P;
-            normalModels_4P = setupNormals_4P;
-            silhouetteModels_4P = setupSilhouettes_4P;
-        }
+	{
+		// --- シーン開始時の初期化処理 ---
+		//最初のボタンのみモデルを割り当てる（重複して割り当てないように）
+		if (buttonIndex == 0)
+		{
+			normalModels_1P = setupNormals_1P;
+			silhouetteModels_1P = setupSilhouettes_1P;
+			normalModels_2P = setupNormals_2P;
+			silhouetteModels_2P = setupSilhouettes_2P;
+			normalModels_3P = setupNormals_3P;
+			silhouetteModels_3P = setupSilhouettes_3P;
+			normalModels_4P = setupNormals_4P;
+			silhouetteModels_4P = setupSilhouettes_4P;
+		}
 
 		// 全ボタン共通で1回だけ探せばOK
 		if (readyImageController == null)
@@ -102,20 +102,28 @@ public class Animal_Select : MonoBehaviour
 		// --- シーン開始時に全ての情報を「強制」リセット ---
 		// どのボタンが担当してもいいですが、重複しないように buttonIndex == 0 の時だけ実行
 		if (buttonIndex == 0)
-        {
+		{
 			// 参加人数分の配列をループして、全てのプレイヤーの選択をリセット
+			//for (int i = 0; i < playerChoices.Length; i++)
+			//         {
+			//             playerChoices[i] = CharaType.NONE; // 選択をなしにする
+			//             playerPositions[i] = 0; // カーソルを左端に戻す
+			//         }
 			for (int i = 0; i < playerChoices.Length; i++)
-            {
-                playerChoices[i] = CharaType.NONE; // 選択をなしにする
-                playerPositions[i] = 0; // カーソルを左端に戻す
-            }
+			{
+				playerPositions[i] = 0; // カーソルを左端に戻す
 
-            // 準備完了フラグとイラストも初期化
-            allPlayersReady = false;
-            if (readyImage != null) readyImage.SetActive(false);
+				if (i <= 1) playerChoices[i] = CharaType.NONE;//1Pは選択させる
+				else if (i <= GameDataManager.TotalRoomSize) UpdateDisplayModel(i, (int)playerChoices[i] - 1, true);
+				else playerChoices[i] = CharaType.NONE;
+			}
 
-            Debug.Log("<color=white>Selection Data Forced Reset.</color>");
-        }
+			// 準備完了フラグとイラストも初期化
+			allPlayersReady = false;
+			if (readyImage != null) readyImage.SetActive(false);
+
+			Debug.Log("<color=white>Selection Data Forced Reset.</color>");
+		}
 
 	}
 
@@ -130,7 +138,7 @@ public class Animal_Select : MonoBehaviour
 		if (isTransitioning) return;
 
 		// 参加人数を確認 (人数選択画面での決定を反映)
-		dynamicRequiredPlayers = GameDataManager.SelectedPlayerCount;
+		dynamicRequiredPlayers = GameDataManager.TotalRoomSize;
 
 		//移動入力処理 (Index 0 のボタンが代表して計算)
 		if (buttonIndex == 0)
@@ -167,19 +175,6 @@ public class Animal_Select : MonoBehaviour
 						UpdateDisplayModel(pID, playerPositions[pID], false); // カーソル移動のたびにモデル更新
 					}
 				}
-
-				//// キーボード2P移動(デバック用)
-				//if (pID == 2)
-				//{
-				//	if (Input.GetKeyDown(KeyCode.RightArrow))
-				//	{
-				//		playerPositions[2] = (playerPositions[2] + 1) % 4;
-				//	}
-				//	if (Input.GetKeyDown(KeyCode.LeftArrow))
-				//	{
-				//		playerPositions[2] = (playerPositions[2] + 3) % 4;
-				//	}
-				//}
 			}
 		}
 
@@ -208,14 +203,6 @@ public class Animal_Select : MonoBehaviour
 					SetChoice(pID);             //決定処理
 					CheckAllPlayersReady();     //全員決定済みかチェック
 				}
-
-				////キーボード2P用決定ボタン(デバック用)
-				//else if (pID == 2 && Input.GetKeyDown(KeyCode.Return))
-				//{
-				//	if (AudioManager.Instance != null) AudioManager.Instance.PlaySEByIndex(0);
-				//	SetChoice(2);
-				//	CheckAllPlayersReady();
-				//}
 			}
 			// 【キャンセル判定】そのボタンで決定済みの時だけ
 			else if (isDecidedHere)
@@ -226,12 +213,6 @@ public class Animal_Select : MonoBehaviour
 					AudioManager.Instance.PlaySEByIndex(19);//キャンセル音
 					CancelChoice(pID);      //キャンセル処理
 				}
-				////キーボード2P用キャンセルボタン(デバック用)
-				//else if (pID == 2 && Input.GetKeyDown(KeyCode.Backspace))
-				//{
-				//	AudioManager.Instance.PlaySEByIndex(19);//キャンセル音
-				//	CancelChoice(2);
-				//}
 			}
 		}
 
@@ -299,11 +280,17 @@ public class Animal_Select : MonoBehaviour
 	//決定処理
 	void SetChoice(int pID)
 	{
-		playerChoices[pID] = animalType;								 //選んだ動物を配列に保存
+		playerChoices[pID] = animalType;                                 //選んだ動物を配列に保存
 		select_saver.Instance.PlayerChoices[pID - 1] = animalType;
 		UpdateDisplayModel(pID, playerPositions[pID], true);             // 決定したら通常モデルに切り替え
 		PlayCharacterVoice(animalType);
 		Debug.Log($"<color=cyan>{pID}P 決定:</color> {animalType}");
+		
+		// 1Pが決めたタイミングで、内定しているCPUの動物データもセーブ用に同期する
+		for (int i = 2; i <= dynamicRequiredPlayers; i++)
+		{
+			select_saver.Instance.PlayerChoices[i - 1] = playerChoices[i];
+		}
 	}
 
 	//キャンセル処理
@@ -331,7 +318,7 @@ public class Animal_Select : MonoBehaviour
 			if (playerChoices[i] != CharaType.NONE) count++;
 
 		//全員決定済みならフラグを立てる
-		if (count >= dynamicRequiredPlayers)
+		if (count >= dynamicRequiredPlayers && dynamicRequiredPlayers > 0)
 		{
 			allPlayersReady = true;     //Areyouready？
 			if (readyImage != null) readyImage.SetActive(true);   //準備完了イラスト表示

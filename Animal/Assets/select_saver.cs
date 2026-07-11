@@ -1,34 +1,42 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using CharaType = CharacterType;
+
+public enum SlotType { PLAYER, CPU, NONE }//ã‚¹ãƒ­ãƒƒãƒˆã®ç¨®é¡:åˆ—æŒ™å‹
+
 
 public class select_saver : MonoBehaviour
 {
     public static select_saver Instance { get; private set; }
 
     public CharaType[] PlayerChoices = new CharaType[5];
+    public SlotType[] SlotTypes = new SlotType[5];  //å„ã‚¹ãƒ­ãƒƒãƒˆãŒäººé–“ã‹CPUã‹ã‚’ä¿å­˜ã™ã‚‹é…åˆ—ï¼ˆ1Pã€œ4Pç”¨ãªã®ã§è¦ç´ æ•°ã¯5ï¼‰
 
-    // Start is called before the first frame update
-    void Start()
+	// åˆæœŸåŒ–
+	void Start()
     {
-        // Šù‚ÉƒCƒ“ƒXƒ^ƒ“ƒX‚ª‘¶İ‚·‚é‚©ƒ`ƒFƒbƒN
+        // æ—¢ã«ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ãŒå­˜åœ¨ã™ã‚‹ã‹ãƒã‚§ãƒƒã‚¯
         if (Instance != null && Instance != this)
         {
-            // Šù‚É‘¶İ‚·‚é‚È‚çAV‚µ‚­¶¬‚³‚ê‚½©•ª©g‚ğ”jŠü‚µ‚Äd•¡‚ğ–h‚®
+            // æ—¢ã«å­˜åœ¨ã™ã‚‹ãªã‚‰ã€æ–°ã—ãç”Ÿæˆã•ã‚ŒãŸè‡ªåˆ†è‡ªèº«ã‚’ç ´æ£„ã—ã¦é‡è¤‡ã‚’é˜²ã
             Destroy(this.gameObject);
             return;
         }
 
-        // ƒCƒ“ƒXƒ^ƒ“ƒX‚ª‘¶İ‚µ‚È‚¢ê‡A©•ª©g‚ğInstance‚Æ‚µ‚Äİ’è
+        // ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ãŒå­˜åœ¨ã—ãªã„å ´åˆã€è‡ªåˆ†è‡ªèº«ã‚’Instanceã¨ã—ã¦è¨­å®š
         Instance = this;
 
-        // ƒV[ƒ“‚ğŒ×‚¢‚Å‚à”jŠü‚³‚ê‚È‚¢‚æ‚¤‚Éİ’è
+        // ã‚·ãƒ¼ãƒ³ã‚’è·¨ã„ã§ã‚‚ç ´æ£„ã•ã‚Œãªã„ã‚ˆã†ã«è¨­å®š
         DontDestroyOnLoad(this.gameObject);
 
-    }
+        SetSlot(SlotType.CPU);
+	}
 
-    // Update is called once per frame
-    void Update()
+	//åˆæœŸè¨­å®š:ã‚²ãƒ¼ãƒ é–‹å§‹æ™‚ã¯ã€Œ1Pã ã‘ãŒäººé–“ã€2Pã€œ4Pã¯è‡ªå‹•çš„ã«CPUã€
+	private void SetSlot(SlotType type)
     {
-        
-    }
+        SlotTypes[1] = SlotType.PLAYER;
+        SlotTypes[2] = type;
+        SlotTypes[3] = type;
+        SlotTypes[4] = type;
+	}
 }

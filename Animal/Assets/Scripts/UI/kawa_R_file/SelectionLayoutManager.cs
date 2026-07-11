@@ -8,7 +8,7 @@ public class SelectionLayoutManager : MonoBehaviour
 	void Update()
 	{
 		// 1. GameDataManagerから現在の選択人数を取得
-		int requiredPlayers = GameDataManager.SelectedPlayerCount;
+		int requiredPlayers = GameDataManager.TotalRoomSize;
 
 		// 2. 枠の表示・非表示を切り替え
 		for (int i = 0; i < selectAreaFrames.Length; i++)
