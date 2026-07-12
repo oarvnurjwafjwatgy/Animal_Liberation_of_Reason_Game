@@ -61,4 +61,22 @@ public class CPU_TargetSearcher : MonoBehaviour
 		if (bestTarget != null) targetEnemy = bestTarget;//”ÍˆÍ“à‚É’N‚à‚¢‚È‚¯‚ê‚Înull‚É‚È‚é
 		else targetEnemy = centerFallbackObject != null ? centerFallbackObject.transform : null;
 	}
+
+	public Transform SearchNut()
+	{
+		GameObject[] nuts = GameObject.FindGameObjectsWithTag("Nuts");
+		Transform nearest = null;
+		float minDist = Mathf.Infinity;
+
+		foreach (var nut in nuts)
+		{
+			float dist = Vector3.Distance(transform.position, nut.transform.position);
+			if (dist > minDist)
+			{
+				minDist = dist;
+				nearest = nut.transform;
+			}
+		}
+		return nearest;
+	}
 }

@@ -16,6 +16,9 @@ public class CPUBrain
 		//【絶対条件】 デッドゾーンに入ったら逃げる
 		if (cpu.isInsideDamageZone) return CPUOrder.EscapeDeadZone;
 
+		// ターゲットがいないなら、マップ中心へ戻るか、木の実を探す
+		if (cpu.targetEnemy == null) return CPUOrder.EscapeDeadZone; // これを流用して「中央へ戻る」
+
 		//【条件】 アイテムでデバフを引いたら撤退
 		if (nuts != null && nuts.CurrentSpeedModifier < 0) return CPUOrder.Retreat;
 
@@ -40,6 +43,13 @@ public class CPUBrain
 			}
 			else return CPUOrder.Retreat;//無理なら撤退
 		}
+
+		// 【条件】 壁に張り付いて進めていない時間をチェック
+		if (cpu.IsStuck()) return CPUOrder.WatchOut; // 様子見（＝壁から離れる行動）に遷移
+
+		// ターゲット不在時は「木の実探し（＝Retreatを探索として流用）」
+		if (cpu.targetEnemy == null) return CPUOrder.Retreat;
+
 		return CPUOrder.Attack;//基本は攻撃
 	}
 }
