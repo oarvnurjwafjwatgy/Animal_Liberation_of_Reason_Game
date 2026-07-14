@@ -71,7 +71,7 @@ public class CPU_TargetSearcher : MonoBehaviour
 		foreach (var nut in nuts)
 		{
 			float dist = Vector3.Distance(transform.position, nut.transform.position);
-			if (dist > minDist)
+			if (dist < minDist)
 			{
 				minDist = dist;
 				nearest = nut.transform;

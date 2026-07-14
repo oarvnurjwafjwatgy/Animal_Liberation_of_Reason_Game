@@ -5,7 +5,8 @@ public enum CPUOrder
 {
 	EscapeDeadZone,	// デッドゾーンから逃げる
 	Attack,			// 攻撃
-	Retreat,		//撤退・アイテム探し
+	Retreat,        //撤退
+	SearchNut,      //木の実探し(アイテム)
 	WatchOut,		//様子見
 }
 
