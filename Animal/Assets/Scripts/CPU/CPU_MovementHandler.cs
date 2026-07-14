@@ -86,10 +86,15 @@ public class CPU_MovementHandler : MonoBehaviour
 		if (Physics.Raycast(rayOrigin, moveDir, out hit, 2f, obstacleLayer))
 		{
 			Vector3 right = Quaternion.Euler(0, 90, 0) * moveDir;
-			Vector3 left = Quaternion.Euler(0, 90, 0) * moveDir;
+			Vector3 left = Quaternion.Euler(0, -90, 0) * moveDir;
 
-			if (!Physics.Raycast(rayOrigin, right, 2f, obstacleLayer)) avoidDirection = right;
-			else avoidDirection = left;
+			bool rightBlocked = Physics.Raycast(rayOrigin, right, 2f, obstacleLayer);
+			bool leftBlocked = Physics.Raycast(rayOrigin, left, 2f, obstacleLayer);
+
+			if (!rightBlocked) avoidDirection = right;
+			else if (!leftBlocked) avoidDirection = left;
+			else { calculatedVelocity = Vector3.zero; return true; }
+
 			avoidTimer = 0.8f;
 			calculatedVelocity = avoidDirection * speed;
 			RotateModelTowards(avoidDirection);
