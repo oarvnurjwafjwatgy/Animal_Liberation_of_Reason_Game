@@ -11,7 +11,7 @@ public class CPU_MovementHandler : MonoBehaviour
 	private Vector3 calculatedVelocity = Vector3.zero;
 	private GameObject normalModel;
 	private GameObject reasonModel;
-
+	private float avoidTimer = 0f;
 	CPU_TargetSearcher searcher;
 
 	// 壁回避用
@@ -41,15 +41,16 @@ public class CPU_MovementHandler : MonoBehaviour
 
 	public void CalculateMoveVelocity(Transform target, CPUOrder order, float speed)
 	{
-		// 基本のターゲット方向
-		Vector3 targetDir = (target == null)
-			? (Vector3.zero - transform.position).normalized
-			: (target.position - transform.position).normalized;
-		targetDir.y = 0;
+		Vector3 baseVelocity = MoveByOrder(order, target, speed);// ターゲット方向等を予めセット
 
-		if (HandleWallAvoid(targetDir, speed)) return;
-		calculatedVelocity = MoveByOrder(order, target, speed);
-		Vector3 moveVelocity = Vector3.zero;
+		//止まる命令なら終わり
+		if (baseVelocity.sqrMagnitude < 0.1f/*0.001f*/)
+		{
+			calculatedVelocity = Vector3.zero;
+			return;
+		}
+		if (HandleWallAvoid(baseVelocity.normalized, speed)) return;
+		calculatedVelocity = baseVelocity;
 	}
 
 	// 物理移動と回転:アニメーションの実行
@@ -69,46 +70,28 @@ public class CPU_MovementHandler : MonoBehaviour
 		else animator.SetInteger("State", 0); // idle
 	}
 
-	private bool HandleWallAvoid(Vector3 targetDir, float speed)
+	private bool HandleWallAvoid(Vector3 moveDir, float speed)
 	{
-		Vector3 rayOrigin = transform.position + Vector3.up * 1.0f;
-		Vector3 moveDir = calculatedVelocity.sqrMagnitude > 0.01f
-			? calculatedVelocity.normalized
-			: targetDir;
-
-		RaycastHit hit;
-		bool hitWall = Physics.Raycast(rayOrigin, moveDir, out hit, 2f, obstacleLayer);
-
-		//壁の回避中
-		if (isAvoidingWall)
+		Vector3 rayOrigin = transform.position + Vector3.up;
+		if (avoidTimer > 0f)
 		{
-			// 壁を完全に抜けたか？
-			bool stillNearWall =
-				Physics.Raycast(rayOrigin, avoidDirection, 2f, obstacleLayer) ||
-				Physics.Raycast(rayOrigin + transform.right * 0.5f, avoidDirection, 2f, obstacleLayer) ||
-				Physics.Raycast(rayOrigin - transform.right * 0.5f, avoidDirection, 2f, obstacleLayer);
-
-			if (!stillNearWall)
-			{
-				// 壁を抜けたので通常状態へ
-				isAvoidingWall = false;
-				return false;
-			}
-
-			// 壁回避継続
+			avoidTimer -= Time.deltaTime;
 			calculatedVelocity = avoidDirection * speed;
-			RotateModelTowards(avoidDirection);//モデルを横向きに
+			RotateModelTowards(avoidDirection);
 			return true;
 		}
+		RaycastHit hit;
 
-		// 通常状態：壁を検知したら回避開始
-		if (hitWall)
+		//壁にぶつかると
+		if (Physics.Raycast(rayOrigin, moveDir, out hit, 2f, obstacleLayer))
 		{
-			avoidDirection = Quaternion.Euler(0, 90, 0) * moveDir;
-			isAvoidingWall = true;
-			calculatedVelocity = avoidDirection * speed;
+			Vector3 right = Quaternion.Euler(0, 90, 0) * moveDir;
+			Vector3 left = Quaternion.Euler(0, 90, 0) * moveDir;
 
-			// 壁回避開始時にも向きを変える
+			if (!Physics.Raycast(rayOrigin, right, 2f, obstacleLayer)) avoidDirection = right;
+			else avoidDirection = left;
+			avoidTimer = 0.8f;
+			calculatedVelocity = avoidDirection * speed;
 			RotateModelTowards(avoidDirection);
 			return true;
 		}
