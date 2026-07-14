@@ -262,11 +262,7 @@ public class Character_CPU : MonoBehaviour
 
 	private void PerformMovement(CPUOrder order)
 	{
-		if (movement == null)
-		{
-			Debug.LogError("致命的：movement が null です！初期化されていません！");
-			movement = GetComponent<CPU_MovementHandler>(); // 自己修復を試みる
-		}
+		if (movement == null) movement = GetComponent<CPU_MovementHandler>(); // 自己修復を試みる
 
 		if (targetEnemy == null) movement.CalculateMoveVelocity(null, order, 5f);
 		else movement.CalculateMoveVelocity(targetEnemy, order, 5f);
@@ -334,6 +330,12 @@ public class Character_CPU : MonoBehaviour
 			if (cpuReasonObject != null) cpuReasonObject.transform.rotation = targetRotation;
 		}
 	}
+
+	public Transform SearchNut()
+	{
+		return searcher.SearchNut();
+	}
+
 
 	private bool IsAlive() => myStatus != null && myStatus.CurrentHP > 0 && myStatus.CurrentReason > 0;
 

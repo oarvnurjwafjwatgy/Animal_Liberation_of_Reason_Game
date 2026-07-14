@@ -39,95 +39,17 @@ public class CPU_MovementHandler : MonoBehaviour
 		reasonModel = reason;
 	}
 
-	//旧式
-	//public void CalculateMoveVelocity(Transform target, CPUOrder order, float speed)
-	//{
-	//	if (target == null) { calculatedVelocity = Vector3.zero; return; }
-
-	//	float currentDistance = Vector3.Distance(transform.position, target.position);
-	//	Vector3 targetDir = (target.position - transform.position).normalized;
-	//	targetDir.y = 0;
-
-	//	// 密着を防ぐ（2.5m以上なら突撃、2.2m以内なら立ち止まるか回る）
-	//	if (currentDistance < 2.2f)
-	//	{
-	//		// 攻撃可能な距離なら、少しだけ横に回り込む
-	//		calculatedVelocity = transform.right * speed * 0.5f;
-	//		return;
-	//	}
-
-	//	// 基本の移動方向
-	//	Vector3 finalDir = targetDir;
-	//	RaycastHit hit;
-	//	int layerMask = LayerMask.GetMask("FieldObject");
-
-	//	// 2.0m 前方にレイを飛ばす
-	//	if (Physics.Raycast(transform.position + new Vector3(0, 0.2f, 0), targetDir, out hit, 2.0f, layerMask))
-	//	{
-	//		// 壁があれば、ターゲット方向から90度右に逸らすベクトルを作る
-	//		finalDir = Quaternion.Euler(0, 90, 0) * targetDir;
-	//	}
-
-	//	// 移動速度の計算（orderによる分岐はそのまま）
-	//	Vector3 moveVelocity = finalDir * speed;
-
-	//	switch (order)
-	//	{
-	//		case CPUOrder.Attack: moveVelocity = finalDir * speed; break;
-	//		case CPUOrder.Retreat: moveVelocity = -finalDir * speed; break;//ターゲットから逆に逃げる
-	//		case CPUOrder.EscapeDeadZone://Deadゾーンからステージ中心へ逃げる
-	//			// 中央（0,0,0）ではなく、少しランダムな位置（中央から半径3m以内）を目指させる
-	//			Vector3 randomOffset = new Vector3(Random.Range(-3f, 3f), 0, Random.Range(-3f, 3f));
-	//			moveVelocity = (randomOffset - transform.position).normalized * speed;
-	//			break;
-	//		//様子見中はふらつく
-	//		case CPUOrder.WatchOut: moveVelocity = transform.right * (Mathf.Sin(Time.time) * speed * 0.5f); break;
-	//	}
-	//	calculatedVelocity = moveVelocity;
-	//}
-
 	public void CalculateMoveVelocity(Transform target, CPUOrder order, float speed)
 	{
 		// 基本のターゲット方向
 		Vector3 targetDir = (target == null)
 			? (Vector3.zero - transform.position).normalized
 			: (target.position - transform.position).normalized;
-
 		targetDir.y = 0;
 
 		if (HandleWallAvoid(targetDir, speed)) return;
-
+		calculatedVelocity = MoveByOrder(order, target, speed);
 		Vector3 moveVelocity = Vector3.zero;
-
-		if (target != null)
-		{
-			switch (order)
-			{
-				case CPUOrder.Attack: moveVelocity = targetDir * speed; break;
-				case CPUOrder.Retreat:
-					Transform nut = searcher.SearchNut();//木の実捜索
-
-					if (nut != null)
-					{
-						Vector3 nutDir = (nut.position - transform.position).normalized;
-						moveVelocity = nutDir * speed;
-					}
-					else moveVelocity = transform.right * (Mathf.Sin(Time.time) * speed * 0.5f); break;
-				//moveVelocity = -targetDir * speed;
-				//break;//ターゲットから逆に逃げる
-
-				case CPUOrder.EscapeDeadZone://Deadゾーンからステージ中心へ逃げる
-				 // 中央（0,0,0）ではなく、少しランダムな位置（中央から半径3m以内）を目指させる
-					Vector3 randomOffset = new Vector3(Random.Range(-3f, 3f), 0, Random.Range(-3f, 3f));
-					moveVelocity = (randomOffset - transform.position).normalized * speed;
-					break;
-				//様子見中はふらつく
-				case CPUOrder.WatchOut: moveVelocity = transform.right * (Mathf.Sin(Time.time) * speed * 0.5f); break;
-			}
-		}
-		else moveVelocity = targetDir * speed; // 中央へ向かう
-
-		calculatedVelocity = moveVelocity;
 	}
 
 	// 物理移動と回転:アニメーションの実行
@@ -147,7 +69,7 @@ public class CPU_MovementHandler : MonoBehaviour
 		else animator.SetInteger("State", 0); // idle
 	}
 
-	private bool HandleWallAvoid(Vector3 targetDir,float speed)
+	private bool HandleWallAvoid(Vector3 targetDir, float speed)
 	{
 		Vector3 rayOrigin = transform.position + Vector3.up * 1.0f;
 		Vector3 moveDir = calculatedVelocity.sqrMagnitude > 0.01f
@@ -185,7 +107,7 @@ public class CPU_MovementHandler : MonoBehaviour
 			avoidDirection = Quaternion.Euler(0, 90, 0) * moveDir;
 			isAvoidingWall = true;
 			calculatedVelocity = avoidDirection * speed;
-			
+
 			// 壁回避開始時にも向きを変える
 			RotateModelTowards(avoidDirection);
 			return true;
@@ -205,4 +127,39 @@ public class CPU_MovementHandler : MonoBehaviour
 		if (reasonModel != null) reasonModel.transform.rotation = rot;
 	}
 
+
+	private Vector3 MoveByOrder(CPUOrder order, Transform target, float speed)
+	{
+		// 基本方向
+		if (target == null)
+		{
+			Vector3 toCenter = (Vector3.zero - transform.position).normalized;
+			toCenter.y = 0;
+			return toCenter * speed;
+		}
+
+		Vector3 targetDir = (target.position - transform.position).normalized;
+		targetDir.y = 0;
+
+		switch (order)
+		{
+			case CPUOrder.Attack: return targetDir * speed;
+			case CPUOrder.Retreat:
+				{
+					Transform nut = searcher.SearchNut();//木の実捜索
+
+					if (nut != null) return (nut.position - transform.position).normalized * speed;
+					return -targetDir * speed;
+				}
+			case CPUOrder.EscapeDeadZone://Deadゾーンからステージ中心へ逃げる
+				{
+					// 中央（0,0,0）ではなく、少しランダムな位置（中央から半径3m以内）を目指させる
+					Vector3 randomOffset = new Vector3(Random.Range(-3f, 3f), 0, Random.Range(-3f, 3f));
+					return (randomOffset - transform.position).normalized * speed;
+				}
+			//様子見中はふらつく
+			case CPUOrder.WatchOut: return transform.right * (Mathf.Sin(Time.time) * speed * 0.5f);
+			default: return Vector3.zero;// どの case にも入らなかった保険
+		}
+	}
 }
