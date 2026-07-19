@@ -59,7 +59,7 @@ public class CPU_TargetSearcher : MonoBehaviour
             */
 		}
 		if (bestTarget != null) targetEnemy = bestTarget;//”ÍˆÍ“à‚É’N‚à‚¢‚È‚¯‚ê‚Înull‚É‚È‚é
-		else targetEnemy = centerFallbackObject != null ? centerFallbackObject.transform : null;
+		else targetEnemy = null;
 	}
 
 	public Transform SearchNut()

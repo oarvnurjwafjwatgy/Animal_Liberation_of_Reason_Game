@@ -26,6 +26,10 @@ public class Character_CPU : MonoBehaviour
 	private List<Character_Status> allPlayers = new List<Character_Status>();
 	private float stuckTimer = 0f;
 
+	[SerializeField] private float roamRadius = 12f;    // 放浪範囲
+	[SerializeField] private float wanderInterval = 3f; // 目的地を変える間隔（秒）
+
+	
 	private void Awake()
 	{
 		TryGetComponent(out rb);
@@ -57,7 +61,8 @@ public class Character_CPU : MonoBehaviour
 	public void SetAllPlayersList(List<Character_Status> playersList)
 	{
 		allPlayers = playersList;
-		if (searcher != null) searcher.Initialize(playersList); //プレイヤーリストをもらった瞬間に、1P(Player)からCollisionプレハブの参照を自動でコピーする
+		//プレイヤーリストをもらった瞬間に、1P(Player)からCollisionプレハブの参照を自動でコピーする
+		if (searcher != null) searcher.Initialize(playersList);
 		if (attackHandler != null) attackHandler.SetupCollisionPrefab(playersList);
 	}
 
@@ -106,30 +111,18 @@ public class Character_CPU : MonoBehaviour
 			targetNut = null;
 		}
 
-		bool isTargetDefaultCenter = (targetEnemy != null && targetEnemy.name.StartsWith("_CenterFallback_"));
-
-		// targetNut が null の時だけ大木接近判定を行う
-		if (targetNut == null && isTargetDefaultCenter)
+		// targetNutがnullのときはフィールド全体で木の実を探す
+		if (targetNut == null)
 		{
-			float distanceToCenter = Vector3.Distance(transform.position, Vector3.zero);
-			// 大木の手前に来たら
-			if (distanceToCenter < 15.0f)
-			{
-				// 強制的に木の実を捜索する
-				Transform foundNut = searcher.SearchNut();
-				if (foundNut != null) targetNut = foundNut;
-			}
-		}
-		else if (!isTargetDefaultCenter)
-		{
-			targetNut = null;
+			Transform foundNut = searcher.SearchNut();
+			if (foundNut != null) targetNut = foundNut;
 		}
 
-		// 判断（脳の思考）
+		// 判断
 		CPUOrder currentOrder = CPUBrain.Think(myStatus, this, nuts);
 
-		// 攻撃射程チェック（本物の敵がいる場合のみ）
-		bool hasTrueEnemy = (targetEnemy != null && !isTargetDefaultCenter);
+		// 攻撃射程チェック
+		bool hasTrueEnemy = (targetEnemy != null);
 		bool inRange = (hasTrueEnemy && Vector3.Distance(transform.position, targetEnemy.position) < 2.5f);
 
 		// 移動か攻撃か、どちらか一つだけを行う
@@ -144,11 +137,19 @@ public class Character_CPU : MonoBehaviour
 		attackHandler.HandleAttack(baseKeyName, targetEnemy, order, myStatus.CharaAnim, rb, animator, cpuNormalObject);
 	}
 
+	// 命令(order)に応じて移動ターゲットを選択する
 	private void PerformMovement(CPUOrder order)
 	{
 		if (movement == null) movement = GetComponent<CPU_MovementHandler>();
-		if (targetNut != null) movement.CalculateMoveVelocity(targetNut, order, 5f);
-		else movement.CalculateMoveVelocity(targetEnemy, order, 5f);
+
+		// 木の実関連の命令が来たら木の実を優先
+		if ((order == CPUOrder.Retreat || order == CPUOrder.SearchNut) && targetNut != null)
+			movement.CalculateMoveVelocity(targetNut, order, 5f);
+		else
+		{
+			// Attack/WatchOut/EscapeDeadZone 等は targetEnemy を使う（null のときは movement 側で中央向け等を処理）
+			movement.CalculateMoveVelocity(targetEnemy, order, 5f);
+		}
 	}
 
 	private void UpdateStuckTimer()
@@ -191,18 +192,17 @@ public class Character_CPU : MonoBehaviour
 
 	private void LateUpdate()
 	{
-		// ターゲットがいないなら何もしない
-		if (targetEnemy == null) return;
+		Transform lookTarget = targetNut != null ? targetNut : targetEnemy;
+		if (lookTarget == null) return;
 		if (movement.IsAvoidingWall) return;
 
 		// CPUはターゲットへの方向を回転に。
-		Vector3 directionToTarget = (targetEnemy.position - transform.position).normalized;
+		Vector3 directionToTarget = (lookTarget.position - transform.position).normalized;
 		directionToTarget.y = 0; // 高さは無視
 		if (directionToTarget != Vector3.zero)
 		{
 			// ターゲットを向くための回転値を作成
 			Quaternion targetRotation = Quaternion.LookRotation(directionToTarget);
-			Debug.Log("Late発動。回転値を作成しました。");
 			// Playerがやっているようにモデルを回す
 			if (cpuNormalObject != null) cpuNormalObject.transform.rotation = targetRotation;
 			if (cpuReasonObject != null) cpuReasonObject.transform.rotation = targetRotation;

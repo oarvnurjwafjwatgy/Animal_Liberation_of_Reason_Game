@@ -7,6 +7,11 @@ public class CPU_MovementHandler : MonoBehaviour
 	[SerializeField] private float stopDistance = 2.2f;      // 相手を押し付けないように立ち止まる距離
 	private LayerMask obstacleLayer;
 
+	private float wanderTimer = 0f;
+	private Vector3 wanderTarget = Vector3.zero;
+	[SerializeField] private float roamRadius = 12f;    // 放浪範囲 (m)
+	[SerializeField] private float wanderInterval = 3f; // 目的地を変える間隔 (秒)
+
 	private Rigidbody rb;
 	private Vector3 calculatedVelocity = Vector3.zero;
 	private GameObject normalModel;
@@ -63,6 +68,17 @@ public class CPU_MovementHandler : MonoBehaviour
 		// 計算された移動速度をRigidbodyに適用（Y軸の落下速度は維持する）
 		rb.velocity = new Vector3(calculatedVelocity.x, rb.velocity.y, calculatedVelocity.z);
 
+		// 壁回避していないなら移動方向へ向ける（回避後の向き戻し）
+		if (!isAvoidingWall)
+		{
+			Vector3 moveDir = calculatedVelocity;
+			moveDir.y = 0;
+			if (moveDir.sqrMagnitude > 0.01f)
+			{
+				RotateModelTowards(moveDir.normalized);
+			}
+		}
+
 		if (animator == null) return;
 		if (isAttacking) return;
 
@@ -75,11 +91,15 @@ public class CPU_MovementHandler : MonoBehaviour
 		Vector3 rayOrigin = transform.position + Vector3.up;
 		if (avoidTimer > 0f)
 		{
+			isAvoidingWall = true;
+
 			avoidTimer -= Time.deltaTime;
 			calculatedVelocity = avoidDirection * speed;
 			RotateModelTowards(avoidDirection);
 			return true;
 		}
+
+		isAvoidingWall = false;   // 回避タイマーが切れていた場合はフラグを解除
 		RaycastHit hit;
 
 		//壁にぶつかると
@@ -93,9 +113,10 @@ public class CPU_MovementHandler : MonoBehaviour
 
 			if (!rightBlocked) avoidDirection = right;
 			else if (!leftBlocked) avoidDirection = left;
-			else { calculatedVelocity = Vector3.zero; return true; }
+			else { calculatedVelocity = Vector3.zero; isAvoidingWall = false; return true; }
 
 			avoidTimer = 0.8f;
+			isAvoidingWall = true;
 			calculatedVelocity = avoidDirection * speed;
 			RotateModelTowards(avoidDirection);
 			return true;
@@ -115,15 +136,22 @@ public class CPU_MovementHandler : MonoBehaviour
 		if (reasonModel != null) reasonModel.transform.rotation = rot;
 	}
 
-
 	private Vector3 MoveByOrder(CPUOrder order, Transform target, float speed)
 	{
 		// 基本方向
 		if (target == null)
 		{
-			Vector3 toCenter = (Vector3.zero - transform.position).normalized;
-			toCenter.y = 0;
-			return toCenter * speed;
+			wanderTimer -= Time.deltaTime;
+			if (wanderTimer <= 0f || (wanderTarget - transform.position).magnitude < 1f)
+			{
+				Vector3 randomOffset = Random.insideUnitSphere * roamRadius;
+				randomOffset.y = 0f;
+				wanderTarget = transform.position + randomOffset;
+				wanderTimer = wanderInterval;
+			}
+			Vector3 toWander = (wanderTarget - transform.position).normalized;
+			toWander.y = 0f;
+			return toWander * speed;
 		}
 
 		Vector3 targetDir = (target.position - transform.position).normalized;
