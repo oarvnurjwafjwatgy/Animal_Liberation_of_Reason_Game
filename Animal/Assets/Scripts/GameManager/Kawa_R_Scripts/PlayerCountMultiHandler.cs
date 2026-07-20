@@ -41,6 +41,9 @@ public class PlayerCountMultiHandler : MonoBehaviour
 		for (int i = 1; i < countButtons.Length; i++)
 		{
 			int index = i;
+			//二重登録を防ぐため既存リスナーをクリアしてから追加
+			countButtons[i].onClick.RemoveAllListeners();
+			
 			// ボタンが押されたときの処理
 			countButtons[i].onClick.AddListener(() =>
 			{

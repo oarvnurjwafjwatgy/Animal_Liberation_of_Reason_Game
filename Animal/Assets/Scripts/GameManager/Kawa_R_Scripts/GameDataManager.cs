@@ -21,21 +21,34 @@ public class GameDataManager : MonoBehaviour
 		int animalTypeCount = System.Enum.GetValues(typeof(CharacterType)).Length - 1;// NONEを除く
 		int humanCount = Mathf.Max(1, Gamepad.all.Count);//現在接続されているコントローラーの数を取得（最低1人は人間）
 
+		if (select_saver.Instance == null)
+		{
+			var go = new GameObject("select_saver_auto");
+			go.AddComponent<select_saver>(); // Awake で Instance がセットされる
+		}
+
+		if (select_saver.Instance == null) return;
+
 		// 1P（自分）は常にプレイヤー確定なのでここで明示的にセット
-		if (select_saver.Instance != null && select_saver.Instance.SlotTypes.Length > 0)
-			select_saver.Instance.SlotTypes[0] = SlotType.PLAYER;
+		if (select_saver.Instance != null && select_saver.Instance.SlotTypes.Length > 1)
+			select_saver.Instance.SlotTypes[1] = SlotType.PLAYER;
 
 		for (int i = 2; i <= TotalRoomSize; i++)
 		{
 			// 配列のインデックス用に 1 つ引く (2Pならインデックス1)
-			int saveIndex = i - 1;
+			int saverIndex = i - 1;
 
 			// 安全チェック：セーブデータの配列サイズを超えないようにする
-			if (select_saver.Instance == null || saveIndex >= select_saver.Instance.SlotTypes.Length) continue;
+			//if (select_saver.Instance == null || saveIndex >= select_saver.Instance.SlotTypes.Length) continue;
+
+			// 範囲チェック
+			if (i >= select_saver.Instance.SlotTypes.Length || saverIndex < 0 ||
+			saverIndex >= select_saver.Instance.PlayerChoices.Length) continue;
 
 			if (i <= humanCount)
 			{
 				select_saver.Instance.SlotTypes[i] = SlotType.PLAYER;
+				select_saver.Instance.PlayerChoices[saverIndex] = CharacterType.NONE;
 				Animal_Select.playerChoices[i] = CharacterType.NONE;// セレクト画面で自分で選ぶ
 			}
 			else
@@ -43,8 +56,12 @@ public class GameDataManager : MonoBehaviour
 				select_saver.Instance.SlotTypes[i] = SlotType.CPU;
 				// 1 〜 動物の種類の数 の間でランダムな数字を決める（例: 1=LION, 2=OSTRICH...）
 				int randomAnimalIndex = UnityEngine.Random.Range(1, animalTypeCount + 1);
-				Animal_Select.playerChoices[i] = (CharacterType)randomAnimalIndex;// CPUの動物をランダムに設定
+				//Animal_Select.playerChoices[i] = (CharacterType)randomAnimalIndex;// CPUの動物をランダムに設定
 				Debug.Log($"{i}P(CPU)の動物をランダム設定: {Animal_Select.playerChoices[i]}");
+				CharacterType chosen = (CharacterType)randomAnimalIndex;
+
+				select_saver.Instance.PlayerChoices[saverIndex] = chosen;
+				Animal_Select.playerChoices[i] = chosen;
 			}
 		}
 	}

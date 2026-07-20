@@ -132,7 +132,19 @@ public class Character_CPU : MonoBehaviour
 
 	private void PerformAttack(CPUOrder order)
 	{
-		movement.StopImmediate(); // à⁄ìÆÇämé¿Ç…é~ÇﬂÇÈ
+		movement.StopImmediate(); // à⁄ìÆÇé~ÇﬂÇÈ
+
+		if (targetEnemy != null)
+		{
+			Vector3 dir = targetEnemy.position - transform.position;
+			dir.y = 0f;
+			if (dir.sqrMagnitude > 0.0001f)
+			{
+				Quaternion rot = Quaternion.LookRotation(dir.normalized);
+				if (cpuNormalObject != null) cpuNormalObject.transform.rotation = rot;
+				if (cpuReasonObject != null) cpuReasonObject.transform.rotation = rot;
+			}
+		}
 		string baseKeyName = (cpuNormalObject != null) ? cpuNormalObject.name : gameObject.name;
 		attackHandler.HandleAttack(baseKeyName, targetEnemy, order, myStatus.CharaAnim, rb, animator, cpuNormalObject);
 	}
@@ -192,9 +204,15 @@ public class Character_CPU : MonoBehaviour
 
 	private void LateUpdate()
 	{
-		Transform lookTarget = targetNut != null ? targetNut : targetEnemy;
+		//Transform lookTarget = targetNut != null ? targetNut : targetEnemy;
+		Transform lookTarget = null;
+		bool isAttackingNow = (attackHandler != null && attackHandler.IsAttacking);
+
+		if (isAttackingNow && targetEnemy != null) lookTarget = targetEnemy;
+		else lookTarget = targetNut != null ? targetNut : targetEnemy;
+
 		if (lookTarget == null) return;
-		if (movement.IsAvoidingWall) return;
+		if (movement.IsAvoidingWall && !isAttackingNow) return;
 
 		// CPUÇÕÉ^Å[ÉQÉbÉgÇ÷ÇÃï˚å¸ÇâÒì]Ç…ÅB
 		Vector3 directionToTarget = (lookTarget.position - transform.position).normalized;

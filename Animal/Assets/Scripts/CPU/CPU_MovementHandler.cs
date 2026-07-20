@@ -127,13 +127,28 @@ public class CPU_MovementHandler : MonoBehaviour
 	// 攻撃中などに即座に足を止めたい場合用のメソッド
 	public void StopImmediate() { calculatedVelocity = Vector3.zero; }
 
-	//壁に衝突時モデルの向きを変える
-	private void RotateModelTowards(Vector3 dir)
+	// 壁に衝突時モデルの向きを変える（スムーズ回転）
+	// instant フラグが true の場合は即時回転（攻撃時に使うなら別オーバーロードで呼べるように）
+	private void RotateModelTowards(Vector3 dir, bool instant = false)
 	{
 		if (normalModel == null) return;
-		Quaternion rot = Quaternion.LookRotation(dir);
-		normalModel.transform.rotation = rot;
-		if (reasonModel != null) reasonModel.transform.rotation = rot;
+		Quaternion targetRot  = Quaternion.LookRotation(dir);
+
+		if (instant) //即時回転
+		{
+			normalModel.transform.rotation = targetRot;
+			if (reasonModel != null) reasonModel.transform.rotation = targetRot;
+		}
+		else
+		{
+			// スムーズ回転（補間速度は要調整）
+			float rotSpeed = 10f;
+			normalModel.transform.rotation = Quaternion.Slerp(
+			normalModel.transform.rotation, targetRot, rotSpeed * Time.deltaTime);
+
+			if (reasonModel != null) reasonModel.transform.rotation = Quaternion.Slerp(
+			reasonModel.transform.rotation, targetRot, rotSpeed * Time.deltaTime);
+		}
 	}
 
 	private Vector3 MoveByOrder(CPUOrder order, Transform target, float speed)

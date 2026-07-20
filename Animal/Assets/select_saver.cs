@@ -11,24 +11,29 @@ public class select_saver : MonoBehaviour
     public CharaType[] PlayerChoices = new CharaType[5];
     public SlotType[] SlotTypes = new SlotType[5];  //各スロットが人間かCPUかを保存する配列（1P〜4P用なので要素数は5）
 
+	private void Awake()
+	{
+		// 既にインスタンスが存在するかチェック
+		if (Instance != null && Instance != this)
+		{
+			// 既に存在するなら、新しく生成された自分自身を破棄して重複を防ぐ
+			Destroy(this.gameObject);
+			return;
+		}
+
+		// インスタンスが存在しない場合、自分自身をInstanceとして設定
+		Instance = this;
+
+		// シーンを跨いでも破棄されないように設定
+		DontDestroyOnLoad(this.gameObject);
+
+		SetSlot(SlotType.CPU);
+	}
+
 	// 初期化
 	void Start()
     {
-        // 既にインスタンスが存在するかチェック
-        if (Instance != null && Instance != this)
-        {
-            // 既に存在するなら、新しく生成された自分自身を破棄して重複を防ぐ
-            Destroy(this.gameObject);
-            return;
-        }
-
-        // インスタンスが存在しない場合、自分自身をInstanceとして設定
-        Instance = this;
-
-        // シーンを跨いでも破棄されないように設定
-        DontDestroyOnLoad(this.gameObject);
-
-        SetSlot(SlotType.CPU);
+        
 	}
 
 	//初期設定:ゲーム開始時は「1Pだけが人間、2P〜4Pは自動的にCPU」
