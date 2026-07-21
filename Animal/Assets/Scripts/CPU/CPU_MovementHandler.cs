@@ -1,4 +1,3 @@
-using UnityEditor.Searcher;
 using UnityEngine;
 
 public class CPU_MovementHandler : MonoBehaviour
