@@ -50,7 +50,13 @@ public class CPUBrain
 				status.GetModeChange();
 				return CPUOrder.Attack;
 			}
-			else return CPUOrder.Retreat;//–³—‚È‚ç“P‘Ş
+			else
+			{
+				//  ‘Ì—Í‚ªŒ¸‚Á‚Ä‚àA3.5•bˆÈ“à‚È‚çUŒ‚‚ğ‘±s
+				if (cpu.LowHpFightTimer<3.5f) return CPUOrder.Attack;
+
+				return CPUOrder.Retreat;//–³—‚È‚ç“P‘Ş
+			}
 		}
 
 		// yğŒz •Ç‚É’£‚è•t‚¢‚Äi‚ß‚Ä‚¢‚È‚¢ŠÔ‚ğƒ`ƒFƒbƒN

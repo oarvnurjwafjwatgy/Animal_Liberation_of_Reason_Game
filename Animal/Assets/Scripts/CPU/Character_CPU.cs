@@ -29,7 +29,10 @@ public class Character_CPU : MonoBehaviour
 	[SerializeField] private float roamRadius = 12f;    // 放浪範囲
 	[SerializeField] private float wanderInterval = 3f; // 目的地を変える間隔（秒）
 
-	
+	private float stuckCheckTimer = 0f;
+	private float lowHpFightTimer = 0f; // ピンチ時に反撃を続けている時間
+	public float LowHpFightTimer => lowHpFightTimer; // CPUBrainから参照する用
+
 	private void Awake()
 	{
 		TryGetComponent(out rb);
@@ -117,6 +120,13 @@ public class Character_CPU : MonoBehaviour
 			Transform foundNut = searcher.SearchNut();
 			if (foundNut != null) targetNut = foundNut;
 		}
+
+		// HPが半分以下で敵が近くにいるなら反撃タイマーを進める。敵がいないかHPが回復したらリセット。
+		if (myStatus.CurrentHP <= myStatus.MaxHP / 2 && targetEnemy != null)
+		{
+			lowHpFightTimer += Time.deltaTime;
+		}
+		else lowHpFightTimer = 0f;
 
 		// 判断
 		CPUOrder currentOrder = CPUBrain.Think(myStatus, this, nuts);
